@@ -158,9 +158,9 @@ Run through each item. Mark PASS, FAIL, or N/A:
 
 ---
 
-### Step 3: Architectural Invariant Check
+### Step 3: Architectural Invariant + Pattern Compliance Check
 
-**Purpose:** Verify that GOLDEN_PRINCIPLES.md rules are not violated.
+**Purpose:** Verify that GOLDEN_PRINCIPLES.md rules AND embedded engineering patterns are followed.
 
 **Actions:**
 1. Read `GOLDEN_PRINCIPLES.md` (if it exists)
@@ -168,8 +168,13 @@ Run through each item. Mark PASS, FAIL, or N/A:
    - Does the current change TOUCH files related to this principle?
    - If yes: does it COMPLY or VIOLATE?
 3. Also check `references/ARCHITECTURE_INVARIANTS.md` (if exists — plugin-level invariants)
-4. For each violation found, record:
-   - Which principle was violated
+4. **Pattern compliance check** (from `references/KNOWLEDGE_PATTERNS.md`):
+   - Decision Waterfall (P2): Do user-facing features have fallback/error handling? → CONCERN if missing
+   - Layered Architecture (P3): Do dependencies flow downward only? → FAIL if violated
+   - Mechanical Enforcement (P5): Were Golden Principle violations caught by automation or only by review? → If only by review: CONCERN + recommend promotion to lint rule
+   - Evidence (P7): Are completion claims backed by verification command output? → FAIL if no evidence
+5. For each violation found, record:
+   - Which principle/pattern was violated
    - Which file(s) violate it
    - Severity estimate (CONCERN or FAIL)
 

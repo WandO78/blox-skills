@@ -121,6 +121,7 @@
 
 ### Golden Principles (what worked)
 ### Antipatterns (what did NOT work)
+### Patterns Applied (from KNOWLEDGE_PATTERNS.md)
 ### Tech Debt (what remains open)
 ### Interim Memory (collected from checkpoints)
 ```

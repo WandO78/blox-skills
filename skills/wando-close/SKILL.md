@@ -234,6 +234,12 @@ Write the Phase Memory section at the bottom of the phase file:
 - [Approach that failed and WHY]
 - [Trap to avoid in similar phases]
 
+### Patterns Applied (from KNOWLEDGE_PATTERNS.md)
+- Decision Waterfall: [applied / skipped — if applied, which decision points]
+- Layered Architecture: [maintained / violated — details]
+- Mechanical Enforcement: [any new lint rules or CI checks created?]
+- Momentum Protection: [any assumptions made? document them here]
+
 ### Tech Debt (what remains open)
 - [Accepted compromise and its impact]
 - [Deferred work and when to address it]

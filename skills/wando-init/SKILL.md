@@ -340,10 +340,25 @@ Content sourced from:
 
 **3e. GOLDEN_PRINCIPLES.md**
 
-Content sourced from:
+Content sourced from TWO places:
+
+**A. Universal patterns** (auto-seeded from `references/KNOWLEDGE_PATTERNS.md`):
+These are ALWAYS included — the user doesn't need to ask for them.
+Select the most relevant patterns based on project type:
+
+| Pattern | Include for | Golden Principle to generate |
+|---------|------------|------------------------------|
+| Decision Waterfall (P2) | T1, T2, T4, T7 | "Every user-facing feature has fallback behavior defined" |
+| Layered Architecture (P3) | T1, T2 | "Code depends only on layers below it — never upward" |
+| Progressive Disclosure (P3) | ALL types | "CLAUDE.md is a map (~100 lines), not an encyclopedia" |
+| Mechanical Enforcement (P5) | T1, T2 | "Rules checkable by machine are lint rules, not documentation" |
+| Evidence Before Assertions (P7) | ALL types | "Never claim done without running verification commands" |
+| Momentum Protection (P10) | ALL types | "When uncertain, apply reasonable default and document assumption" |
+
+**B. Project-specific rules** from user input:
 - Constraints → Stage 1 brainstorm ("GDPR" → "All PII encrypted at rest")
 - Tech stack rules → Stage 2 ("Route handler max 50 lines, business logic in service layer")
-- Company standards → Stage 1 ("VDS design system required")
+- Company standards → Stage 1 (e.g., "Use company design system" or brand guide)
 
 **3f. QUALITY_SCORE.md + TECH_DEBT.md**
 
@@ -567,3 +582,4 @@ In retrofit mode, these critical rules apply:
 - `references/PHASE_TEMPLATE.md` — Phase file template
 - `references/SKILL_TEMPLATE.md` — SKILL.md template
 - `references/ARCHITECTURE_INVARIANTS.md` — Project-level invariants
+- `references/KNOWLEDGE_PATTERNS.md` — Engineering patterns (auto-applied by init and plan)

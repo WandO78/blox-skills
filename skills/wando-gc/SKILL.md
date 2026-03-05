@@ -90,7 +90,6 @@ FOR EACH doc in docs/:
 | docs/setup.md | docker-compose.yml | 2026-03-04 | 2026-03-02 | FRESH |
 ```
 
-**Inspiration:** VEMO Data clean `scripts/check-docs-freshness.py` pattern (PROJECT_ANALYSIS M9).
 
 ### Step 2: Cross-link Validation
 
