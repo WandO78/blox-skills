@@ -227,6 +227,12 @@ git log --all --grep="Co-Authored-By" --grep="Claude" --grep="Opus" --grep="nore
 If ANY match found → status = **FOUND** (list files/commits with matches).
 If no matches → status = **CLEAN**.
 
+**Cleanup guidance (if FOUND):**
+- **Source files:** Remove the lines manually or via sed/grep
+- **Git commit messages:** Use `FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --msg-filter 'sed "/^Co-Authored-By:.*$/d"' --force -- --all` then force push
+- **Protected branches (GitLab/GitHub):** Temporarily unprotect → force push → re-protect
+- **IMPORTANT:** This rewrites git history — solo project only, or coordinate with team
+
 **Output for report:** Gap Analysis table with status for each element.
 
 ---

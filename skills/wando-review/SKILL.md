@@ -306,6 +306,14 @@ Where:
 - Score: 100 - (20 × X) - (10 × Y) = ZZ
 - Previous score: [from QUALITY_SCORE.md or "N/A"]
 - Trend: [↑ improved / ↓ declined / → stable]
+
+## Coverage Detail (if test coverage available)
+- Statements: X% (N/M)
+- Branches: X% (N/M)
+- Functions: X% (N/M)
+- Lines: X% (N/M)
+- Well-covered: [list areas >80%]
+- Uncovered: [list areas <30%]
 ```
 
 ---

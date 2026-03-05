@@ -363,7 +363,7 @@ Select the most relevant patterns based on project type:
 
 **3f. QUALITY_SCORE.md + TECH_DEBT.md**
 
-- QUALITY_SCORE.md: initial empty matrix (Domain × Layer), to be filled by `/wando:review`
+- QUALITY_SCORE.md: initial score + breakdown table + Score History + Coverage Detail section, updated by `/wando:review`
 - TECH_DEBT.md: empty in greenfield; in retrofit: populated from audit gap analysis
   - v2+ features from Stage 1 scope → listed in "Future" section
 
@@ -397,12 +397,13 @@ From Stage 2 zones, generate appropriate phases:
 | Z4: HARDEN | Testing Suite, Security Audit, Performance |
 | Z5: SHIP | Deployment, Monitoring |
 
-In retrofit: phases come from the audit gap analysis (R-0 through R-4):
+In retrofit: phases come from the audit gap analysis.
+**Order: R-4 FIRST (if dirty git), then R-0 → R-3:**
+- R-4: Git Hygiene (commit uncommitted files, clean working tree) — **ALWAYS FIRST if dirty**
 - R-0: Agent Context (CLAUDE.md, START_HERE — already done by Stage 3)
 - R-1: Knowledge Capture (ARCHITECTURE from code, retroactive CONTEXT_CHAIN)
-- R-2: Safety Net (test backfill, coverage, QUALITY_SCORE)
-- R-3: Harness (pre-commit hooks, CI quality gates, contract tests)
-- R-4: Structure (file reorganization — optional, lowest priority)
+- R-2: Code Quality (TS/lint errors, formatter, bundle optimization)
+- R-3: Safety Net (pre-commit hooks, CI quality gates, coverage tracking)
 
 **4b. Call `/wando:plan` for each phase**
 
@@ -569,9 +570,10 @@ In retrofit mode, these critical rules apply:
 - TECH_DEBT.md populated from audit gaps
 
 **Stage 4 (PHASE GENERATION):**
+- Phase R-4: Git Hygiene (commit 66 uncommitted files, clean tree)
 - Phase R-1: Knowledge Capture (ARCHITECTURE from code)
-- Phase R-2: Safety Net (test backfill to 60%)
-- Phase R-3: Harness (pre-commit hooks, CI quality gates)
+- Phase R-2: Code Quality (TS errors, lint setup, bundle optimization)
+- Phase R-3: Safety Net (pre-commit hooks, CI pipeline, coverage tracking)
 - Phase Z7-01: Reporting Module (Impact Analysis → Build → Validate → Release)
 
 → "Ready to begin Phase R-1?"

@@ -318,6 +318,13 @@ If the phase produced a reusable insight (a pattern that worked well):
 
 3. If FAIL: add entry for the failure itself (what needs redesign)
 4. If no new debt: add a `No new debt` note for completeness
+5. **Move resolved debt:** If this phase fixed any Active debt items, move them to the Resolved table:
+```markdown
+## Resolved
+| ID | Description | Resolved in | Date |
+|----|-------------|-------------|------|
+| TD-XX | [description] | Phase [XX] | YYYY-MM-DD |
+```
 
 ---
 
