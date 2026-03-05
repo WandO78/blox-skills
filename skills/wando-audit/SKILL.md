@@ -199,7 +199,7 @@ Example: "Zone: Z3 (BUILD) — partial Z2 (has DB but no auth), Z4 absent (no te
 | G-09 | `completed/` directory | Directory exists | PRESENT / MISSING |
 | G-10 | `docs/` directory | Directory exists + has content | PRESENT / PARTIAL / MISSING |
 | G-11 | Test files | Test directory or test files exist | PRESENT / PARTIAL / MISSING |
-| G-12 | CI/CD config | `.github/workflows/` or `.gitlab-ci.yml` etc. | PRESENT / MISSING |
+| G-12 | CI/CD config | Any CI/CD pipeline config detected | PRESENT / MISSING |
 | G-13 | Lint config | `.eslintrc` / `ruff.toml` / `pyproject.toml [tool.ruff]` etc. | PRESENT / MISSING |
 | G-14 | Pre-commit hooks | `.husky/` or `.pre-commit-config.yaml` or `.git/hooks/` | PRESENT / MISSING |
 | G-15 | README.md | File exists + is not default template | PRESENT / PARTIAL / MISSING |
@@ -256,7 +256,7 @@ Initial score = 100
 - No lint:         -10
 - Lint errors:     -5 per 10 errors (max -20)
 - Build failing:   -20
-- No CI/CD:        -10
+- No CI/CD:        -5 (suggestion, not critical)
 - No CLAUDE.md:    -5
 ```
 
