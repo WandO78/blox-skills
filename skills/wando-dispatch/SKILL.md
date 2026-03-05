@@ -531,6 +531,8 @@ git add .
 git commit -m "Resolve merge conflict: combine worker-a and worker-b route changes"
 ```
 
+**NEVER** add `Co-Authored-By`, `Claude`, `Opus`, or any AI tool attribution to commit messages or code.
+
 **Post-resolution:** Full test suite to verify the resolution didn't break anything.
 
 **Phase Memory note:** "Merge conflict in routes.tsx — add to LEADER-ONLY list for future phases."

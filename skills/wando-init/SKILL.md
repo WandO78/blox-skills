@@ -354,6 +354,7 @@ Select the most relevant patterns based on project type:
 | Mechanical Enforcement (P5) | T1, T2 | "Rules checkable by machine are lint rules, not documentation" |
 | Evidence Before Assertions (P7) | ALL types | "Never claim done without running verification commands" |
 | Momentum Protection (P10) | ALL types | "When uncertain, apply reasonable default and document assumption" |
+| Clean Attribution | ALL types | "No AI tool attribution in code or git (no Co-Authored-By, Claude, Opus references)" |
 
 **B. Project-specific rules** from user input:
 - Constraints → Stage 1 brainstorm ("GDPR" → "All PII encrypted at rest")

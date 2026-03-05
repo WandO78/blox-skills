@@ -221,6 +221,7 @@ Commit message format:
 - `Phase XX` — the phase number
 - `CP-X` — the checkpoint letter (CP-A, CP-B, etc.)
 - `[description]` — 1 short sentence (what was accomplished)
+- **NEVER** add `Co-Authored-By`, `Claude`, `Opus`, or any AI tool attribution to commit messages or code
 
 Example: `Phase 03 — CP-B: SAP import complete, report generation started`
 
@@ -374,6 +375,7 @@ After any checkpoint level, verify:
 - Level 3: Debug context saved (what was being worked on, root cause, open questions)
 - Level 3: Uncommitted files listed in Phase Memory
 - Git commits follow `Phase XX — CP-X: [description]` format (Level 2+)
+- No AI attribution in commits (no `Co-Authored-By`, no `Claude`, no `Opus`)
 - A new session can resume within 2 minutes by following the Resumption Protocol
 
 ### Failure indicators (STOP and fix!)
