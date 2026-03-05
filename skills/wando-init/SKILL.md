@@ -402,8 +402,8 @@ In retrofit: phases come from the audit gap analysis.
 - R-4: Git Hygiene (commit uncommitted files, clean working tree) — **ALWAYS FIRST if dirty**
 - R-0: Agent Context (CLAUDE.md, START_HERE — already done by Stage 3)
 - R-1: Knowledge Capture (ARCHITECTURE from code, retroactive CONTEXT_CHAIN)
-- R-2: Code Quality (TS/lint errors, formatter, bundle optimization)
-- R-3: Safety Net (pre-commit hooks, CI quality gates, coverage tracking)
+- R-2: Code Quality (fix existing errors, add linter + formatter, optimize build output)
+- R-3: Safety Net (pre-commit hooks, CI pipeline, test coverage tracking)
 
 **4b. Call `/wando:plan` for each phase**
 
@@ -572,7 +572,7 @@ In retrofit mode, these critical rules apply:
 **Stage 4 (PHASE GENERATION):**
 - Phase R-4: Git Hygiene (commit 66 uncommitted files, clean tree)
 - Phase R-1: Knowledge Capture (ARCHITECTURE from code)
-- Phase R-2: Code Quality (TS errors, lint setup, bundle optimization)
+- Phase R-2: Code Quality (fix existing errors, add linter + formatter)
 - Phase R-3: Safety Net (pre-commit hooks, CI pipeline, coverage tracking)
 - Phase Z7-01: Reporting Module (Impact Analysis → Build → Validate → Release)
 
