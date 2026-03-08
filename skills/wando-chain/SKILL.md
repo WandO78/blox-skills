@@ -1,10 +1,16 @@
 ---
 name: wando-chain
-description: "Update CONTEXT_CHAIN.md with a concise session entry: what happened, current state, next steps. Called by checkpoints (Level 2+) and close. Max 20-30 lines per entry."
-version: "1.0.0"
+description: "Update CONTEXT_CHAIN.md with a concise session entry (max 30 lines): what happened, state, next steps. Called automatically by checkpoints (Level 2+) and close."
+version: "2.0.0"
 user-invocable: true
+argument-hint: "[session summary]"
 allowed-tools: [Read, Write, Edit, Glob, Grep]
 ---
+
+## Current Context Chain State (auto-detected)
+
+- Last entry: !`head -25 CONTEXT_CHAIN.md 2>/dev/null`
+- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
 
 # /wando:chain
 

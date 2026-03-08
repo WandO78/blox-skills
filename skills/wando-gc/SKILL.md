@@ -1,10 +1,17 @@
 ---
 name: wando-gc
-description: "Run garbage collection on project documentation: check doc freshness, validate cross-links, review TECH_DEBT items, update QUALITY_SCORE, suggest cleanups, verify skill registry consistency. Keeps project metadata healthy over time."
-version: "1.0.0"
+description: "Run garbage collection on project docs: freshness check, cross-link validation, TECH_DEBT review, cleanup suggestions. Use when docs may be stale or after multiple phases."
+version: "2.0.0"
 user-invocable: true
+argument-hint: "[full|quick]"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
+
+## Project Documentation State (auto-detected)
+
+- Docs: !`ls docs/*.md docs/**/*.md 2>/dev/null | head -20`
+- Tech debt: !`grep "^## TD-" TECH_DEBT.md 2>/dev/null`
+- Quality: !`tail -10 QUALITY_SCORE.md 2>/dev/null`
 
 # /wando:gc
 

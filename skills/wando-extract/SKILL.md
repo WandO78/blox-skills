@@ -1,8 +1,10 @@
 ---
 name: wando-extract
-description: "Process source materials (specs, API docs, legacy systems) through a 3-layer pipeline: deterministic extraction, AI classification, deep knowledge extraction. Produces structured EXTRACT.md files."
-version: "1.0.0"
+description: "Process source materials through a 3-layer pipeline: deterministic extraction, AI classification, deep knowledge extraction. Use when documents need to become actionable project knowledge."
+version: "2.0.0"
 user-invocable: true
+disable-model-invocation: true
+argument-hint: "<source file or URL>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent]
 ---
 

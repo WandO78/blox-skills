@@ -1,10 +1,19 @@
 ---
 name: wando-close
-description: "Complete a phase with severity-aware verification: Pre-Submission Checklist, Exit Criteria check, quality review, Phase Memory (mandatory even on FAIL), and meta-file updates (QUALITY_SCORE, TECH_DEBT, GOLDEN_PRINCIPLES, START_HERE, CONTEXT_CHAIN)."
-version: "1.0.0"
+description: "Complete a phase with severity-aware verification, Phase Memory, and meta-file updates. Use to formally close a finished development phase. Phase Memory is mandatory even on FAIL."
+version: "2.0.0"
 user-invocable: true
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion]
+disable-model-invocation: true
+argument-hint: "[phase number or name]"
+allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, "Bash(plannotator:*)"]
 ---
+
+## Current Project State (auto-detected)
+
+- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
+- Phase status: !`grep "Status:" plans/PHASE_*.md 2>/dev/null | head -5`
+- Exit criteria: !`grep -A20 "Exit Criteria" plans/PHASE_*.md 2>/dev/null | head -30`
+- Done/remaining: !`grep -c "\[x\]" plans/PHASE_*.md 2>/dev/null` / !`grep -c "\[ \]" plans/PHASE_*.md 2>/dev/null`
 
 # /wando:close
 
@@ -159,17 +168,35 @@ CONCERN = Warning, sub-optimal but not broken
 
 #### S2: MODERATE (score 70-89)
 - Architectural problems, Golden Principle concerns
-- **Response:** Present to user with 3 options
+- **Response:** Present to user with 3 options (Plannotator-assisted)
 - **User decision:** REQUIRED — agent MUST NOT decide alone
 - **Phase status:** Depends on user choice
 - **Action:**
-  1. Present severity report to user
-  2. Offer exactly 3 options:
-     - **Option A: Fix now** — Status → IN PROGRESS — REMEDIATION, add fix items to checklist
-     - **Option B: Accept with Tech Debt** — Status stays, but TECH_DEBT.md gets entry, proceed to COMPLETED
-     - **Option C: Reject** — Status → FAILED — REQUIRES REDESIGN
-  3. Wait for user decision (use AskUserQuestion)
-  4. Execute chosen option
+  1. **Save severity report to file:** Write detailed report to `docs/review/SEVERITY_REPORT_PHASE_XX.md`
+     - Include: all FAILs with evidence, all CONCERNs, score breakdown, context
+  2. **Open Plannotator for visual review:**
+     ```
+     /plannotator-annotate docs/review/SEVERITY_REPORT_PHASE_XX.md
+     ```
+     The user reviews the full report in the browser — can annotate questions/context before deciding.
+  3. **Process annotations** — address any questions or clarifications from the user.
+  4. **Present decision via AskUserQuestion:**
+     ```
+     AskUserQuestion({
+       questions: [{
+         question: "Quality Score: X/100 (S2 MODERATE) — How to proceed?",
+         header: "S2 Decision",
+         options: [
+           { label: "Fix now", description: "Status → IN PROGRESS — REMEDIATION. Fix items added to checklist." },
+           { label: "Accept with Tech Debt", description: "Proceed to COMPLETED. Issues logged in TECH_DEBT.md." },
+           { label: "Reject phase", description: "Status → FAILED — REQUIRES REDESIGN. New plan needed." }
+         ],
+         multiSelect: false
+       }]
+     })
+     ```
+  5. Execute chosen option
+  6. **Fallback (no Plannotator):** Show report inline in CLI, then present AskUserQuestion directly.
 
 #### S3: MAJOR (score < 70)
 - Fundamental approach is wrong

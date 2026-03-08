@@ -1,10 +1,18 @@
 ---
 name: wando-review
-description: "Run quality review on completed work: check architectural invariants, run tests, validate Golden Answers, calculate Quality Score, and assign severity (S1-S4). Supports NORMAL (checkpoint) and THOROUGH (phase-end) modes."
-version: "1.0.0"
+description: "Run quality review on completed work: architectural invariants, tests, Golden Answers, Quality Score (S1-S4 severity). Use after significant changes or at phase completion to evaluate quality."
+version: "2.0.0"
 user-invocable: true
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent]
+argument-hint: "[normal|thorough] [phase or scope]"
+allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, "Bash(plannotator:*)"]
 ---
+
+## Review Target (auto-detected)
+
+- User specified: $ARGUMENTS
+- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
+- Recent changes: !`git log --oneline -5 2>/dev/null`
+- Quality score: !`grep "Score:" QUALITY_SCORE.md 2>/dev/null | tail -3`
 
 # /wando:review
 
@@ -92,7 +100,7 @@ IF called by agent after code change → NORMAL
 ```
 
 **NORMAL mode** runs: Steps 1, 2, 3, 4, 7
-**THOROUGH mode** runs: Steps 1, 2, 3, 4, 5, 6, 7, 8, 9
+**THOROUGH mode** runs: Steps 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 (10 optional)
 
 ---
 
@@ -428,6 +436,36 @@ Post-mortem required for GOLDEN_PRINCIPLES.md update.
 
 ## Raw Results
 [Include Step 1-7 outputs as sub-sections for reference]
+```
+
+---
+
+### Step 10: Visual Code Review (THOROUGH mode only, optional)
+
+**Purpose:** Open Plannotator for interactive visual code review in the browser.
+
+**Actions:**
+1. After the Review Report (Step 9) is generated, ask the user: "Open visual code review in Plannotator?"
+2. If yes: run `/plannotator-review` to open the browser-based diff annotation UI
+3. The user can add inline annotations (DELETION, INSERTION, REPLACEMENT, COMMENT) on the git diff
+4. Process returned annotations:
+   - DELETION/REPLACEMENT annotations → add to remediation items
+   - COMMENT annotations → add as CONCERN items to the review report
+   - Any Critical annotations → may escalate severity by one level
+5. Update the Review Report with Plannotator findings (append a "Visual Review" section)
+
+**Skip conditions:**
+- User declines visual review
+- No git repository (cannot generate diff)
+- NORMAL mode (never offered)
+- No code changes detected in Step 1
+
+**Output format (appended to Review Report):**
+```
+## Visual Review (Plannotator)
+- Annotations: X (deletions: A, replacements: B, comments: C)
+- Additional issues found: [list or "None"]
+- Score adjustment: [if any Critical annotations were added]
 ```
 
 ---

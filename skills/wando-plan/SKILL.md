@@ -1,10 +1,22 @@
 ---
 name: wando-plan
-description: "Generate structured phase files for development tasks. Creates hierarchical checklists with checkpoints, exit criteria, verification commands, and auto-discovers relevant skills. Handles standard, Z7 EVOLVE, and parallel work templates."
-version: "1.0.0"
+description: "Generate structured phase files with hierarchical checklists, checkpoints, exit criteria, and auto-discovered skills. Use when planning a new feature, refactor, or multi-step development task."
+version: "2.0.0"
 user-invocable: true
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion]
+argument-hint: "[feature description or phase name]"
+allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, "Bash(plannotator:*)"]
 ---
+
+## Current Project State (auto-detected)
+
+- Project identity: !`head -20 CLAUDE.md 2>/dev/null`
+- Zone/status: !`grep -i "zone\|status\|phase" START_HERE.md 2>/dev/null | head -10`
+- Existing phases: !`ls plans/PHASE_*.md 2>/dev/null`
+- Completed: !`ls completed/PHASE_*.md 2>/dev/null`
+
+## Phase template (reference)
+
+!`cat ${CLAUDE_SKILL_DIR}/../wando-references/PHASE_TEMPLATE.md 2>/dev/null || cat ~/.claude/skills/wando-references/PHASE_TEMPLATE.md 2>/dev/null`
 
 # /wando:plan
 
@@ -454,22 +466,33 @@ Update the phase tracker table in START_HERE.md:
 3. Link to the phase file in `plans/`
 4. If sub-phases were created: add a row for each
 
-### Step 9: Request Approval
+### Step 9: Request Approval (Plannotator-assisted)
 
-Present the generated phase file to the user:
+Present the generated phase file to the user for visual review:
 
-1. Show the phase file summary (goal, checklist count, estimated sections)
-2. Highlight any decisions made (Z7 detected, sub-phase split, parallel plan)
-3. Show the Skills & Tools table (what was auto-discovered)
-4. Ask: "Does this plan look good? Any changes needed?"
+1. **Save the phase file FIRST** to `plans/PHASE_XX_name.md` (draft state)
+2. Show a brief summary in CLI: goal, checklist count, sections, key decisions
+3. **Open Plannotator for visual annotation:**
+   ```
+   /plannotator-annotate plans/PHASE_XX_name.md
+   ```
+   The user reviews the FULL plan in the browser, can:
+   - Highlight sections to change
+   - Add inline comments
+   - Mark items for removal or addition
+4. **Process all annotations** — apply changes from Plannotator feedback
+5. If no Plannotator available (headless/CI): fall back to CLI — use `AskUserQuestion` with options:
+   - "Approve as-is"
+   - "I have changes" (then ask what to change)
+   - "Reject — start over"
 
 **If the user rejects:**
-- Ask what to change
+- Ask what to change (or read Plannotator annotations)
 - Iterate on the specific sections
-- Re-present for approval
+- Re-present for approval (re-open Plannotator if changes were significant)
 
 **If the user approves:**
-- Save the phase file to `plans/`
+- Finalize the phase file in `plans/`
 - Update START_HERE.md (Step 8)
 - Report: "Phase file saved. Ready to begin execution."
 

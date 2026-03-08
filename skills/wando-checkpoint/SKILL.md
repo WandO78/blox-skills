@@ -1,10 +1,17 @@
 ---
 name: wando-checkpoint
-description: "Save progress at 3 levels during phase execution: AUTO (every 5 items), SMART (at checkpoint markers or context 50%), EMERGENCY (context 80% full). Prevents work loss on context reset or session crash. The safety net of the entire skill library."
-version: "1.0.0"
+description: "Save progress at 3 levels during phase execution: AUTO (every 5 items), SMART (at checkpoints or context 50%), EMERGENCY (context 80%). This safety net MUST be invoked automatically during phase work."
+version: "2.0.0"
 user-invocable: true
+argument-hint: "[1|2|3 or auto|smart|emergency]"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
+
+## Current Project State (auto-detected)
+
+- Active phase: !`grep -rl ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
+- Last checkpoint: !`grep "CP-\|CHECKPOINT" plans/PHASE_*.md 2>/dev/null | tail -5`
+- Quality score: !`head -5 QUALITY_SCORE.md 2>/dev/null`
 
 # /wando:checkpoint
 

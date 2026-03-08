@@ -1,10 +1,16 @@
 ---
 name: wando-init
-description: "Initialize a new project or retrofit an existing one with full project infrastructure: CLAUDE.md, START_HERE, ARCHITECTURE, phase files. Runs a 4-stage pipeline from brainstorm to phase generation."
-version: "1.0.0"
+description: "Initialize a new project or retrofit an existing one with full project infrastructure. Use when starting a new project from scratch or bringing an existing project up to wando-skills standards."
+version: "2.0.0"
 user-invocable: true
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion]
+disable-model-invocation: true
+argument-hint: "[greenfield|retrofit] [project description]"
+allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, "Bash(plannotator:*)"]
 ---
+
+## Phase template (reference)
+
+!`cat ${CLAUDE_SKILL_DIR}/../wando-references/PHASE_TEMPLATE.md 2>/dev/null || cat ~/.claude/skills/wando-references/PHASE_TEMPLATE.md 2>/dev/null`
 
 # /wando:init
 
@@ -80,6 +86,39 @@ Is this an empty directory (no existing code)?
 ### Stage 1: BRAINSTORM (Interactive)
 
 > **Purpose:** Understand what the user wants to build. ALL output is saved to a file — NOTHING stays only in chat.
+
+#### Interaction style (MANDATORY)
+
+Follow these rules for ALL brainstorm questions:
+
+- **Use `AskUserQuestion` for EVERY question** — present choices as interactive CLI options, NOT streaming text
+  - Each question uses `AskUserQuestion` with 2-4 options (label + description)
+  - Put the recommended option FIRST with "(Recommended)" suffix
+  - The user always has "Other" automatically — they can type custom answers
+  - This gives the same interactive experience as superpowers:brainstorming
+- **One question at a time** — never ask 2+ questions at once
+- **Agent recommendation** — lead with your recommended option and explain WHY in the description
+- **Max 8-10 questions** — after 10 questions, wrap up and move to summary. If more exploration needed, do it in Stage 2.
+- **Plannotator visual review** — after all questions are done, save the FULL brainstorm summary to `docs/brainstorm/BRAINSTORM_01.md`, then open `/plannotator-annotate docs/brainstorm/BRAINSTORM_01.md` for visual annotation. The user reviews the complete document in the browser, marks changes/additions/deletions. Process all annotations before proceeding to Stage 2.
+- **YAGNI ruthlessly** — if a feature can wait, recommend "Later" and explain why
+
+**Example AskUserQuestion usage for brainstorm:**
+```
+AskUserQuestion({
+  questions: [{
+    question: "What cloud platform should we target?",
+    header: "Cloud",
+    options: [
+      { label: "Vercel (Recommended)", description: "Best for Next.js, free tier, instant deploys. Ideal for personal projects." },
+      { label: "AWS", description: "Most flexible, but more setup. Good if you need Lambda/S3/RDS." },
+      { label: "Self-hosted", description: "Full control, but you manage infra. Good if you have existing servers." }
+    ],
+    multiSelect: false
+  }]
+})
+```
+
+#### Brainstorm topics
 
 Ask the user these questions interactively. Adapt based on context (skip what's obvious, dig deeper where unclear):
 
@@ -160,6 +199,12 @@ Ask the user these questions interactively. Adapt based on context (skip what's 
 
 > **Purpose:** Turn brainstorm output into concrete technical decisions. The user MUST approve before scaffolding begins.
 
+<HARD-GATE>
+Stage 2 approval is MANDATORY. Do NOT proceed to Stage 3 without the user seeing and approving the PROJECT DECISIONS block.
+</HARD-GATE>
+
+**Fast-track:** If Stage 1 brainstorm already covered tech stack, architecture, and deployment decisions in depth (through A/B/C questions), Stage 2 becomes a **formal summary approval** — compile the decisions from Stage 1 into the PROJECT DECISIONS block and present for confirmation. Do NOT re-ask questions that were already answered in Stage 1.
+
 **2a. Project Type Detection (T1-T7)**
 
 Use these heuristics:
@@ -225,29 +270,64 @@ Based on project type and tech stack, propose:
 - API design approach
 - Database choice
 
-**2e. Present to User for Approval**
+**2e. Present to User for Approval (Plannotator-assisted)**
 
-Show the user a summary:
-
-```
-PROJECT DECISIONS
-─────────────────
-Type: T1 Corporate Full-Stack
-Zones: Z1 → Z2 → Z3 → Z4 → Z5
-Tech: FastAPI + React + PostgreSQL + Docker + GCP
-Architecture: 3-layer (API / Service / Data) + React frontend
-
-Approve? Any changes?
-```
+1. **Save decisions to file FIRST:** Write the PROJECT DECISIONS block to `docs/brainstorm/DECISIONS_01.md`
+2. **Open Plannotator for visual review:**
+   ```
+   /plannotator-annotate docs/brainstorm/DECISIONS_01.md
+   ```
+   The user reviews tech stack, architecture, zones in the browser — can annotate changes inline.
+3. **Process annotations** — apply any changes from Plannotator feedback.
+4. **Fallback (no Plannotator):** Show summary in CLI + use `AskUserQuestion`:
+   ```
+   AskUserQuestion({
+     questions: [{
+       question: "PROJECT DECISIONS — approve?",
+       header: "Decisions",
+       options: [
+         { label: "Approve", description: "Proceed to scaffolding with these decisions" },
+         { label: "I have changes", description: "I want to modify some decisions before proceeding" },
+         { label: "Start over", description: "Go back to brainstorm — these decisions don't feel right" }
+       ],
+       multiSelect: false
+     }]
+   })
+   ```
 
 **This approval is MANDATORY.** Do NOT proceed to Stage 3 without user confirmation.
-If the user wants changes → iterate on decisions → re-present.
+If the user wants changes → iterate on decisions → re-present (re-open Plannotator if significant).
 
 ---
 
 ### Stage 3: SCAFFOLDING (Automatic)
 
 > **Purpose:** Create all project infrastructure files. Uses the approved decisions from Stage 2.
+
+<HARD-GATE>
+Stage 3 is MANDATORY. Do NOT skip scaffolding. Do NOT jump to plan generation or implementation.
+You MUST create CLAUDE.md, START_HERE.md, ARCHITECTURE.md, GOLDEN_PRINCIPLES.md, QUALITY_SCORE.md, TECH_DEBT.md, and CONTEXT_CHAIN.md BEFORE generating any phase files.
+These files are the project's operating system — without them, the agent loses context, skips rules, and produces lower quality work.
+</HARD-GATE>
+
+**Pre-requisite: Git Repository**
+
+Before generating any files, check if a git repository exists:
+
+```
+Is there a .git/ directory?
+├── YES → Continue to file generation
+│
+└── NO → Initialize git repository FIRST
+    1. Run: git init
+    2. Create .gitignore (from tech stack — Node: node_modules, Python: __pycache__, etc.)
+    3. Stage existing files: git add -A
+    4. Initial commit: git commit -m "Initial commit — pre-wando state"
+    5. This preserves the project's pre-wando state as a clean baseline
+    6. IMPORTANT: Do NOT skip this — version control is foundational
+```
+
+In retrofit mode, this initial commit captures the project's state BEFORE any wando changes, enabling easy rollback if needed.
 
 **Generate these files in order:**
 
@@ -385,6 +465,10 @@ Copy/link referenced files to `docs/references/` with a manifest noting sizes an
 
 > **Purpose:** Generate the first phase files by calling `/wando:plan`.
 
+<HARD-GATE>
+Stage 4 MUST call `/wando:plan` for each phase. Do NOT use `writing-plans`, `executing-plans`, or any other superpowers skill for plan generation. The `/wando:plan` skill produces phase files with checklists, checkpoints, exit criteria, verification commands, and AUTO-DISCOVERY — features that monolithic plan files lack. Each phase = one file in `plans/PHASE_XX_name.md`.
+</HARD-GATE>
+
 **4a. Determine phases based on zone configuration:**
 
 From Stage 2 zones, generate appropriate phases:
@@ -460,6 +544,26 @@ In retrofit mode, these critical rules apply:
 4. **Audit report is the input** — Stage 2 decisions come from audit findings, not from scratch
 5. **Gap analysis drives phases** — retrofit phases address specific gaps found by audit
 
+**Retroactive Phase Memory for pre-wando phases:**
+
+If the project has completed phases that were done BEFORE wando-skills was adopted:
+1. Identify completed phases (from START_HERE.md tracker, CONTEXT_CHAIN.md, or audit findings)
+2. For each completed phase, write a **retroactive Phase Memory** based on available evidence:
+   - Read the phase file's Progress Log, Exit Criteria, and any docs it produced
+   - Read CONTEXT_CHAIN.md entries for that phase
+   - Write Phase Memory with what CAN be reconstructed:
+     ```markdown
+     ## Phase Memory (Retroactive — written during retrofit)
+     ### Status: COMPLETED (pre-wando)
+     ### Quality Score: N/A (not measured at completion)
+     ### What happened (reconstructed)
+     - [Key outputs and decisions based on available evidence]
+     ### Lessons (if discernible)
+     - [Any patterns visible from the work done]
+     ```
+3. Move completed phase files to `completed/` directory (with date suffix)
+4. This ensures the project's history is captured even though wando:close didn't run originally
+
 **What init creates in retrofit (alongside existing files):**
 
 | File | Action |
@@ -472,6 +576,7 @@ In retrofit mode, these critical rules apply:
 | QUALITY_SCORE.md | CREATE from audit quality baseline |
 | TECH_DEBT.md | CREATE from audit gap analysis |
 | plans/ | CREATE with retrofit phases (R-0 through R-4) |
+| completed/ | MOVE pre-wando completed phases here (with retroactive Phase Memory) |
 
 ---
 
@@ -481,8 +586,8 @@ In retrofit mode, these critical rules apply:
 |---------------------|------|------|
 | Retrofit mode (existing project) | `/wando:audit` | BEFORE init — audit report is init's input |
 | Phase generation (Stage 4) | `/wando:plan` | Init calls plan to create phase files |
-| Brainstorm phase (Stage 1) | `/brainstorming` (superpowers) | For creative exploration in Stage 1 |
-| Project ready, start execution | `/executing-plans` (superpowers) | After init completes, to begin Phase 01 |
+| Brainstorm phase (Stage 1) | Built-in (brainstorming style embedded) | A/B/C questions, one per message, section approval |
+| Project ready, start execution | Begin Phase 01 using wando skills | `/wando:checkpoint` for progress, `/wando:review` for quality, `/wando:close` for completion |
 
 ---
 
