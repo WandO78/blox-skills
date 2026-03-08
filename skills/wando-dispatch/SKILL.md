@@ -59,7 +59,7 @@ priority: optional
 | Strongly interdependent sections | Merge conflict risk too high | Sequential execution |
 | Unknown domain | Explore first, THEN decide split | Sequential → dispatch later |
 | User doesn't request it | Unnecessary complexity | Sequential execution |
-| Context window fits everything (Opus 200k) | Single agent can hold it all | Sequential, cheaper |
+| Context window fits everything (200k) | Single agent can hold it all | Sequential, cheaper |
 
 ---
 

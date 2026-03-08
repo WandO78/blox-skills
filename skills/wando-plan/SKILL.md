@@ -559,7 +559,7 @@ Present the generated phase file to the user for visual review:
 
 ### Example 2: Z7 EVOLVE Phase (production system)
 
-**User says:** "Add budget year 2027 filter to all procurement lists."
+**User says:** "Add date range filter to all report listing pages."
 
 **Agent detects Z7:** CLAUDE.md says "Status: PRODUCTION", 15 active users → Z7 EVOLVE
 
