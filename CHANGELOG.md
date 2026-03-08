@@ -1,5 +1,25 @@
 # Changelog
 
+## v2.0.0 — 2026-03-08
+
+Modernized all 11 skills with new skill system features.
+
+### New features
+- **`disable-model-invocation`** — 5 skills run without extra model call (init, close, dispatch, extract, analyze)
+- **`context: fork`** — audit runs in isolated read-only agent
+- **`argument-hint`** — autocomplete hints for all 11 skills
+- **`!`command`` injection** — 8 skills auto-detect project state at invocation (active phase, quality score, checkpoints, etc.)
+- **`${CLAUDE_SKILL_DIR}`** — portable template loading in plan and init
+- **`$ARGUMENTS`** — user arguments passed into review skill
+
+### Improvements
+- All skill descriptions rewritten for native discovery ("Use when..." format)
+- Audit skill fully self-contained for forked agent execution
+- All injections use `2>/dev/null` for graceful degradation in any project
+- Phase template loaded dynamically via `${CLAUDE_SKILL_DIR}` with fallback path
+
+---
+
 ## v1.1.0 — 2026-03-05
 
 Knowledge patterns embedded as auto-delivered templates.
