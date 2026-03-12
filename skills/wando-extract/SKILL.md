@@ -1,11 +1,9 @@
 ---
 name: wando-extract
 description: "Process source materials through a 3-layer pipeline: deterministic extraction, AI classification, deep knowledge extraction. Use when documents need to become actionable project knowledge."
-version: "2.0.0"
 user-invocable: true
 disable-model-invocation: true
 argument-hint: "<source file or URL>"
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent]
 ---
 
 # /wando:extract

@@ -1,11 +1,9 @@
 ---
 name: wando-close
 description: "Complete a phase with severity-aware verification, Phase Memory, and meta-file updates. Use to formally close a finished development phase. Phase Memory is mandatory even on FAIL."
-version: "2.0.0"
 user-invocable: true
 disable-model-invocation: true
 argument-hint: "[phase number or name]"
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, "Bash(plannotator:*)"]
 ---
 
 ## Current Project State (auto-detected)

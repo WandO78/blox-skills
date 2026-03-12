@@ -1,10 +1,8 @@
 ---
 name: wando-plan
 description: "Generate structured phase files with hierarchical checklists, checkpoints, exit criteria, and auto-discovered skills. Use when planning a new feature, refactor, or multi-step development task."
-version: "2.0.0"
 user-invocable: true
 argument-hint: "[feature description or phase name]"
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, "Bash(plannotator:*)"]
 ---
 
 ## Current Project State (auto-detected)
@@ -466,35 +464,22 @@ Update the phase tracker table in START_HERE.md:
 3. Link to the phase file in `plans/`
 4. If sub-phases were created: add a row for each
 
-### Step 9: Request Approval (Plannotator-assisted)
+### Step 9: Request Approval (Plan Mode → Plannotator)
 
-Present the generated phase file to the user for visual review:
+Submit the generated phase file for user approval via Plan Mode, which triggers Plannotator's visual review UI with **Approve** and **Request Changes** buttons:
 
 1. **Save the phase file FIRST** to `plans/PHASE_XX_name.md` (draft state)
 2. Show a brief summary in CLI: goal, checklist count, sections, key decisions
-3. **Open Plannotator for visual annotation:**
-   ```
-   /plannotator-annotate plans/PHASE_XX_name.md
-   ```
-   The user reviews the FULL plan in the browser, can:
-   - Highlight sections to change
-   - Add inline comments
-   - Mark items for removal or addition
-4. **Process all annotations** — apply changes from Plannotator feedback
-5. If no Plannotator available (headless/CI): fall back to CLI — use `AskUserQuestion` with options:
-   - "Approve as-is"
-   - "I have changes" (then ask what to change)
-   - "Reject — start over"
+3. **Enter Plan Mode and submit for approval:**
+   - Call `EnterPlanMode`
+   - Write the phase file content to the plan file (location specified by system in plan mode)
+   - Call `ExitPlanMode` — this triggers Plannotator with **Approve** and **Request Changes** buttons
+   - The user reviews the FULL plan in the browser with approve/deny capability
+4. **If approved:** Finalize the phase file in `plans/`, update START_HERE.md (Step 8), report: "Phase file saved. Ready to begin execution."
+5. **If denied with feedback:** Process the feedback, revise the phase file with Edit tool, rewrite plan file, call `ExitPlanMode` again. Repeat until approved.
+6. **Fallback (headless/CI, no Plannotator):** Skip plan mode, use `AskUserQuestion` with options: "Approve as-is", "I have changes", "Reject — start over"
 
-**If the user rejects:**
-- Ask what to change (or read Plannotator annotations)
-- Iterate on the specific sections
-- Re-present for approval (re-open Plannotator if changes were significant)
-
-**If the user approves:**
-- Finalize the phase file in `plans/`
-- Update START_HERE.md (Step 8)
-- Report: "Phase file saved. Ready to begin execution."
+> **Context preservation:** Plan mode is a tool call within the same conversation — your full context is preserved throughout the approval loop.
 
 ---
 

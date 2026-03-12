@@ -1,11 +1,9 @@
 ---
 name: wando-dispatch
 description: "Coordinate parallel agent work using Leader-Worker pattern with worktree isolation, shared file protection, and merge orchestration. Use when a phase has independent sections for simultaneous work."
-version: "2.0.0"
 user-invocable: true
 disable-model-invocation: true
 argument-hint: "[phase file path]"
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion]
 ---
 
 # /wando:dispatch

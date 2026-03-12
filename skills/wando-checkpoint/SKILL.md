@@ -1,10 +1,8 @@
 ---
 name: wando-checkpoint
 description: "Save progress at 3 levels during phase execution: AUTO (every 5 items), SMART (at checkpoints or context 50%), EMERGENCY (context 80%). This safety net MUST be invoked automatically during phase work."
-version: "2.0.0"
 user-invocable: true
 argument-hint: "[1|2|3 or auto|smart|emergency]"
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
 
 ## Current Project State (auto-detected)

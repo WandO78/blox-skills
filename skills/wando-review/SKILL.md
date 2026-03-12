@@ -1,10 +1,8 @@
 ---
 name: wando-review
 description: "Run quality review on completed work: architectural invariants, tests, Golden Answers, Quality Score (S1-S4 severity). Use after significant changes or at phase completion to evaluate quality."
-version: "2.0.0"
 user-invocable: true
 argument-hint: "[normal|thorough] [phase or scope]"
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, "Bash(plannotator:*)"]
 ---
 
 ## Review Target (auto-detected)

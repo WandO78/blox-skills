@@ -1,10 +1,8 @@
 ---
 name: wando-gc
 description: "Run garbage collection on project docs: freshness check, cross-link validation, TECH_DEBT review, cleanup suggestions. Use when docs may be stale or after multiple phases."
-version: "2.0.0"
 user-invocable: true
 argument-hint: "[full|quick]"
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
 
 ## Project Documentation State (auto-detected)

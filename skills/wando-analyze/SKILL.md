@@ -1,11 +1,9 @@
 ---
 name: wando-analyze
 description: "Synthesize extracted materials: functional grouping, three-way comparison, corrections table, pattern identification. Use when you have multiple EXTRACT.md files to compare."
-version: "2.0.0"
 user-invocable: true
 disable-model-invocation: true
 argument-hint: "<extract files or topic>"
-allowed-tools: [Read, Write, Edit, Glob, Grep, Agent]
 ---
 
 # /wando:analyze

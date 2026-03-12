@@ -1,10 +1,8 @@
 ---
 name: wando-chain
 description: "Update CONTEXT_CHAIN.md with a concise session entry (max 30 lines): what happened, state, next steps. Called automatically by checkpoints (Level 2+) and close."
-version: "2.0.0"
 user-invocable: true
 argument-hint: "[session summary]"
-allowed-tools: [Read, Write, Edit, Glob, Grep]
 ---
 
 ## Current Context Chain State (auto-detected)

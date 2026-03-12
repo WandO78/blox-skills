@@ -1,12 +1,8 @@
 ---
 name: wando-audit
 description: "Assess any project's current state without modifying it: tech stack, zone (Z0-Z7), gap analysis (19 standards), quality baseline. Use when you need to understand a project's health or readiness."
-version: "2.0.0"
 user-invocable: true
-context: fork
-agent: Explore
 argument-hint: "[project path]"
-allowed-tools: [Read, Glob, Grep, Bash]
 ---
 
 # PROJECT AUDIT TASK

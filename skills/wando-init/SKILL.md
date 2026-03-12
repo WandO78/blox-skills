@@ -1,11 +1,9 @@
 ---
 name: wando-init
 description: "Initialize a new project or retrofit an existing one with full project infrastructure. Use when starting a new project from scratch or bringing an existing project up to wando-skills standards."
-version: "2.0.0"
 user-invocable: true
 disable-model-invocation: true
 argument-hint: "[greenfield|retrofit] [project description]"
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, "Bash(plannotator:*)"]
 ---
 
 ## Phase template (reference)
@@ -270,33 +268,21 @@ Based on project type and tech stack, propose:
 - API design approach
 - Database choice
 
-**2e. Present to User for Approval (Plannotator-assisted)**
+**2e. Present to User for Approval (Plan Mode → Plannotator)**
 
 1. **Save decisions to file FIRST:** Write the PROJECT DECISIONS block to `docs/brainstorm/DECISIONS_01.md`
-2. **Open Plannotator for visual review:**
-   ```
-   /plannotator-annotate docs/brainstorm/DECISIONS_01.md
-   ```
-   The user reviews tech stack, architecture, zones in the browser — can annotate changes inline.
-3. **Process annotations** — apply any changes from Plannotator feedback.
-4. **Fallback (no Plannotator):** Show summary in CLI + use `AskUserQuestion`:
-   ```
-   AskUserQuestion({
-     questions: [{
-       question: "PROJECT DECISIONS — approve?",
-       header: "Decisions",
-       options: [
-         { label: "Approve", description: "Proceed to scaffolding with these decisions" },
-         { label: "I have changes", description: "I want to modify some decisions before proceeding" },
-         { label: "Start over", description: "Go back to brainstorm — these decisions don't feel right" }
-       ],
-       multiSelect: false
-     }]
-   })
-   ```
+2. **Enter Plan Mode and submit for approval:**
+   - Call `EnterPlanMode`
+   - Write the DECISIONS content to the plan file (location specified by system in plan mode)
+   - Call `ExitPlanMode` — this triggers Plannotator with **Approve** and **Request Changes** buttons
+   - The user reviews tech stack, architecture, zones in the browser with approve/deny capability
+3. **If approved:** Proceed to Stage 3 scaffolding
+4. **If denied with feedback:** Process feedback, revise `docs/brainstorm/DECISIONS_01.md`, rewrite plan file, call `ExitPlanMode` again. Repeat until approved.
+5. **Fallback (headless/CI, no Plannotator):** Skip plan mode, use `AskUserQuestion` with options: "Approve", "I have changes", "Start over"
 
 **This approval is MANDATORY.** Do NOT proceed to Stage 3 without user confirmation.
-If the user wants changes → iterate on decisions → re-present (re-open Plannotator if significant).
+
+> **Context preservation:** Plan mode is a tool call within the same conversation — your full context is preserved throughout the approval loop.
 
 ---
 
