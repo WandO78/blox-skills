@@ -3,8 +3,10 @@
 name: Sync to blox-skills (public)
 
 on:
-  push:
-    branches: [main]
+  # DISABLED until wando-skills is restructured to blox format (Task 26)
+  # push:
+  #   branches: [main]
+  workflow_dispatch: # manual trigger only
 
 jobs:
   sync:
