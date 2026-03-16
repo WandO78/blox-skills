@@ -1,0 +1,33 @@
+# Sync wando-skills (private) → blox-skills (public)
+# Strips extensions/ folder (private content) before pushing
+name: Sync to blox-skills (public)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Strip private content
+        run: |
+          rm -rf extensions/
+          rm -rf .github/workflows/sync-to-blox.yml
+
+      - name: Push to public repo
+        # NOTE: Pin to specific commit SHA before production use
+        uses: cpina/github-action-push-to-another-repository@v1.7.2
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.BLOX_PUSH_TOKEN }}
+        with:
+          source-directory: .
+          destination-github-username: WandO78
+          destination-repository-name: blox-skills
+          target-branch: main
+          user-email: wando78@users.noreply.github.com
+          user-name: WandO78
