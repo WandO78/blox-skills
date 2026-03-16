@@ -27,5 +27,6 @@ jobs:
         env:
           BLOX_TOKEN: ${{ secrets.BLOX_PUSH_TOKEN }}
         run: |
+          git config --unset-all http.https://github.com/.extraheader || true
           git remote add blox "https://x-access-token:${BLOX_TOKEN}@github.com/WandO78/blox-skills.git"
           git push blox HEAD:main --force
