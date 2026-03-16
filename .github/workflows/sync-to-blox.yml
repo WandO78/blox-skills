@@ -18,16 +18,14 @@ jobs:
         run: |
           rm -rf extensions/
           rm -rf .github/workflows/sync-to-blox.yml
+          git config user.email "wando78@users.noreply.github.com"
+          git config user.name "WandO78"
+          git add -A
+          git commit -m "sync: update from wando-skills" --allow-empty
 
-      - name: Push to public repo
-        # NOTE: Pin to specific commit SHA before production use
-        uses: cpina/github-action-push-to-another-repository@v1.7.2
+      - name: Push to blox-skills
         env:
-          API_TOKEN_GITHUB: ${{ secrets.BLOX_PUSH_TOKEN }}
-        with:
-          source-directory: .
-          destination-github-username: WandO78
-          destination-repository-name: blox-skills
-          target-branch: main
-          user-email: wando78@users.noreply.github.com
-          user-name: WandO78
+          BLOX_TOKEN: ${{ secrets.BLOX_PUSH_TOKEN }}
+        run: |
+          git remote add blox "https://x-access-token:${BLOX_TOKEN}@github.com/WandO78/blox-skills.git"
+          git push blox HEAD:main --force
