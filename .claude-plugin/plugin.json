@@ -1,0 +1,22 @@
+{
+  "name": "blox",
+  "version": "1.0.0",
+  "description": "Universal skill library — from idea to production. Private edition with corporate extensions.",
+  "author": {
+    "name": "WandO78"
+  },
+  "repository": "https://github.com/WandO78/wando-skills",
+  "license": "MIT",
+  "keywords": [
+    "development",
+    "tdd",
+    "planning",
+    "design",
+    "security",
+    "deployment",
+    "brand",
+    "autopilot",
+    "quality",
+    "lifecycle"
+  ]
+}
