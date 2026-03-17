@@ -16,15 +16,15 @@ Lunoa
 Vreelo
 IMPACTED
 
-# Private project type references
-T1-T7
-T1:
-T2:
-T3:
-T4:
-T5:
-T6:
-T7:
+# Private project type references (specific labels, not generic "no T1-T7" instructions)
+T1 — Corporate
+T2 — Personal
+T3 — Research
+T4 — Apps Script
+T5 — Home Assistant
+T6 — One-off
+T7 — Data Pipeline
+Project Type: T
 
 # Internal references
 wando-skills v2
