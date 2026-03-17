@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "blox",
-      "source": ".",
+      "source": "./",
       "description": "Universal skill library — from idea to production. Private edition with corporate extensions.",
       "version": "1.0.0"
     }
