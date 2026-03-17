@@ -45,7 +45,12 @@ FILES=(
 
 for FILE in "${FILES[@]}"; do
   if [ -f "$FILE" ]; then
-    sed -i '' "s/\"version\": \"$CURRENT\"/\"version\": \"$NEW\"/" "$FILE"
+    # Cross-platform sed: macOS uses -i '', Linux uses -i
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' "s/\"version\": \"$CURRENT\"/\"version\": \"$NEW\"/" "$FILE"
+    else
+      sed -i "s/\"version\": \"$CURRENT\"/\"version\": \"$NEW\"/" "$FILE"
+    fi
     echo "  ✅ $FILE"
   else
     echo "  ⏭️  $FILE (not found, skipped)"
