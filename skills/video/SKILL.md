@@ -17,12 +17,12 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 ## Current Project State (auto-detected)
 
 - Project identity: !`head -20 CLAUDE.md 2>/dev/null`
-- Brand guidelines: !`ls docs/brand-guidelines.md brand-guidelines.md BRAND_VOICE.md 2>/dev/null`
+- Brand guidelines: !`ls docs/brand-guidelines.md brand-guidelines.md 2>/dev/null`
 - Design tokens: !`cat design-tokens.json 2>/dev/null | head -20`
-- Brand colors: !`grep -i "color-primary\|color-secondary" design-tokens.css 2>/dev/null | head -6`
-- Existing assets: !`ls -d assets/ public/images/ public/assets/ src/assets/ 2>/dev/null`
-- Existing video assets: !`find . -maxdepth 3 -type f \( -name "*.mp4" -o -name "*.mov" -o -name "*.webm" \) 2>/dev/null | head -10`
-- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
+- Brand colors: !`head -10 design-tokens.css 2>/dev/null`
+- Existing assets: !`ls -d assets/ public/images/ src/assets/ 2>/dev/null`
+- Existing video assets: (discovered at runtime)
+- Active phase: !`ls plans/ 2>/dev/null`
 
 # /blox:video
 

@@ -15,8 +15,8 @@ maintainability, but all OUTPUT facing the user follows THEIR language.
 
 ## Project Documentation State (auto-detected)
 
-- Docs: !`ls docs/*.md docs/**/*.md 2>/dev/null | head -20`
-- Tech debt: !`grep "^## TD-" TECH_DEBT.md 2>/dev/null`
+- Docs: !`ls docs/ 2>/dev/null`
+- Tech debt: !`head -20 TECH_DEBT.md 2>/dev/null`
 - Quality: !`tail -10 QUALITY_SCORE.md 2>/dev/null`
 
 # _internal/cleanup

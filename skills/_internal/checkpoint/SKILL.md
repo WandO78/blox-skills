@@ -15,8 +15,8 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ## Current Project State (auto-detected)
 
-- Active phase: !`grep -rl ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
-- Last checkpoint: !`grep "CP-\|CHECKPOINT" plans/PHASE_*.md 2>/dev/null | tail -5`
+- Active phase: !`ls plans/ 2>/dev/null`
+- Last checkpoint: !`tail -10 START_HERE.md 2>/dev/null`
 - Quality score: !`head -5 QUALITY_SCORE.md 2>/dev/null`
 
 # _internal/checkpoint

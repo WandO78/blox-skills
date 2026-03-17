@@ -17,11 +17,11 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 ## Review Target (auto-detected)
 
 - User specified: $ARGUMENTS
-- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
+- Active phase: !`ls plans/ 2>/dev/null`
 - Recent changes: !`git log --oneline -5 2>/dev/null`
-- Quality score: !`grep "Score:" QUALITY_SCORE.md 2>/dev/null | tail -3`
-- Brand guidelines: !`ls GOLDEN_PRINCIPLES.md brand-guidelines.md BRAND_VOICE.md 2>/dev/null`
-- Frontend files changed: !`git diff --name-only HEAD~5 2>/dev/null | grep -E '\.(tsx|jsx|vue|svelte|html|css|scss)$' | head -10`
+- Quality score: !`head -10 QUALITY_SCORE.md 2>/dev/null`
+- Brand guidelines: !`ls GOLDEN_PRINCIPLES.md 2>/dev/null`
+- Frontend changes: !`git diff --name-only HEAD~5 2>/dev/null | head -10`
 
 # /blox:check
 

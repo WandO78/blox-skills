@@ -22,12 +22,12 @@ Additionally, this skill SETS the project language:
 ## Current Project State (auto-detected)
 
 - Project root: !`ls CLAUDE.md START_HERE.md 2>/dev/null`
-- Existing plans: !`ls plans/PHASE_*.md 2>/dev/null`
+- Existing plans: !`ls plans/ 2>/dev/null`
 - Git status: !`git status --short 2>/dev/null`
 
 ## Scaffold template (reference)
 
-!`cat references/templates/project-scaffold.md 2>/dev/null`
+!`cat ${CLAUDE_SKILL_DIR}/../references/templates/project-scaffold.md 2>/dev/null`
 
 # /blox:idea
 

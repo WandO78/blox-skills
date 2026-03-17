@@ -16,12 +16,12 @@ maintainability, but all OUTPUT facing the user follows THEIR language.
 
 ## Current Project State (auto-detected)
 
-- Existing docs: !`ls README.md ARCHITECTURE.md CHANGELOG.md API.md docs/*.md 2>/dev/null`
+- Existing docs: !`ls README.md ARCHITECTURE.md CHANGELOG.md API.md 2>/dev/null`
 - Package info: !`cat package.json 2>/dev/null | head -10`
-- API routes: !`grep -rn "router\.\|app\.\(get\|post\|put\|delete\|patch\)" src/ app/ 2>/dev/null | head -15`
-- Components: !`find . -name '*.tsx' -o -name '*.vue' -o -name '*.svelte' 2>/dev/null | head -15`
+- API routes: (discovered at runtime)
+- Components: (discovered at runtime)
 - Git history: !`git log --oneline -20 2>/dev/null`
-- Source structure: !`find . -type d -not -path '*/node_modules/*' -not -path '*/.git/*' -not -path '*/dist/*' -not -path '*/__pycache__/*' -maxdepth 3 2>/dev/null | head -25`
+- Source structure: !`ls -d src/ app/ lib/ components/ pages/ routes/ api/ 2>/dev/null`
 
 # /blox:docs
 

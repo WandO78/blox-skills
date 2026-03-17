@@ -16,10 +16,10 @@ for maintainability, but all OUTPUT facing the user follows THEIR language.
 
 ## Current Project State (auto-detected)
 
-- Active phase: !`grep -rl ">>> CURRENT <<<" plans/*.md 2>/dev/null | head -1`
-- Current step: !`grep -A2 ">>> CURRENT <<<" plans/*.md 2>/dev/null | head -5`
-- Test status: !`npm test 2>/dev/null | tail -5`
-- Git status: !`git status --short 2>/dev/null | head -5`
+- Active phase: !`ls plans/ 2>/dev/null`
+- Current step: !`head -30 START_HERE.md 2>/dev/null`
+- Test status: (detected at runtime, not at load)
+- Git status: !`git status --short 2>/dev/null`
 
 # /blox:build
 

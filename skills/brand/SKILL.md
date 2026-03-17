@@ -17,11 +17,11 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 ## Current Project State (auto-detected)
 
 - Project identity: !`head -20 CLAUDE.md 2>/dev/null`
-- Existing brand files: !`ls brand-guidelines.md BRAND_VOICE.md STYLE_GUIDE.md docs/brand-guidelines.md 2>/dev/null`
-- Design tokens: !`ls design-tokens.css design-tokens.json tailwind.config.* 2>/dev/null`
-- Golden Principles: !`grep -i "brand\|voice\|tone\|color\|typography" GOLDEN_PRINCIPLES.md 2>/dev/null | head -5`
-- Tech stack: !`grep -i "stack\|framework\|tailwind\|css" CLAUDE.md 2>/dev/null | head -5`
-- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
+- Existing brand files: !`ls brand-guidelines.md docs/brand-guidelines.md 2>/dev/null`
+- Design tokens: !`ls design-tokens.css design-tokens.json 2>/dev/null`
+- Golden Principles: !`head -20 GOLDEN_PRINCIPLES.md 2>/dev/null`
+- Tech stack: !`head -10 CLAUDE.md 2>/dev/null`
+- Active phase: !`ls plans/ 2>/dev/null`
 
 # /blox:brand
 

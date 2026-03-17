@@ -16,9 +16,9 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ## Current Project State (auto-detected)
 
-- Active phase: !`grep -l ">>> CURRENT <<<" plans/*.md 2>/dev/null`
+- Active phase: !`ls plans/ 2>/dev/null`
 - Recent errors: !`git log --oneline -3 2>/dev/null`
-- Test status: !`npm test 2>/dev/null | tail -5`
+- Test status: (detected at runtime)
 
 # /blox:fix
 

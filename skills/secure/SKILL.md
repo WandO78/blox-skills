@@ -18,11 +18,11 @@ for maintainability, but all OUTPUT facing the user follows THEIR language.
 
 - Project identity: !`head -20 CLAUDE.md 2>/dev/null`
 - Tech stack: !`cat package.json 2>/dev/null | head -5`
-- Auth files: !`find . -maxdepth 4 -name "*auth*" -o -name "*session*" -o -name "*csrf*" -o -name "*token*" 2>/dev/null | grep -v node_modules | grep -v .git | head -10`
-- Environment files: !`ls .env .env.* .env.example 2>/dev/null`
-- Gitignore coverage: !`grep -i "env\|secret\|key\|credential" .gitignore 2>/dev/null`
-- Dependency audit: !`npm audit --json 2>/dev/null | head -20`
-- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
+- Auth files: !`ls -d src/auth/ app/auth/ lib/auth/ 2>/dev/null`
+- Environment files: !`ls .env .env.example 2>/dev/null`
+- Gitignore coverage: !`cat .gitignore 2>/dev/null | head -20`
+- Dependency audit: (run at runtime, not load)
+- Active phase: !`ls plans/ 2>/dev/null`
 
 # /blox:secure
 

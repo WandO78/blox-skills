@@ -16,9 +16,9 @@ but all OUTPUT facing the user follows THEIR language.
 
 ## Current Project State (auto-detected)
 
-- Installed plugins: !`ls ~/.claude/plugins/ 2>/dev/null | head -20`
-- Plugin state: !`cat .blox/plugin-state.yaml 2>/dev/null | head -20`
-- Project files: !`ls *.json *.yaml *.toml *.py *.ts *.tsx 2>/dev/null | head -10`
+- Installed plugins: !`ls ~/.claude/plugins/ 2>/dev/null`
+- Plugin state: !`cat .blox/plugin-state.yaml 2>/dev/null`
+- Project files: !`ls package.json requirements.txt pyproject.toml Cargo.toml go.mod 2>/dev/null`
 
 # /blox:setup
 

@@ -17,10 +17,10 @@ OUTPUT facing the user follows THEIR language.
 
 ## Current Project State (auto-detected)
 
-- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
-- Phase status: !`grep "Status:" plans/PHASE_*.md 2>/dev/null | head -5`
-- Exit criteria: !`grep -A20 "Exit Criteria" plans/PHASE_*.md 2>/dev/null | head -30`
-- Done/remaining: !`grep -c "\[x\]" plans/PHASE_*.md 2>/dev/null` / !`grep -c "\[ \]" plans/PHASE_*.md 2>/dev/null`
+- Active phase: !`ls plans/ 2>/dev/null`
+- Phase status: !`head -10 START_HERE.md 2>/dev/null`
+- Exit criteria: (read from phase file at runtime)
+- Progress: (calculated at runtime)
 
 # /blox:done
 

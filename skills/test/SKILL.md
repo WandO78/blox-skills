@@ -16,11 +16,11 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ## Current Project State (auto-detected)
 
-- Test framework: !`cat package.json 2>/dev/null | grep -E '"(vitest|jest|mocha|ava|tap)"' | head -3`
-- Test status: !`npm test 2>/dev/null | tail -10`
-- Coverage: !`npx vitest run --coverage 2>/dev/null | tail -5`
-- Test files: !`find . -name '*.test.*' -o -name '*.spec.*' -o -name 'test_*.py' -o -name '*_test.go' -o -name '*_test.rs' 2>/dev/null | head -15`
-- Source files: !`find . -path '*/src/*' -o -path '*/app/*' -o -path '*/lib/*' 2>/dev/null | grep -E '\.(ts|tsx|js|jsx|py|go|rs)$' | head -15`
+- Test framework: !`cat package.json 2>/dev/null | head -20`
+- Test status: (run at runtime)
+- Coverage: (run at runtime)
+- Test files: !`ls test/ tests/ __tests__/ 2>/dev/null`
+- Source files: !`ls src/ app/ lib/ 2>/dev/null`
 
 # /blox:test
 

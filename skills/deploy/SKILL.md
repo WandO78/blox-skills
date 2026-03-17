@@ -17,13 +17,13 @@ for maintainability, but all OUTPUT facing the user follows THEIR language.
 ## Current Project State (auto-detected)
 
 - Project identity: !`head -20 CLAUDE.md 2>/dev/null`
-- Deploy configs: !`ls vercel.json next.config.* netlify.toml fly.toml serverless.yml Dockerfile docker-compose.yml app.yaml Procfile 2>/dev/null`
+- Deploy configs: !`ls vercel.json netlify.toml fly.toml Dockerfile docker-compose.yml 2>/dev/null`
 - Package manager: !`ls package.json requirements.txt pyproject.toml Cargo.toml go.mod 2>/dev/null`
-- Git status: !`git status --short 2>/dev/null | head -10`
-- Environment files: !`ls .env .env.* .env.example .env.production 2>/dev/null`
-- Build command: !`grep -A1 '"build"' package.json 2>/dev/null`
-- Test status: !`npm test 2>/dev/null | tail -3`
-- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
+- Git status: !`git status --short 2>/dev/null`
+- Environment files: !`ls .env .env.example 2>/dev/null`
+- Build command: !`head -30 package.json 2>/dev/null`
+- Test status: (detected at runtime)
+- Active phase: !`ls plans/ 2>/dev/null`
 
 # /blox:deploy
 

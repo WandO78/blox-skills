@@ -17,13 +17,13 @@ maintainability, but all OUTPUT facing the user follows THEIR language.
 ## Current Project State (auto-detected)
 
 - Project identity: !`head -20 CLAUDE.md 2>/dev/null`
-- Brand guidelines: !`ls docs/brand-guidelines.md brand-guidelines.md BRAND_VOICE.md 2>/dev/null`
+- Brand guidelines: !`ls docs/brand-guidelines.md brand-guidelines.md 2>/dev/null`
 - Design tokens: !`cat design-tokens.json 2>/dev/null | head -30`
-- Brand colors: !`grep -i "color-primary\|color-secondary" design-tokens.css 2>/dev/null | head -6`
-- Existing assets: !`ls -d assets/ public/images/ public/assets/ src/assets/ 2>/dev/null`
-- Asset inventory: !`find assets/ public/images/ public/assets/ src/assets/ -type f \( -name "*.png" -o -name "*.svg" -o -name "*.jpg" -o -name "*.webp" \) 2>/dev/null | head -15`
-- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
-- Image plugins: !`ls ~/.claude/plugins/image-generation 2>/dev/null`
+- Brand colors: !`head -10 design-tokens.css 2>/dev/null`
+- Existing assets: !`ls -d assets/ public/images/ src/assets/ 2>/dev/null`
+- Asset inventory: (discovered at runtime)
+- Active phase: !`ls plans/ 2>/dev/null`
+- Image plugins: !`ls ~/.claude/plugins/ 2>/dev/null`
 
 # /blox:image
 

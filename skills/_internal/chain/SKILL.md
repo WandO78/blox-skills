@@ -16,7 +16,7 @@ maintainability, but all OUTPUT facing the user follows THEIR language.
 ## Current Context Chain State (auto-detected)
 
 - Last entry: !`head -25 CONTEXT_CHAIN.md 2>/dev/null`
-- Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
+- Active phase: !`ls plans/ 2>/dev/null`
 
 # _internal/chain
 

@@ -17,9 +17,9 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 ## Current Project State (auto-detected)
 
 - Project identity: !`head -20 CLAUDE.md 2>/dev/null`
-- Zone/status: !`grep -i "zone\|status\|phase" START_HERE.md 2>/dev/null | head -10`
-- Existing phases: !`ls plans/PHASE_*.md 2>/dev/null`
-- Completed: !`ls completed/PHASE_*.md 2>/dev/null`
+- Zone/status: !`head -20 START_HERE.md 2>/dev/null`
+- Existing phases: !`ls plans/ 2>/dev/null`
+- Completed: !`ls completed/ 2>/dev/null`
 
 ## Phase template (reference)
 

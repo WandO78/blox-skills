@@ -45,7 +45,7 @@ Existing blox docs:
 !`ls CLAUDE.md START_HERE.md CONTEXT_CHAIN.md ARCHITECTURE.md GOLDEN_PRINCIPLES.md QUALITY_SCORE.md TECH_DEBT.md README.md 2>/dev/null`
 
 Existing directories:
-!`ls -d plans/ completed/ docs/ .blox/ .claude/ .github/ src/ app/ test/ tests/ __tests__/ 2>/dev/null`
+!`ls -d plans/ completed/ docs/ .blox/ .claude/ .github/ src/ app/ test/ tests/ 2>/dev/null`
 
 ---
 
