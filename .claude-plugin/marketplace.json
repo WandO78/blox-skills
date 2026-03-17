@@ -1,0 +1,17 @@
+{
+  "name": "wando-marketplace",
+  "owner": {
+    "name": "WandO78"
+  },
+  "metadata": {
+    "description": "Private blox-skills marketplace with corporate extensions"
+  },
+  "plugins": [
+    {
+      "name": "blox",
+      "source": ".",
+      "description": "Universal skill library — from idea to production. Private edition with corporate extensions.",
+      "version": "1.0.0"
+    }
+  ]
+}
