@@ -96,8 +96,9 @@ priority: recommended
 
 ## CRITICAL INVARIANT
 
-> **The audit NEVER modifies any file. EVER.**
-> It reads, scans, runs test commands, analyzes git history — but writes NOTHING.
+> **The audit is read-only by default.**
+> It reads, scans, runs test commands, analyzes git history — but writes NOTHING
+> unless the user explicitly approves a legacy migration (Step 2b).
 > The output is a structured report delivered as agent output (or saved to a
 > user-specified location if requested).
 
@@ -221,6 +222,72 @@ Ideation (Z0) — Just research?
 Example: "Building (Z3) — partial Foundation (has DB but no auth), Hardening absent (no tests)"
 
 **Output for report:** `Current Zone: [Human Label] (Z[X])` + zone detail notes.
+
+---
+
+### Step 2b: Legacy Migration Check
+
+> **Goal:** Detect and migrate references from older skill libraries (wando-skills v1/v2)
+> to the current blox-skills format. This is the ONLY step that may modify files,
+> and ONLY with explicit user approval.
+
+**Scan for legacy references:**
+
+```bash
+# Search all markdown files for old wando: references
+grep -rl "wando:" *.md plans/*.md completed/*.md docs/*.md .claude/*.md 2>/dev/null
+```
+
+**If legacy references found:**
+
+1. List all occurrences with file and line:
+```
+Legacy wando-skills references found:
+  CLAUDE.md:12      — /wando:plan → /blox:plan
+  CLAUDE.md:15      — /wando:review → /blox:check
+  START_HERE.md:8   — /wando:close → /blox:done
+  plans/Phase_01.md — /wando:checkpoint → (auto, remove reference)
+```
+
+2. Show the migration mapping:
+```
+Migration map:
+  /wando:plan       → /blox:plan
+  /wando:audit      → /blox:scan
+  /wando:review     → /blox:check
+  /wando:close      → /blox:done
+  /wando:init       → /blox:idea
+  /wando:checkpoint → (now automatic — remove reference)
+  /wando:gc         → (now automatic — remove reference)
+  /wando:chain      → (now automatic — remove reference)
+  /wando:dispatch   → (advanced — keep as note in TECH_DEBT)
+  /wando:extract    → (not yet available — keep as note)
+  /wando:analyze    → (not yet available — keep as note)
+```
+
+3. Ask user for approval:
+```
+"I found [N] legacy wando-skills references in [M] files.
+ Shall I update them to blox-skills format? (y/n)"
+```
+
+4. If user approves (y):
+   - Execute the replacements
+   - For removed skills (checkpoint, gc, chain): remove the reference line or replace with a note
+   - For dispatch/extract/analyze: add a note to TECH_DEBT.md
+   - Commit: "chore: migrate wando-skills references to blox-skills"
+
+5. If user declines (n):
+   - Add to audit report as a CONCERN: "Legacy wando-skills references found — migration recommended"
+   - Continue with the rest of the audit
+
+**If no legacy references found:** Skip silently, continue to Step 3.
+
+**Also check for old global skill installations:**
+```bash
+ls ~/.claude/skills/wando-* 2>/dev/null
+```
+If found, note in the report: "Old wando-skills global installation detected. Consider removing with: `rm -rf ~/.claude/skills/wando-*` after installing the blox plugin."
 
 ---
 
