@@ -25,9 +25,17 @@ Additionally, this skill SETS the project language:
 - Existing plans: !`ls plans/ 2>/dev/null`
 - Git status: !`git status --short 2>/dev/null`
 
-## Scaffold template (reference)
+## Scaffold template
 
-!`cat ${CLAUDE_SKILL_DIR}/../references/templates/project-scaffold.md 2>/dev/null`
+When scaffolding a new project (Step 4), generate these files:
+- `CLAUDE.md` — Project identity, tech stack, language setting, installed skills
+- `START_HERE.md` — Phase tracker with Resumption Protocol
+- `CONTEXT_CHAIN.md` — Session continuity chain (newest entry first)
+- `ARCHITECTURE.md` — Layer diagram, tech stack details
+- `GOLDEN_PRINCIPLES.md` — Architectural invariants, universal patterns
+- `QUALITY_SCORE.md` — Quality matrix (initial: 100/100)
+- `TECH_DEBT.md` — Open tech debt (initially empty)
+- Directories: `docs/`, `plans/`, `completed/`, `failed/`
 
 # /blox:idea
 

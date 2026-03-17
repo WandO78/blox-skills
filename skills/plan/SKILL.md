@@ -21,9 +21,22 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 - Existing phases: !`ls plans/ 2>/dev/null`
 - Completed: !`ls completed/ 2>/dev/null`
 
-## Phase template (reference)
+## Phase template
 
-!`cat references/templates/phase-template.md 2>/dev/null`
+Every generated phase file MUST follow this structure:
+- Header: DIRECTIVE, ZONE (human label), CHECKLIST SYMBOLS
+- Status/Current Step/Started/Last Updated metadata
+- Progress Log table
+- Exit Criteria with Verification Commands (bash)
+- Goal + Prerequisites
+- Skills & Tools table (auto-discovered)
+- Checklist sections with `>>> CURRENT <<<` marker
+- Checkpoint markers (`--- CHECKPOINT X ---`) every 15-20 items with 4 mandatory items
+- `--- FINAL CHECKPOINT ---` at end → triggers `/blox:done`
+- Architectural Invariants (3-7 rules)
+- Golden Answers table (3-7 input/output pairs)
+- Phase Memory section (mandatory, filled on completion)
+- Max 50 checklist items — split into sub-phases if exceeded
 
 # /blox:plan
 
