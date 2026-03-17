@@ -14,14 +14,9 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Project identity: !`head -20 CLAUDE.md 2>/dev/null`
-- Existing brand files: !`ls brand-guidelines.md docs/brand-guidelines.md 2>/dev/null`
-- Design tokens: !`ls design-tokens.css design-tokens.json 2>/dev/null`
-- Golden Principles: !`head -20 GOLDEN_PRINCIPLES.md 2>/dev/null`
-- Tech stack: !`head -10 CLAUDE.md 2>/dev/null`
-- Active phase: !`ls plans/ 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:brand
 

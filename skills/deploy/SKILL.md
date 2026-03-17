@@ -14,16 +14,9 @@ for maintainability, but all OUTPUT facing the user follows THEIR language.
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Project identity: !`head -20 CLAUDE.md 2>/dev/null`
-- Deploy configs: !`ls vercel.json netlify.toml fly.toml Dockerfile docker-compose.yml 2>/dev/null`
-- Package manager: !`ls package.json requirements.txt pyproject.toml Cargo.toml go.mod 2>/dev/null`
-- Git status: !`git status --short 2>/dev/null`
-- Environment files: !`ls .env .env.example 2>/dev/null`
-- Build command: !`head -30 package.json 2>/dev/null`
-- Test status: (detected at runtime)
-- Active phase: !`ls plans/ 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:deploy
 

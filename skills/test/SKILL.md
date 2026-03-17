@@ -14,13 +14,9 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Test framework: !`cat package.json 2>/dev/null | head -20`
-- Test status: (run at runtime)
-- Coverage: (run at runtime)
-- Test files: !`ls test/ tests/ __tests__/ 2>/dev/null`
-- Source files: !`ls src/ app/ lib/ 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:test
 

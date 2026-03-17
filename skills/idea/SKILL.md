@@ -19,12 +19,6 @@ Additionally, this skill SETS the project language:
 
 ---
 
-## Current Project State (auto-detected)
-
-- Project root: !`ls CLAUDE.md START_HERE.md 2>/dev/null`
-- Existing plans: !`ls plans/ 2>/dev/null`
-- Git status: !`git status --short 2>/dev/null`
-
 ## Scaffold template
 
 When scaffolding a new project (Step 4), generate these files:

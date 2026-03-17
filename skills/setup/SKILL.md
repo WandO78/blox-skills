@@ -14,11 +14,9 @@ but all OUTPUT facing the user follows THEIR language.
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Installed plugins: !`ls ~/.claude/plugins/ 2>/dev/null`
-- Plugin state: !`cat .blox/plugin-state.yaml 2>/dev/null`
-- Project files: !`ls package.json requirements.txt pyproject.toml Cargo.toml go.mod 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:setup
 

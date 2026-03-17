@@ -13,11 +13,9 @@ maintainability, but all OUTPUT facing the user follows THEIR language.
 
 ---
 
-## Project Documentation State (auto-detected)
+## Context Discovery
 
-- Docs: !`ls docs/ 2>/dev/null`
-- Tech debt: !`head -20 TECH_DEBT.md 2>/dev/null`
-- Quality: !`tail -10 QUALITY_SCORE.md 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # _internal/cleanup
 

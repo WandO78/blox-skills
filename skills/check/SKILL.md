@@ -14,14 +14,9 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ---
 
-## Review Target (auto-detected)
+## Context Discovery
 
-- User specified: $ARGUMENTS
-- Active phase: !`ls plans/ 2>/dev/null`
-- Recent changes: !`git log --oneline -5 2>/dev/null`
-- Quality score: !`head -10 QUALITY_SCORE.md 2>/dev/null`
-- Brand guidelines: !`ls GOLDEN_PRINCIPLES.md 2>/dev/null`
-- Frontend changes: !`git diff --name-only HEAD~5 2>/dev/null | head -10`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:check
 

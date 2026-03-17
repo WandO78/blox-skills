@@ -13,11 +13,9 @@ but all OUTPUT facing the user follows THEIR language.
 
 ---
 
-## Current Plugin State (auto-detected)
+## Context Discovery
 
-- Registry: !`head -5 registry/curated-plugins.yaml 2>/dev/null`
-- Plugin state: !`cat .blox/plugin-state.yaml 2>/dev/null`
-- Installed plugins: !`ls ~/.claude/plugins/ 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # _internal/detect
 

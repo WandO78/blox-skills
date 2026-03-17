@@ -14,12 +14,9 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Project identity: !`head -20 CLAUDE.md 2>/dev/null`
-- Zone/status: !`head -20 START_HERE.md 2>/dev/null`
-- Existing phases: !`ls plans/ 2>/dev/null`
-- Completed: !`ls completed/ 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 ## Phase template
 

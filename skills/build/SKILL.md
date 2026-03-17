@@ -14,12 +14,9 @@ for maintainability, but all OUTPUT facing the user follows THEIR language.
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Active phase: !`ls plans/ 2>/dev/null`
-- Current step: !`head -30 START_HERE.md 2>/dev/null`
-- Test status: (detected at runtime, not at load)
-- Git status: !`git status --short 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:build
 

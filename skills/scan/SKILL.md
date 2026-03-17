@@ -27,25 +27,9 @@ You have access to: Read, Glob, Grep, Bash (read-only commands only).
 
 ---
 
-## Project Snapshot (auto-detected)
+## Context Discovery
 
-Root files:
-!`ls -la 2>/dev/null | head -20`
-
-Package manager (Node.js):
-!`cat package.json 2>/dev/null | head -15`
-
-Python config:
-!`cat pyproject.toml 2>/dev/null | head -15`
-
-Git history:
-!`git log --oneline -5 2>/dev/null`
-
-Existing blox docs:
-!`ls CLAUDE.md START_HERE.md CONTEXT_CHAIN.md ARCHITECTURE.md GOLDEN_PRINCIPLES.md QUALITY_SCORE.md TECH_DEBT.md README.md 2>/dev/null`
-
-Existing directories:
-!`ls -d plans/ completed/ docs/ .blox/ .claude/ .github/ src/ app/ test/ tests/ 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 ---
 

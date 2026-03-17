@@ -14,11 +14,9 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Active phase: !`ls plans/ 2>/dev/null`
-- Recent errors: !`git log --oneline -3 2>/dev/null`
-- Test status: (detected at runtime)
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:fix
 

@@ -13,11 +13,9 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Active phase: !`ls plans/ 2>/dev/null`
-- Last checkpoint: !`tail -10 START_HERE.md 2>/dev/null`
-- Quality score: !`head -5 QUALITY_SCORE.md 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # _internal/checkpoint
 

@@ -14,14 +14,9 @@ maintainability, but all OUTPUT facing the user follows THEIR language.
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Existing docs: !`ls README.md ARCHITECTURE.md CHANGELOG.md API.md 2>/dev/null`
-- Package info: !`cat package.json 2>/dev/null | head -10`
-- API routes: (discovered at runtime)
-- Components: (discovered at runtime)
-- Git history: !`git log --oneline -20 2>/dev/null`
-- Source structure: !`ls -d src/ app/ lib/ components/ pages/ routes/ api/ 2>/dev/null`
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:docs
 

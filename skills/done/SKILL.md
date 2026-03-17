@@ -15,12 +15,9 @@ OUTPUT facing the user follows THEIR language.
 
 ---
 
-## Current Project State (auto-detected)
+## Context Discovery
 
-- Active phase: !`ls plans/ 2>/dev/null`
-- Phase status: !`head -10 START_HERE.md 2>/dev/null`
-- Exit criteria: (read from phase file at runtime)
-- Progress: (calculated at runtime)
+This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:done
 
