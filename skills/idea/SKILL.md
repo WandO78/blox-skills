@@ -21,9 +21,9 @@ Additionally, this skill SETS the project language:
 
 ## Current Project State (auto-detected)
 
-- Project root: !`ls CLAUDE.md START_HERE.md 2>/dev/null || echo "Empty project"`
-- Existing plans: !`ls plans/PHASE_*.md 2>/dev/null || echo "No plans"`
-- Git status: !`git status --short 2>/dev/null | head -5 || echo "No git repo"`
+- Project root: !`ls CLAUDE.md START_HERE.md 2>/dev/null`
+- Existing plans: !`ls plans/PHASE_*.md 2>/dev/null`
+- Git status: !`git status --short 2>/dev/null`
 
 ## Scaffold template (reference)
 

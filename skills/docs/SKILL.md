@@ -17,8 +17,8 @@ maintainability, but all OUTPUT facing the user follows THEIR language.
 ## Current Project State (auto-detected)
 
 - Existing docs: !`ls README.md ARCHITECTURE.md CHANGELOG.md API.md docs/*.md 2>/dev/null`
-- Package info: !`cat package.json 2>/dev/null | head -10 || cat pyproject.toml 2>/dev/null | head -10 || cat Cargo.toml 2>/dev/null | head -10`
-- API routes: !`grep -rn "router\.\|app\.\(get\|post\|put\|delete\|patch\)" src/ app/ 2>/dev/null | head -15 || grep -rn "@app\.\|@router\." 2>/dev/null | head -15`
+- Package info: !`cat package.json 2>/dev/null | head -10`
+- API routes: !`grep -rn "router\.\|app\.\(get\|post\|put\|delete\|patch\)" src/ app/ 2>/dev/null | head -15`
 - Components: !`find . -name '*.tsx' -o -name '*.vue' -o -name '*.svelte' 2>/dev/null | head -15`
 - Git history: !`git log --oneline -20 2>/dev/null`
 - Source structure: !`find . -type d -not -path '*/node_modules/*' -not -path '*/.git/*' -not -path '*/dist/*' -not -path '*/__pycache__/*' -maxdepth 3 2>/dev/null | head -25`

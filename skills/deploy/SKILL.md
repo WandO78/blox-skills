@@ -21,8 +21,8 @@ for maintainability, but all OUTPUT facing the user follows THEIR language.
 - Package manager: !`ls package.json requirements.txt pyproject.toml Cargo.toml go.mod 2>/dev/null`
 - Git status: !`git status --short 2>/dev/null | head -10`
 - Environment files: !`ls .env .env.* .env.example .env.production 2>/dev/null`
-- Build command: !`grep -A1 '"build"' package.json 2>/dev/null || echo "No build script"`
-- Test status: !`npm test 2>/dev/null | tail -3 || pytest --tb=no -q 2>/dev/null | tail -3 || echo "No test framework"`
+- Build command: !`grep -A1 '"build"' package.json 2>/dev/null`
+- Test status: !`npm test 2>/dev/null | tail -3`
 - Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
 
 # /blox:deploy

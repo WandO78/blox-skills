@@ -23,7 +23,7 @@ maintainability, but all OUTPUT facing the user follows THEIR language.
 - Existing assets: !`ls -d assets/ public/images/ public/assets/ src/assets/ 2>/dev/null`
 - Asset inventory: !`find assets/ public/images/ public/assets/ src/assets/ -type f \( -name "*.png" -o -name "*.svg" -o -name "*.jpg" -o -name "*.webp" \) 2>/dev/null | head -15`
 - Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
-- Image plugins: !`ls ~/.claude/plugins/image-generation 2>/dev/null && echo "image-generation: INSTALLED" || echo "image-generation: NOT installed"`
+- Image plugins: !`ls ~/.claude/plugins/image-generation 2>/dev/null`
 
 # /blox:image
 

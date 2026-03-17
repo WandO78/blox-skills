@@ -18,7 +18,7 @@ for maintainability, but all OUTPUT facing the user follows THEIR language.
 
 - Active phase: !`grep -rl ">>> CURRENT <<<" plans/*.md 2>/dev/null | head -1`
 - Current step: !`grep -A2 ">>> CURRENT <<<" plans/*.md 2>/dev/null | head -5`
-- Test status: !`npm test 2>/dev/null | tail -5 || pytest --tb=no -q 2>/dev/null | tail -5 || echo "No test framework detected"`
+- Test status: !`npm test 2>/dev/null | tail -5`
 - Git status: !`git status --short 2>/dev/null | head -5`
 
 # /blox:build

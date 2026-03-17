@@ -16,8 +16,8 @@ but all OUTPUT facing the user follows THEIR language.
 ## Current Plugin State (auto-detected)
 
 - Registry: !`cat registry/curated-plugins.yaml 2>/dev/null | grep "^  - plugin:" | wc -l` curated + !`cat registry/curated-plugins.yaml 2>/dev/null | sed -n '/^known:/,$ p' | grep "^  - plugin:" | wc -l` known plugins
-- Plugin state: !`cat .blox/plugin-state.yaml 2>/dev/null || echo "not initialized"`
-- Installed plugins: !`ls ~/.claude/plugins/ 2>/dev/null || echo "none detected"`
+- Plugin state: !`cat .blox/plugin-state.yaml 2>/dev/null`
+- Installed plugins: !`ls ~/.claude/plugins/ 2>/dev/null`
 
 # _internal/detect
 

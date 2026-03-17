@@ -16,9 +16,9 @@ English for maintainability, but all OUTPUT facing the user follows THEIR langua
 
 ## Current Project State (auto-detected)
 
-- Test framework: !`cat package.json 2>/dev/null | grep -E '"(vitest|jest|mocha|ava|tap)"' | head -3 || cat pyproject.toml 2>/dev/null | grep -E '(pytest|unittest)' | head -3 || ls go.mod Cargo.toml 2>/dev/null`
-- Test status: !`npm test 2>/dev/null | tail -10 || pytest --tb=no -q 2>/dev/null | tail -10 || go test ./... 2>/dev/null | tail -10 || cargo test 2>/dev/null | tail -10 || echo "No test framework detected"`
-- Coverage: !`npx vitest run --coverage 2>/dev/null | tail -5 || npx jest --coverage 2>/dev/null | tail -5 || pytest --cov 2>/dev/null | tail -10 || echo "No coverage data"`
+- Test framework: !`cat package.json 2>/dev/null | grep -E '"(vitest|jest|mocha|ava|tap)"' | head -3`
+- Test status: !`npm test 2>/dev/null | tail -10`
+- Coverage: !`npx vitest run --coverage 2>/dev/null | tail -5`
 - Test files: !`find . -name '*.test.*' -o -name '*.spec.*' -o -name 'test_*.py' -o -name '*_test.go' -o -name '*_test.rs' 2>/dev/null | head -15`
 - Source files: !`find . -path '*/src/*' -o -path '*/app/*' -o -path '*/lib/*' 2>/dev/null | grep -E '\.(ts|tsx|js|jsx|py|go|rs)$' | head -15`
 

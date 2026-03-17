@@ -17,11 +17,11 @@ for maintainability, but all OUTPUT facing the user follows THEIR language.
 ## Current Project State (auto-detected)
 
 - Project identity: !`head -20 CLAUDE.md 2>/dev/null`
-- Tech stack: !`cat package.json 2>/dev/null | head -5 || cat requirements.txt 2>/dev/null | head -5 || cat Cargo.toml 2>/dev/null | head -5`
+- Tech stack: !`cat package.json 2>/dev/null | head -5`
 - Auth files: !`find . -maxdepth 4 -name "*auth*" -o -name "*session*" -o -name "*csrf*" -o -name "*token*" 2>/dev/null | grep -v node_modules | grep -v .git | head -10`
 - Environment files: !`ls .env .env.* .env.example 2>/dev/null`
 - Gitignore coverage: !`grep -i "env\|secret\|key\|credential" .gitignore 2>/dev/null`
-- Dependency audit: !`npm audit --json 2>/dev/null | head -20 || pip audit --format=json 2>/dev/null | head -20 || echo "No audit tool detected"`
+- Dependency audit: !`npm audit --json 2>/dev/null | head -20`
 - Active phase: !`grep -l ">>> CURRENT <<<" plans/PHASE_*.md 2>/dev/null`
 
 # /blox:secure
