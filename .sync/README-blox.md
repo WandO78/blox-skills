@@ -70,6 +70,10 @@ blox recommends tested, compatible plugins when you need them:
 
 Plugins are suggested at the right moment — never forced, always optional.
 
+## Author
+
+Created by [WandO78](https://github.com/WandO78)
+
 ## License
 
 MIT
