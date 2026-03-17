@@ -1,5 +1,5 @@
 # Sync wando-skills (private) → blox-skills (public)
-# Strips extensions/ folder (private content) before pushing
+# Strips private content, runs privacy check, then pushes
 name: Sync to blox-skills (public)
 
 on:
@@ -17,15 +17,45 @@ jobs:
 
       - name: Strip private content and prepare public repo
         run: |
-          # Replace wando README with blox public README
+          # Save files needed for privacy check and blox overrides
+          cp .sync/private-patterns.txt /tmp/private-patterns.txt
+          # Replace wando files with blox-specific versions
           cp .sync/README-blox.md README.md
+          cp .sync/plugin.json .claude-plugin/plugin.json
+          cp .sync/marketplace.json .claude-plugin/marketplace.json
           # Remove private/wando-specific content
           rm -rf extensions/
           rm -rf hooks/
           rm -rf .github/
           rm -rf .sync/
           rm -f CHANGELOG.md
-          # Commit the public-ready state
+
+      - name: Privacy check — scan for personal/corporate content
+        run: |
+          echo "Running privacy check..."
+          FAILED=0
+          while IFS= read -r pattern; do
+            # Skip comments and empty lines
+            [[ "$pattern" =~ ^#.*$ ]] && continue
+            [[ -z "$pattern" ]] && continue
+            # Search all remaining files (excluding .git/)
+            MATCHES=$(grep -rl "$pattern" --include="*.md" --include="*.yaml" --include="*.json" . 2>/dev/null | grep -v '.git/' || true)
+            if [ -n "$MATCHES" ]; then
+              echo "PRIVACY VIOLATION: '$pattern' found in:"
+              echo "$MATCHES" | sed 's/^/  /'
+              FAILED=1
+            fi
+          done < /tmp/private-patterns.txt
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "SYNC BLOCKED — private content detected in public files!"
+            echo "Fix the files above and push again."
+            exit 1
+          fi
+          echo "Privacy check PASSED — no private content detected."
+
+      - name: Commit public-ready state
+        run: |
           git config user.email "wando78@users.noreply.github.com"
           git config user.name "WandO78"
           git add -A

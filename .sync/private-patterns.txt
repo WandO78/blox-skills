@@ -1,0 +1,33 @@
+# Patterns that MUST NOT appear in the public blox-skills repo
+# The sync workflow checks all files against these patterns
+# If any match is found, the sync FAILS and alerts the developer
+
+# Corporate / employer references
+veolia
+Veolia
+VEOLIA
+zsolt.winkler@veolia.com
+
+# Personal project names that shouldn't be public
+vdpsa
+VEMO
+Risten
+Lunoa
+Vreelo
+IMPACTED
+
+# Private project type references
+T1-T7
+T1:
+T2:
+T3:
+T4:
+T5:
+T6:
+T7:
+
+# Internal references
+wando-skills v2
+wando-skills v3
+private edition
+corporate extensions
