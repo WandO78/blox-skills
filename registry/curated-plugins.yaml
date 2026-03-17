@@ -1,0 +1,321 @@
+# blox-skills Curated Plugin Registry
+# ====================================
+# Two tiers:
+#   curated — tested, compatible, guaranteed. Shown in /blox:setup.
+#   known   — exists, trigger defined, not fully tested. Triggered by _detect with disclaimer.
+#
+# Schema:
+#   plugin:      Plugin name (used in /plugin add)
+#   source:      GitHub user/repo for installation
+#   tier:        curated | known
+#   category:    orchestration | code-quality | design | testing | deploy | integration | research
+#   triggers:    Detection rules (files, deps, skills, conditions, always, always_on_code)
+#   requires:    System/env prerequisites (optional)
+#   priority:    critical | high | medium | low
+#   description: Short description
+
+plugins:
+  # ── Orchestration ──────────────────────────────────────────────────
+
+  - plugin: superpowers
+    source: obra/superpowers
+    tier: curated
+    category: orchestration
+    triggers:
+      always: true
+    priority: critical
+    description: "Universal skill orchestration — TDD, debug, verification, dispatch"
+
+  # ── Code Quality ───────────────────────────────────────────────────
+
+  - plugin: typescript-lsp
+    source: anthropics/typescript-lsp
+    tier: curated
+    category: code-quality
+    triggers:
+      files:
+        - "**/*.ts"
+        - "**/*.tsx"
+        - "**/tsconfig.json"
+    priority: medium
+    description: "TypeScript language server for type checking and diagnostics"
+
+  - plugin: pyright-lsp
+    source: anthropics/pyright-lsp
+    tier: curated
+    category: code-quality
+    triggers:
+      files:
+        - "**/*.py"
+        - "**/requirements.txt"
+        - "**/pyproject.toml"
+    priority: medium
+    description: "Python type checker and language server"
+
+  - plugin: code-simplifier
+    source: anthropics/code-simplifier
+    tier: curated
+    category: code-quality
+    triggers:
+      skills:
+        - "blox:check"
+    priority: medium
+    description: "Simplify and refactor overly complex code"
+
+  - plugin: security-guidance
+    source: anthropics/security-guidance
+    tier: curated
+    category: code-quality
+    triggers:
+      always_on_code: true
+    priority: high
+    description: "Security best practices and vulnerability guidance for all code projects"
+
+  # ── Design ─────────────────────────────────────────────────────────
+
+  - plugin: frontend-design
+    source: anthropics/frontend-design
+    tier: curated
+    category: design
+    triggers:
+      files:
+        - "**/*.tsx"
+        - "**/*.jsx"
+        - "**/*.vue"
+        - "**/*.svelte"
+    requires:
+      system:
+        - "node>=18"
+    priority: high
+    description: "Frontend component design with accessibility and responsive patterns"
+
+  - plugin: image-generation
+    source: anthropics/image-generation
+    tier: curated
+    category: design
+    triggers:
+      skills:
+        - "blox:image"
+    requires:
+      env:
+        - "GEMINI_API_KEY"
+    priority: high
+    description: "AI image generation for logos, illustrations, and UI assets"
+
+  - plugin: playground
+    source: anthropics/playground
+    tier: curated
+    category: design
+    triggers:
+      skills:
+        - "blox:idea"
+        - "blox:design"
+    priority: medium
+    description: "Interactive prototype playground for rapid UI experimentation"
+
+  # ── Testing ────────────────────────────────────────────────────────
+
+  - plugin: playwright
+    source: anthropics/playwright
+    tier: curated
+    category: testing
+    triggers:
+      files:
+        - "**/playwright.config.*"
+      deps:
+        - "@playwright/test"
+        - "playwright"
+    requires:
+      system:
+        - "node>=18"
+    priority: medium
+    description: "End-to-end browser testing with Playwright"
+
+  # ── Deploy ─────────────────────────────────────────────────────────
+
+  - plugin: vercel
+    source: anthropics/vercel
+    tier: curated
+    category: deploy
+    triggers:
+      files:
+        - "**/vercel.json"
+        - "**/next.config.*"
+      deps:
+        - "vercel"
+        - "next"
+    requires:
+      env:
+        - "VERCEL_TOKEN"
+    priority: medium
+    description: "Deploy to Vercel with preview and production environments"
+
+  # ── Integration ────────────────────────────────────────────────────
+
+  - plugin: github
+    source: anthropics/github
+    tier: curated
+    category: integration
+    triggers:
+      files:
+        - ".git"
+      conditions:
+        - "github remote detected"
+    requires:
+      env:
+        - "GITHUB_TOKEN"
+    priority: medium
+    description: "GitHub integration — PRs, issues, actions, releases"
+
+  - plugin: supabase
+    source: anthropics/supabase
+    tier: curated
+    category: integration
+    triggers:
+      files:
+        - "**/supabase/config.toml"
+        - "**/supabase/.temp/project-ref"
+      deps:
+        - "@supabase/supabase-js"
+        - "supabase"
+    requires:
+      env:
+        - "SUPABASE_URL"
+        - "SUPABASE_ANON_KEY"
+    priority: medium
+    description: "Supabase integration — database, auth, storage, edge functions"
+
+  - plugin: context7
+    source: anthropics/context7
+    tier: curated
+    category: integration
+    triggers:
+      conditions:
+        - "known framework detected"
+    priority: low
+    description: "Up-to-date documentation lookup for popular frameworks and libraries"
+
+  - plugin: chrome-devtools-mcp
+    source: anthropics/chrome-devtools-mcp
+    tier: curated
+    category: integration
+    triggers:
+      skills:
+        - "blox:check"
+      conditions:
+        - "web project detected"
+    priority: medium
+    description: "Chrome DevTools integration for live debugging and performance inspection"
+
+  # ── Research ───────────────────────────────────────────────────────
+
+  - plugin: firecrawl
+    source: anthropics/firecrawl
+    tier: curated
+    category: research
+    triggers:
+      skills:
+        - "blox:idea"
+    requires:
+      env:
+        - "FIRECRAWL_API_KEY"
+    priority: low
+    description: "Web scraping and crawling for research and competitive analysis"
+
+# ── Known Plugins (not fully tested) ──────────────────────────────────
+
+known:
+  - plugin: csharp-lsp
+    source: anthropics/csharp-lsp
+    tier: known
+    category: code-quality
+    triggers:
+      files:
+        - "**/*.cs"
+        - "**/*.csproj"
+    priority: medium
+    description: "C# language server for .NET projects"
+
+  - plugin: jdtls-lsp
+    source: anthropics/jdtls-lsp
+    tier: known
+    category: code-quality
+    triggers:
+      files:
+        - "**/*.java"
+        - "**/pom.xml"
+        - "**/build.gradle"
+    priority: medium
+    description: "Java language server for Maven and Gradle projects"
+
+  - plugin: clangd-lsp
+    source: anthropics/clangd-lsp
+    tier: known
+    category: code-quality
+    triggers:
+      files:
+        - "**/*.c"
+        - "**/*.h"
+        - "**/*.cpp"
+        - "**/CMakeLists.txt"
+        - "**/Makefile"
+    priority: medium
+    description: "C/C++ language server for CMake and Make projects"
+
+  - plugin: gitlab
+    source: anthropics/gitlab
+    tier: known
+    category: integration
+    triggers:
+      files:
+        - ".gitlab-ci.yml"
+      conditions:
+        - "gitlab remote detected"
+    priority: medium
+    description: "GitLab integration — merge requests, pipelines, issues"
+
+  - plugin: pinecone
+    source: anthropics/pinecone
+    tier: known
+    category: integration
+    triggers:
+      deps:
+        - "pinecone-client"
+        - "@pinecone-database/pinecone"
+    priority: low
+    description: "Pinecone vector database integration for AI/ML projects"
+
+  - plugin: huggingface-skills
+    source: anthropics/huggingface-skills
+    tier: known
+    category: integration
+    triggers:
+      deps:
+        - "transformers"
+        - "torch"
+        - "tensorflow"
+    priority: low
+    description: "Hugging Face model integration for ML/AI workflows"
+
+  - plugin: agent-sdk-dev
+    source: anthropics/agent-sdk-dev
+    tier: known
+    category: integration
+    triggers:
+      conditions:
+        - "claude_agent_sdk import detected"
+      deps:
+        - "claude-agent-sdk"
+    priority: low
+    description: "Anthropic Agent SDK development tools and patterns"
+
+  - plugin: plugin-dev
+    source: anthropics/plugin-dev
+    tier: known
+    category: orchestration
+    triggers:
+      files:
+        - "plugin.json"
+        - "skills/*/SKILL.md"
+    priority: low
+    description: "Plugin development tools for building Claude Code plugins"

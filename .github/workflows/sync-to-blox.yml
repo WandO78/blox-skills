@@ -3,10 +3,9 @@
 name: Sync to blox-skills (public)
 
 on:
-  # DISABLED until wando-skills is restructured to blox format (Task 26)
-  # push:
-  #   branches: [main]
-  workflow_dispatch: # manual trigger only
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -16,10 +15,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Strip private content
+      - name: Strip private content and prepare public repo
         run: |
+          # Replace wando README with blox public README
+          cp .sync/README-blox.md README.md
+          # Remove private/wando-specific content
           rm -rf extensions/
-          rm -rf .github/workflows/sync-to-blox.yml
+          rm -rf hooks/
+          rm -rf .github/
+          rm -rf .sync/
+          rm -f CHANGELOG.md
+          # Commit the public-ready state
           git config user.email "wando78@users.noreply.github.com"
           git config user.name "WandO78"
           git add -A
