@@ -74,6 +74,18 @@ priority: mandatory
 
 ---
 
+## SUPERPOWERS INTEGRATION
+
+This skill debugs issues. It uses superpowers for systematic methodology:
+
+- **Root cause analysis:** Follow `superpowers:systematic-debugging` 4-phase process: (1) Root Cause Investigation — read errors, reproduce, check changes; (2) Pattern Analysis — find working examples, compare; (3) Hypothesis Testing — form theory, test minimally; (4) Implementation — create failing test, fix, verify.
+- **TDD for fixes:** Phase 4 uses `superpowers:test-driven-development` — write a failing test that reproduces the bug BEFORE implementing the fix.
+- **What blox adds on top:** Checkpoint context (resume debugging across sessions via _internal/checkpoint), plugin detection (_internal/detect for debugging tools), phase checklist integration (mark bug fix items as [x]).
+
+**Rule:** Superpowers provides the debugging discipline (never guess, always find root cause). blox provides continuity (checkpoints, context chain, phase tracking).
+
+---
+
 ## SKILL LOGIC
 
 > **7-step debugging engine.** Each step has a clear purpose and exit condition.

@@ -84,6 +84,18 @@ priority: mandatory
 
 ---
 
+## SUPERPOWERS INTEGRATION
+
+This skill generates blox-compatible phase files. It leverages superpowers for task detail:
+
+- **Task breakdown:** Use `superpowers:writing-plans` methodology for bite-sized tasks (2-5 min each, exact file paths, complete code, TDD steps). But wrap the output in blox phase file format (checklist symbols, `>>> CURRENT <<<` marker, checkpoint markers, Phase Memory section).
+- **Plan review:** Use superpowers plan-document-reviewer for quality check of generated plans.
+- **Execution handoff:** The plan header should say "Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan" — but ALSO: "Maintain blox checkpoint saves (follow _internal/checkpoint protocol) and update phase checklist marks during execution."
+
+**Rule:** The OUTPUT of this skill is always a blox phase file (with checklist, checkpoints, exit criteria, Golden Answers), NOT a superpowers plan file (with Task 1, Task 2 format). The superpowers methodology informs the CONTENT, the blox format provides the STRUCTURE.
+
+---
+
 ## SKILL LOGIC
 
 > **Phase file generation pipeline — 9 steps.**

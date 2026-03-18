@@ -74,6 +74,18 @@ priority: mandatory
 
 ---
 
+## SUPERPOWERS INTEGRATION
+
+This skill combines superpowers review discipline with blox domain checks:
+
+- **Evidence gate:** Apply `superpowers:verification-before-completion` — NO completion claims without fresh verification evidence (run tests, show output, confirm).
+- **Code review:** Use `superpowers:requesting-code-review` methodology for structured review dispatch (early and often).
+- **What blox adds on top:** Quality Score calculation (100 - 20×FAILs - 10×CONCERNs), severity assessment (S1-S4), domain-specific checks (brand voice consistency, accessibility WCAG, design critique, performance metrics), and Plannotator visual approval.
+
+**Rule:** Superpowers ensures rigor (evidence, verification). blox adds breadth (quality score, domain checks, project-level tracking).
+
+---
+
 ## SKILL LOGIC
 
 > **13-step review pipeline + severity assessment.**

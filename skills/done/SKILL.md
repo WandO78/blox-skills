@@ -72,6 +72,18 @@ priority: mandatory
 
 ---
 
+## SUPERPOWERS INTEGRATION
+
+This skill closes a blox phase. It uses superpowers for the integration decision:
+
+- **Branch integration:** Use `superpowers:finishing-a-development-branch` for the 4 structured options (merge locally, push and create PR, keep as-is, discard). This handles git operations professionally.
+- **Verification:** Apply `superpowers:verification-before-completion` before claiming the phase is done — run ALL exit criteria verification commands and confirm output.
+- **What blox adds on top:** Phase Memory (MANDATORY on PASS and FAIL), Quality Score update (QUALITY_SCORE.md trend), START_HERE.md phase tracker update, phase file archival (move to completed/ or failed/), auto-trigger _internal/chain and _internal/cleanup.
+
+**Rule:** Superpowers handles git integration and verification discipline. blox handles lifecycle management (phase closure, memory, score, tracking).
+
+---
+
 ## SKILL LOGIC
 
 > **9-step done pipeline — severity-aware decision.**

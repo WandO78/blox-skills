@@ -74,6 +74,19 @@ priority: mandatory
 
 ---
 
+## SUPERPOWERS INTEGRATION
+
+This skill executes blox phase checklists. It uses superpowers for implementation discipline:
+
+- **TDD cycle:** Follow `superpowers:test-driven-development` (RED-GREEN-REFACTOR) for every code item. This is an Iron Law — no production code without a failing test first.
+- **Execution engine:** For phases with multiple independent tasks, use `superpowers:subagent-driven-development` (fresh subagent per task + two-stage review). For sequential work, use `superpowers:executing-plans`.
+- **Git isolation:** Use `superpowers:using-git-worktrees` for feature work that needs isolation.
+- **What blox adds on top:** Automatic checkpoint saves (every 5 items via _internal/checkpoint), plugin detection (_internal/detect), phase checklist tracking (`[x]` marks, `>>> CURRENT <<<` movement), and section dependency enforcement (brand before build).
+
+**Rule:** The superpowers provide discipline (TDD, review, worktree). blox provides tracking (checkpoints, phase file, quality score). Both run together.
+
+---
+
 ## SKILL LOGIC
 
 > **6-step execution engine. Repeats the TDD cycle per checklist item,**

@@ -105,6 +105,18 @@ responses:
 
 ---
 
+## SUPERPOWERS INTEGRATION
+
+This skill orchestrates the full project lifecycle. It uses superpowers skills as engines:
+
+- **Step 1 (Vision Discovery):** If `superpowers:brainstorming` is available, use its structured discovery flow (one question at a time, visual companion option). blox:idea adds: tech stack suggestion, scope decision, beginner-friendly language.
+- **Step 5 (Master Plan):** Chain to `/blox:plan` (NOT directly to `superpowers:writing-plans`). blox:plan internally uses writing-plans but wraps it in blox phase file format.
+- **Step 7 (Autopilot execution):** Chain to `/blox:build` for each phase. blox:build internally uses `superpowers:test-driven-development` and `superpowers:subagent-driven-development` or `superpowers:executing-plans`.
+
+**Rule:** blox:idea is the ENTRY POINT. It calls blox skills which call superpowers skills. Never bypass blox skills to call superpowers directly in the autopilot flow.
+
+---
+
 ## SKILL LOGIC
 
 > **8-step pipeline from raw idea to running autopilot.**
