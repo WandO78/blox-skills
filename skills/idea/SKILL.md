@@ -431,6 +431,17 @@ Not all phases are always needed — /blox:plan determines the right set based o
 the actual project. Skip brand/design for CLI tools, skip deployment for local-only
 tools, etc.
 
+**CRITICAL ORDERING RULE:**
+Brand and design MUST be separate phases or separate sections BEFORE any build phase.
+NEVER combine brand/design work with technical build work in the same section.
+The reason: design decisions (colors, typography, layout) must be finalized BEFORE
+code implements them. If the agent starts coding before the design is done, it will
+have to redo the work.
+
+Correct:  Phase 1: Brand → Phase 2: Design → Phase 3: Build
+Also OK:  Phase 1: Section 1 Brand (FIRST) → Section 2 Build (REQUIRES: Section 1)
+Wrong:    Phase 1: Build + Brand mixed together
+
 ---
 
 ### Step 6: SETUP CHECK

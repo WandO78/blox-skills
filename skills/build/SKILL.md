@@ -92,6 +92,12 @@ Read project context and find the current work item.
     - The marker is ABOVE the first pending `[ ]` item
     - Read the next 3-5 checklist items to understand the immediate work
     - Note the current Section name and any dependencies
+    - CHECK: Does the current section have a `(REQUIRES: Section N complete)` dependency?
+      If yes → verify that Section N is actually complete (all items [x])
+      If not complete → STOP: "Section N must be completed first. It uses /blox:[skill]."
+    - CHECK: Is the current section a brand/design section?
+      If yes → chain to the appropriate skill (/blox:brand or /blox:design) instead of coding
+      /blox:build should NOT execute brand/design items — those need their specialized skills
 
 1c. Read the phase's Skills & Tools table
     - Know which tools/plugins are available for this phase

@@ -449,6 +449,32 @@ Generate the hierarchical checklist following these rules:
 - Add `(REQUIRES: Section N complete)` for dependencies
 - Each Section should have 5-20 items
 
+**Skill execution order within a phase:**
+When a phase involves multiple blox skills, sections MUST follow this priority order:
+1. `/blox:brand` — always FIRST (design decisions inform everything else)
+2. `/blox:design` — after brand (UI design needs brand identity)
+3. `/blox:build` — after design (code implements the design)
+4. `/blox:test` — after build (test what was built)
+5. `/blox:secure` — after build (audit what was built)
+6. `/blox:deploy` — last (deploy what passed tests)
+
+Example: If Phase 1 has both brand and build tasks:
+```
+### Section 1: Brand Identity → /blox:brand
+- [ ] 1.1 Brand discovery (colors, typography, personality)
+- [ ] 1.2 Design tokens (CSS variables)
+- [ ] 1.3 Brand guidelines document
+
+--- CHECKPOINT A (Brand complete) ---
+
+### Section 2: Project Setup → /blox:build (REQUIRES: Section 1 complete)
+- [ ] 2.1 Initialize project
+- [ ] 2.2 Apply brand tokens to project
+```
+
+NEVER start build tasks before brand/design tasks in the same phase.
+The `(REQUIRES: Section N complete)` dependency enforces this.
+
 **Checkpoint placement:**
 - Add `--- CHECKPOINT [letter] (Section N complete) ---` every ~15-20 items
 - Every checkpoint MUST include these 4 items:
