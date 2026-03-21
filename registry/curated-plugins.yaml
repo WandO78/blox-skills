@@ -102,6 +102,21 @@ plugins:
     priority: high
     description: "AI image generation for logos, illustrations, and UI assets"
 
+  - plugin: google-stitch
+    source: mcp
+    tier: curated
+    category: design
+    install_method: "claude mcp add stitch --transport http https://stitch.googleapis.com/mcp --header 'X-Goog-Api-Key: YOUR_KEY' -s user"
+    triggers:
+      skills:
+        - "blox:design"
+        - "blox:brand"
+    requires:
+      env:
+        - "STITCH_API_KEY"
+    priority: high
+    description: "AI-powered UI design generation — screens, variants, design systems via Google Stitch MCP"
+
   - plugin: playground
     source: anthropics/playground
     tier: curated

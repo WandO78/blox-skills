@@ -78,38 +78,81 @@ priority: recommended
 
 ---
 
-## BASIC vs PREMIUM MODE
+## DESIGN MODES (auto-detected)
 
-The skill auto-detects available plugins and adjusts its capabilities:
+The skill auto-detects available tools and runs in the best available mode:
 
-| Feature | Basic (no plugin) | Premium (frontend-design plugin) |
-|---------|-------------------|----------------------------------|
-| Wireframes | Text-based layout descriptions | Production-grade component code |
-| Components | Props/states spec in markdown | Ready-to-use component skeletons |
-| UX copy | Full text content in tables | Integrated into component code |
-| Accessibility | Spec document (ARIA, keyboard) | Built into generated components |
-| Prototyping | Static descriptions | Interactive prototype (playground) |
-| Assets | Text descriptions for images | AI-generated assets (image-generation) |
+| Mode | Available tools | What it does |
+|------|----------------|-------------|
+| **Full** (Stitch + frontend-design) | Stitch MCP + frontend-design plugin | Stitch generates visual designs → user picks → frontend-design converts to production React/Vue code |
+| **Stitch** (Stitch only) | Stitch MCP | Generates visual designs (HTML + Tailwind + screenshots), user iterates with variants/edits |
+| **Code** (frontend-design only) | frontend-design plugin | Writes production-grade component code directly from specs |
+| **Basic** (no plugins) | None | Text-based wireframe descriptions + component specs in markdown |
 
-**Plugin detection (runs at start):**
+**Tool detection (runs at start of skill):**
 ```
-IF frontend-design plugin installed:
-  → Enable production-grade component code generation in Step 4
-  → Enable accessible component skeletons with ARIA built-in
-  → Note: "Frontend design plugin detected — enhanced component generation active"
+CHECK Stitch MCP: look for mcp__stitch tools (create_project, generate_screen_from_text, etc.)
+CHECK frontend-design: look for installed plugin
+CHECK playground: look for installed plugin
+CHECK image-generation: look for installed plugin
 
-IF playground plugin installed:
-  → Enable interactive prototype generation in Step 2
-  → Note: "Playground plugin detected — I can create interactive prototypes"
+DECIDE mode:
+  Stitch + frontend-design → FULL MODE
+  Stitch only              → STITCH MODE
+  frontend-design only     → CODE MODE
+  Neither                  → BASIC MODE
 
-IF image-generation plugin installed:
-  → Enable UI asset generation (icons, illustrations, hero images)
-  → Note: "Image generation available — I can create UI assets"
-
-IF none:
-  → Basic mode — all design specs work, output is markdown-based
-  → Note: "Running in basic mode — full design specifications included"
+ANNOUNCE to user:
+  FULL:   "Stitch + frontend-design detected — I'll generate visual designs first, then convert to production code."
+  STITCH: "Stitch detected — I'll generate visual designs (HTML + screenshots). For production code conversion, install the frontend-design plugin."
+  CODE:   "Frontend-design detected — I'll write production-grade components directly. For visual exploration first, set up Google Stitch MCP."
+  BASIC:  "Running in basic mode — I'll create detailed wireframe specs and component lists."
 ```
+
+### Full Mode workflow (Stitch + frontend-design)
+
+```
+Step 2 (Wireframe/Layout):
+  1. Create Stitch project (create_project)
+  2. Create design system from brand tokens (create_design_system) if /blox:brand ran before
+  3. Generate 3 screen variants (generate_screen_from_text + generate_variants)
+  4. Present screenshots to user → "Which direction do you prefer? (1/2/3)"
+  5. User picks → iterate with edit_screens if needed
+  6. Download final HTML + screenshot (get_screen)
+
+Step 4 (Component Specification):
+  → Use frontend-design plugin to convert Stitch HTML to production React/Vue components
+  → The Stitch screenshot serves as the visual reference
+  → The Stitch HTML serves as the structural reference
+  → frontend-design adds: bold typography, motion, accessibility, custom fonts
+```
+
+### Stitch Mode workflow (Stitch only)
+
+```
+Step 2: Same as Full Mode steps 1-6
+Step 4: Output the downloaded HTML + screenshot as the design handoff
+  → Component spec in markdown (like Basic mode) but with concrete HTML reference
+  → User can convert to React/Vue manually or with /blox:build
+```
+
+### Code Mode workflow (frontend-design only — current behavior)
+
+```
+Step 2: Text-based wireframe descriptions (ASCII layout options)
+Step 4: frontend-design generates production components directly
+```
+
+### Basic Mode workflow (no plugins — fallback)
+
+```
+Step 2: Text-based wireframe descriptions
+Step 4: Markdown component specs with props, states, variants, a11y requirements
+```
+
+**Additional plugin capabilities (any mode):**
+- **playground**: Interactive prototype from any wireframe/design
+- **image-generation**: AI-generated UI assets (icons, illustrations, hero images)
 
 ---
 
