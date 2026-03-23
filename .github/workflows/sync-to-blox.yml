@@ -29,6 +29,9 @@ jobs:
           rm -rf .github/
           rm -rf .sync/
           rm -f CHANGELOG.md
+          rm -f CLAUDE.md
+          rm -f .gitignore
+          rm -rf scripts/
 
       - name: Privacy check — scan for personal/corporate content
         run: |
