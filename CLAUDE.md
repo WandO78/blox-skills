@@ -9,7 +9,7 @@ wando-skills/              ← EZ A REPO (privat, fejlesztes itt tortenik)
 ├── skills/                ← 16 felhasznaloi + 4 _internal SKILL.md
 ├── references/            ← Sablonok es mintak (phase-template, project-scaffold, knowledge-patterns)
 ├── registry/              ← curated-plugins.yaml (plugin okoszisztema)
-├── extensions/            ← PRIVAT — Veolia, corporate, project-types (NEM kerul a publikus repo-ba)
+├── extensions/            ← PRIVAT — corporate patterns, project-types (NEM kerul a publikus repo-ba)
 ├── hooks/                 ← PRIVAT — context-reminder.sh, load-extensions.sh (NEM kerul a publikus repo-ba)
 ├── scripts/               ← bump-version.sh (auto-version CI hasznalja)
 ├── .sync/                 ← Publikus repo override fajlok (README-blox.md, plugin.json, marketplace.json)
@@ -79,5 +79,5 @@ Push to `main` → 2 GitHub Action:
 grep -l "^---" skills/*/SKILL.md skills/_internal/*/SKILL.md
 
 # Privat tartalom kereso (manualis ellenorzes sync elott)
-grep -rl "veolia\|corporate\|winkler" --include="*.md" --include="*.yaml" skills/ references/ registry/
+grep -rlf .sync/private-patterns.txt --include="*.md" --include="*.yaml" skills/ references/ registry/
 ```
