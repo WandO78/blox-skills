@@ -1,0 +1,27 @@
+{
+  "description": "Private wando-skills hooks — stripped from public blox-skills by sync action",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/load-extensions.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/context-reminder.sh",
+            "timeout": 2
+          }
+        ]
+      }
+    ]
+  }
+}
