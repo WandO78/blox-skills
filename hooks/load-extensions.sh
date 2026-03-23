@@ -2,9 +2,8 @@
 # Load wando-skills extensions into session context.
 # This hook is PRIVATE — stripped from public blox-skills by the sync action.
 #
-# Detects if the current project is a corporate (Veolia) project and loads
-# relevant extension context. The extensions inform /blox:idea and /blox:scan
-# about corporate conventions when generating/updating CLAUDE.md.
+# Detects project type (corporate vs personal) and loads relevant conventions.
+# These inform /blox:idea and /blox:scan when generating/updating CLAUDE.md.
 
 EXTENSIONS_DIR="${CLAUDE_PLUGIN_ROOT}/extensions"
 
@@ -13,53 +12,80 @@ if [ ! -d "$EXTENSIONS_DIR" ]; then
   exit 0
 fi
 
-# Detect corporate project signals
-IS_CORPORATE=false
+# ── Detect project type ──────────────────────────────────────────
 
-# Signal 1: GitLab remote
+IS_CORPORATE=false
+IS_PERSONAL=false
+
+# Corporate signals (Veolia)
 if git remote -v 2>/dev/null | grep -q "gitlab"; then
   IS_CORPORATE=true
 fi
-
-# Signal 2: .gitlab-ci.yml exists
 if [ -f ".gitlab-ci.yml" ]; then
   IS_CORPORATE=true
 fi
-
-# Signal 3: CLAUDE.md mentions Veolia/VEMO
 if grep -qi "veolia\|vemo" CLAUDE.md 2>/dev/null; then
   IS_CORPORATE=true
 fi
 
-if [ "$IS_CORPORATE" = true ]; then
-  echo "Corporate project detected. Loading wando-skills extensions:"
-  echo ""
-  echo "## Corporate Conventions (from wando-skills extensions)"
-  echo ""
-  # Output veolia.md content as session context
-  if [ -f "$EXTENSIONS_DIR/veolia.md" ]; then
-    # Extract key conventions (not the full file, just actionable rules)
-    echo "### Git"
-    echo "- GitLab for repos, branch: feature/TICKET-description"
-    echo "- MR required, no direct push to main"
-    echo ""
-    echo "### Tech Stack Defaults"
-    echo "- Backend: FastAPI (Python 3.11+), Frontend: React + TypeScript"
-    echo "- Infrastructure: GCP (Cloud Run, Cloud SQL, Secret Manager)"
-    echo "- CI/CD: GitLab CI, Auth: Corporate SSO (SAML/OIDC)"
-    echo ""
-    echo "### Compliance"
-    echo "- No PII in logs, GDPR compliance, AI attribution MUST NOT appear in code"
-    echo ""
-    echo "When generating or updating CLAUDE.md for this project, include these conventions."
-  fi
-
-  # Output project type hints
-  if [ -f "$EXTENSIONS_DIR/project-types.md" ]; then
-    echo ""
-    echo "### Project Type Detection (T1-T7 available)"
-    echo "Use dynamic detection first, but T1-T7 categories available in extensions/project-types.md for reference."
-  fi
+# Personal signals (own projects)
+if git remote -v 2>/dev/null | grep -q "github.com/WandO78\|github.com/wando"; then
+  IS_PERSONAL=true
+fi
+if [ -f "vercel.json" ] || [ -f "next.config.js" ] || [ -f "next.config.ts" ] || [ -f "next.config.mjs" ]; then
+  IS_PERSONAL=true
+fi
+if grep -qi "supabase" .env.local .env .env.example 2>/dev/null; then
+  IS_PERSONAL=true
 fi
 
+# ── Corporate context ────────────────────────────────────────────
+
+if [ "$IS_CORPORATE" = true ]; then
+  echo "## Project Context: Corporate (Veolia)"
+  echo ""
+  echo "### Git"
+  echo "- GitLab for repos, branch: feature/TICKET-description"
+  echo "- MR required, no direct push to main"
+  echo "- Git identity: Zsolt Winkler <zsolt.winkler@veolia.com>"
+  echo ""
+  echo "### Tech Stack Defaults"
+  echo "- Backend: FastAPI (Python 3.11+), Frontend: React + TypeScript"
+  echo "- Infrastructure: GCP (Cloud Run, Cloud SQL, Secret Manager)"
+  echo "- CI/CD: GitLab CI, Auth: Corporate SSO (SAML/OIDC)"
+  echo ""
+  echo "### Compliance"
+  echo "- No PII in logs, GDPR compliance"
+  echo "- AI attribution MUST NOT appear in code or commits"
+  echo ""
+  echo "Apply these conventions when generating/updating CLAUDE.md."
+  exit 0
+fi
+
+# ── Personal context ─────────────────────────────────────────────
+
+if [ "$IS_PERSONAL" = true ]; then
+  echo "## Project Context: Personal (WandO78)"
+  echo ""
+  echo "### Git"
+  echo "- GitHub for repos (github.com/WandO78)"
+  echo "- Git identity: WandO78 <winklerzs@gmail.com>"
+  echo "- AI attribution MUST NOT appear in code or commits"
+  echo ""
+  echo "### Preferred Stack"
+  echo "- Next.js + Supabase + Vercel (web apps)"
+  echo "- Tailwind CSS, TypeScript strict"
+  echo "- Home Assistant + YAML + Python (IoT)"
+  echo ""
+  echo "### Deploy"
+  echo "- Vercel for web apps (auto-deploy from GitHub)"
+  echo "- GitHub Actions for CI"
+  echo ""
+  echo "Apply these conventions when generating/updating CLAUDE.md."
+  exit 0
+fi
+
+# ── Unknown project ──────────────────────────────────────────────
+# No corporate or personal signals detected — exit silently.
+# The blox skills work fine without extensions context.
 exit 0
