@@ -128,6 +128,22 @@ plugins:
     priority: medium
     description: "Interactive prototype playground for rapid UI experimentation"
 
+  # ── Video ──────────────────────────────────────────────────────────
+
+  - plugin: remotion-best-practices
+    source: skills
+    tier: curated
+    category: video
+    install_method: "npx skills add remotion-dev/skills"
+    triggers:
+      deps:
+        - "remotion"
+        - "@remotion/cli"
+      skills:
+        - "blox:video"
+    priority: high
+    description: "Remotion domain rules — 37 rule files for React-based programmatic video creation (bundled in blox:video)"
+
   # ── Testing ────────────────────────────────────────────────────────
 
   - plugin: playwright

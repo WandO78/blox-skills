@@ -1,6 +1,6 @@
 ---
 name: blox-video
-description: "Create video content — storyboards, scripts, shot lists. FUTURE: AI video generation when plugins become available."
+description: "Create video content — storyboards, scripts, shot lists. With Remotion: programmatic video creation in React (animations, captions, charts, 3D, transitions). Use when the project needs any video content."
 user-invocable: true
 argument-hint: "[describe the video you need]"
 ---
@@ -24,11 +24,15 @@ This skill reads project state at runtime using Read, Glob, Grep, and Bash tools
 > lists, and timing plans. Produces everything needed to create a video, whether
 > the user shoots it themselves, hires a videographer, or uses AI video tools.
 >
-> **FUTURE/PLANNED:** Video generation plugins (Veo, Sora, Kling, etc.) are not
-> yet available as Claude Code plugins. When they become available, this skill
-> will support direct video generation — the same way `/blox:image` works with
-> the image-generation plugin today. Until then, this skill focuses on
-> pre-production: the creative planning that makes any video production better.
+> **Remotion mode:** If the project uses Remotion (React-based video framework),
+> this skill provides 37 domain-specific rule files covering animations, audio,
+> captions, 3D, transitions, charts, maps, and more. Load rules on demand from
+> `remotion-rules/` directory.
+>
+> **AI video generation (Veo, Sora, etc.):** Not yet available as Claude Code
+> plugins. When they ship, this skill will support direct AI video generation.
+> Until then, Remotion provides programmatic video creation, and the pre-production
+> pipeline (storyboard, script, shot list) works with any production tool.
 
 ---
 
@@ -48,14 +52,14 @@ trigger_deps: []
 
 ### Phase integration
 when_to_use: |
-  Invoke when the project needs video content planning: product demos, explainer
-  videos, promo clips, social media videos, onboarding tutorials, or any video
-  pre-production. Produces storyboards, scripts, and shot lists. FUTURE: direct
-  AI video generation when plugins become available.
+  Invoke when the project needs video content: product demos, explainer videos,
+  promo clips, social media videos, onboarding tutorials, animated presentations.
+  If the project uses Remotion, this skill provides domain-specific rules for
+  React-based video creation. Otherwise, produces storyboards, scripts, shot lists.
   Do NOT use for static images (use /blox:image), for brand identity (use
   /blox:brand), or for UI design (use /blox:design).
 auto_invoke: false
-priority: optional
+priority: recommended
 
 ---
 
@@ -82,40 +86,58 @@ priority: optional
 
 ---
 
-## BASIC vs PREMIUM MODE
+## VIDEO MODES (auto-detected)
 
-> **Current status: BASIC MODE ONLY.**
-> Premium mode will be enabled when video generation plugins become available.
+The skill auto-detects available tools and runs in the best available mode:
 
-| Feature | Basic (current — no plugin) | Premium (FUTURE — video plugin) |
-|---------|----------------------------|-------------------------------|
-| Storyboard | Scene-by-scene visual description | AI-generated scene previews |
-| Script | Full narration/dialogue text | Script + AI voiceover |
-| Shot list | Detailed camera/timing specs | Shot list + AI video clips |
-| Animation | Frame-by-frame description | Direct AI animation generation |
-| Output | Markdown documents | Video files (.mp4, .webm) |
-| Iteration | Text-based refinement | Visual refinement with AI |
+| Mode | Detection | What it does |
+|------|-----------|-------------|
+| **Remotion** | `package.json` contains `remotion` dependency | Full programmatic video creation in React — animations, captions, transitions, audio, 3D, charts. Uses 37 domain-specific rules from `remotion-rules/`. |
+| **AI Video** (FUTURE) | Video generation plugin installed | Direct AI video generation (Veo, Sora, etc.) — not yet available |
+| **Basic** | Neither detected | Pre-production: storyboard, script, shot list as markdown documents |
 
-**Plugin detection (runs at start):**
+**Mode detection (runs at start):**
 ```
-CURRENTLY: No video generation plugins exist in the Claude Code ecosystem.
+CHECK Remotion: look for "remotion" in package.json dependencies
+CHECK AI Video plugins: (FUTURE — no plugins exist yet)
 
-FUTURE detection logic (to be activated when plugins ship):
-  IF video-generation plugin installed:
-    → Enable direct AI video generation
-    → Enable scene-by-scene preview generation
-    → Note: "Video generation plugin detected — I can generate video directly"
+DECIDE mode:
+  Remotion in deps       → REMOTION MODE
+  AI video plugin exists → AI VIDEO MODE (FUTURE)
+  Neither                → BASIC MODE
 
-  IF video-generation NOT installed:
-    → Basic mode — generate storyboard, script, shot list
-    → Note: "Video generation plugins are not yet available.
-      I'll create a complete pre-production package: storyboard, script,
-      and shot list you can use with any video tool or production team."
-
-CURRENT behavior:
-  → Always basic mode
-  → Note: "I'll create a complete pre-production package for your video."
+ANNOUNCE to user:
+  REMOTION: "Remotion detected — I can create programmatic videos in React with animations, captions, transitions, and more. I have 37 domain-specific rule files loaded."
+  AI VIDEO: (FUTURE)
+  BASIC:   "I'll create a complete pre-production package: storyboard, script, and shot list."
 ```
+
+### Remotion Mode — Rule Files
+
+When in Remotion mode, load rules ON DEMAND from `remotion-rules/` based on what the user needs:
+
+| Category | Rules | When to load |
+|----------|-------|-------------|
+| **Core** | [animations](remotion-rules/animations.md), [compositions](remotion-rules/compositions.md), [sequencing](remotion-rules/sequencing.md), [timing](remotion-rules/timing.md), [parameters](remotion-rules/parameters.md) | Always load for any Remotion work |
+| **Media** | [videos](remotion-rules/videos.md), [audio](remotion-rules/audio.md), [images](remotion-rules/images.md), [gifs](remotion-rules/gifs.md), [fonts](remotion-rules/fonts.md), [assets](remotion-rules/assets.md) | When working with media assets |
+| **Captions** | [subtitles](remotion-rules/subtitles.md), [display-captions](remotion-rules/display-captions.md), [transcribe-captions](remotion-rules/transcribe-captions.md), [import-srt-captions](remotion-rules/import-srt-captions.md) | When video needs captions/subtitles |
+| **Effects** | [transitions](remotion-rules/transitions.md), [text-animations](remotion-rules/text-animations.md), [light-leaks](remotion-rules/light-leaks.md), [trimming](remotion-rules/trimming.md) | When adding visual effects |
+| **Advanced** | [3d](remotion-rules/3d.md), [charts](remotion-rules/charts.md), [maps](remotion-rules/maps.md), [lottie](remotion-rules/lottie.md), [audio-visualization](remotion-rules/audio-visualization.md) | When using specialized features |
+| **Audio** | [voiceover](remotion-rules/voiceover.md), [sfx](remotion-rules/sfx.md) | When adding voice/sound effects |
+| **Utils** | [ffmpeg](remotion-rules/ffmpeg.md), [extract-frames](remotion-rules/extract-frames.md), [get-video-duration](remotion-rules/get-video-duration.md), [get-audio-duration](remotion-rules/get-audio-duration.md), [get-video-dimensions](remotion-rules/get-video-dimensions.md), [can-decode](remotion-rules/can-decode.md), [measuring-text](remotion-rules/measuring-text.md), [measuring-dom-nodes](remotion-rules/measuring-dom-nodes.md), [calculate-metadata](remotion-rules/calculate-metadata.md) | When needing utilities |
+| **Styling** | [tailwind](remotion-rules/tailwind.md), [transparent-videos](remotion-rules/transparent-videos.md) | When styling or rendering config |
+
+**Critical Remotion rules (ALWAYS follow):**
+1. **NEVER use CSS animations** — all animation via `useCurrentFrame()` + `interpolate()`
+2. **Use `<Img>` not `<img>`** — Remotion's component handles loading
+3. **Use `staticFile()` for assets** — never direct paths
+4. **In 3D: NEVER use `useFrame()`** — only `useCurrentFrame()`
+5. **Transitions shorten timeline** — calculate: total = seq1 + seq2 - transition
+
+**Optional external services (Remotion mode):**
+- **ElevenLabs** (voiceover.md) — AI TTS, requires API key, has free tier
+- **Mapbox** (maps.md) — Map animations, requires token, has free tier
+- **Whisper.cpp** (transcribe-captions.md) — Speech-to-text, fully free, runs locally
 
 ---
 
