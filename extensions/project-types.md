@@ -4,13 +4,14 @@
 > They are NOT included in the public blox-skills.
 
 ## T1: Full-stack webapp (enterprise)
-- **Stack:** FastAPI + React + GCP
+- **Stack (new):** Go + Next.js + PostgreSQL + GCP (see tech-defaults.md)
+- **Stack (legacy):** FastAPI + React + GCP (existing projects — maintain)
 - **Examples:** VEMO PM, vdpsa, HUB
 - **Patterns:** Monorepo, CI/CD with GitLab, SAP integration
 - **Zone focus:** Z2-Z4 heavy (enterprise needs robust foundation + hardening)
 
 ## T2: Full-stack webapp (personal)
-- **Stack:** Next.js + Supabase/AWS + Vercel
+- **Stack:** Next.js + Go + Supabase + Vercel (see tech-defaults.md)
 - **Examples:** Vreelo, Lunoa, IMPACTED
 - **Patterns:** Rapid prototyping, Vercel deploy, Supabase auth
 - **Zone focus:** Z0-Z3 fast (ship quickly, iterate)

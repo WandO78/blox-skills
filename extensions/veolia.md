@@ -10,13 +10,26 @@
 - Branch naming: `feature/TICKET-description`
 - MR required, no direct push to main
 
-### Tech Stack
-- Backend: FastAPI (Python 3.11+)
-- Frontend: React + TypeScript
-- Infrastructure: GCP (Cloud Run, Cloud SQL, Cloud Storage)
-- CI/CD: GitLab CI
-- Database: PostgreSQL
-- Auth: Corporate SSO (SAML/OIDC)
+### Tech Stack (same priorities as personal — see tech-defaults.md)
+
+**Backend (priority order):**
+1. Go (Gin/Echo) — default for new projects
+2. Java (Spring Boot) — enterprise/heavy integration
+3. Rust (Actix/Axum) — performance-critical
+4. .NET (ASP.NET Core) — Windows ecosystem requirement
+
+**Frontend (priority order):**
+1. Next.js (App Router) — default
+2. React + Vite — SPA without SSR
+
+**Frontend libs (always):** Tailwind CSS, shadcn/ui, Zustand
+
+**Existing projects:** FastAPI (Python 3.11+) is legacy — maintain, don't rewrite unless major refactor planned.
+
+**Infrastructure:** GCP (Cloud Run, Cloud SQL, Cloud Storage)
+**CI/CD:** GitLab CI
+**Database:** PostgreSQL (Cloud SQL)
+**Auth:** Corporate SSO (SAML/OIDC)
 
 ### SAP Integration
 - SAP RFC calls via pyrfc
