@@ -229,7 +229,17 @@ This scope summary IS the lightweight spec (INTEGRATES: write-spec knowledge are
 
 Based on the confirmed vision, suggest an appropriate tech stack.
 
-**Decision matrix — use when user has NO preference:**
+**Priority 1 — Check for tech stack defaults from extensions:**
+
+```
+IF extensions/tech-defaults.md exists (loaded by SessionStart hook):
+  → Read the user's preferred stack priorities
+  → Use these as the DEFAULT suggestion instead of the generic matrix
+  → Example: user prefers Go for BE, Next.js for FE → suggest those first
+  → Still allow override — present as default, not requirement
+```
+
+**Priority 2 — Generic decision matrix (when NO extensions loaded):**
 
 ```
 Web app (frontend + backend + database):
@@ -245,11 +255,11 @@ Mobile app:
     Reasoning: one codebase for iOS + Android, fast iteration
 
 API / backend only:
-  → FastAPI (Python) or Express (Node.js)
-    Reasoning: depends on user's language comfort
+  → Go + Gin (or Express/FastAPI depending on ecosystem)
+    Reasoning: fast, simple, excellent concurrency
 
 CLI tool:
-  → Node.js (TypeScript) or Python
+  → Node.js (TypeScript) or Go
     Reasoning: broad ecosystem, easy distribution
 
 Data processing / pipeline:
@@ -272,18 +282,28 @@ Google Workspace automation:
 **Present the suggestion:**
 
 ```
-"For what you're building, I suggest:
+IF extensions loaded:
+  "Your preferred stack for this type of project:
 
-[Tech stack recommendation]
+  [Stack from tech-defaults.md priorities]
 
-[1-sentence reasoning — what this gives you]
+  [1-sentence reasoning]
 
-Does this work, or do you have a different preference?"
+  This is your default — want to use it, or pick something different?"
+
+IF no extensions:
+  "For what you're building, I suggest:
+
+  [Tech stack from generic matrix]
+
+  [1-sentence reasoning]
+
+  Does this work, or do you have a different preference?"
 ```
 
 **User overrides:**
 - If user specifies a different tech stack → use theirs, no pushback
-- If user has no idea → use the suggestion from the matrix
+- If user has no idea → use the suggestion (extensions or matrix)
 - If user asks for advice → explain trade-offs briefly, then recommend
 
 **Wait for confirmation before proceeding.**

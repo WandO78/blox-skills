@@ -72,14 +72,28 @@ if [ "$IS_PERSONAL" = true ]; then
   echo "- Git identity: WandO78 <winklerzs@gmail.com>"
   echo "- AI attribution MUST NOT appear in code or commits"
   echo ""
-  echo "### Preferred Stack"
-  echo "- Next.js + Supabase + Vercel (web apps)"
-  echo "- Tailwind CSS, TypeScript strict"
-  echo "- Home Assistant + YAML + Python (IoT)"
+
+  # Load tech defaults if available
+  TECH_DEFAULTS="$EXTENSIONS_DIR/tech-defaults.md"
+  if [ -f "$TECH_DEFAULTS" ]; then
+    echo "### Tech Stack Defaults (from extensions/tech-defaults.md)"
+    echo "- **BE priority:** Go > Java > Rust > .NET"
+    echo "- **FE priority:** Next.js (App Router) > React + Vite"
+    echo "- **FE libs:** Tailwind CSS, shadcn/ui, Zustand (always)"
+    echo "- **DB:** Supabase (Postgres) | **Auth:** Clerk / Supabase Auth"
+    echo "- **Deploy:** Vercel | **CI:** GitHub Actions | **Test:** Vitest + Playwright"
+    echo "- When suggesting tech stack, use these as DEFAULTS — user can override."
+    echo "- For full details: read extensions/tech-defaults.md"
+  else
+    echo "### Preferred Stack"
+    echo "- Next.js + Supabase + Vercel (web apps)"
+    echo "- Tailwind CSS, TypeScript strict"
+  fi
   echo ""
   echo "### Deploy"
   echo "- Vercel for web apps (auto-deploy from GitHub)"
   echo "- GitHub Actions for CI"
+  echo "- Home Assistant + YAML + Python (IoT)"
   echo ""
   echo "Apply these conventions when generating/updating CLAUDE.md."
   exit 0
