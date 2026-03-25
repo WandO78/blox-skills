@@ -379,10 +379,33 @@ Generate the image and offer refinement options.
     SAVE the image file to the determined location.
 ```
 
-**Basic mode (no plugin):**
+**Basic mode (no plugin — CSS/typography fallback):**
 
 ```
-4a. Output the complete prompt package:
+4a. IF image type is LOGO:
+    → Generate CSS/typography-based logo concepts as an HTML preview file.
+    → Use the brand fonts (from design-tokens or brand-guidelines) and colors.
+    → Create 3-5 typographic logo variations:
+      - Clean typographic (wordmark with brand accent color)
+      - Monogram block (initials in colored square/circle)
+      - Slash/separator (initials with visual separator)
+      - Dot accent (name + styled punctuation)
+      - Horizontal compact (icon-box + text side by side)
+    → Each variation in light + dark mode.
+    → Write to `logo-preview.html` in project root.
+    → Open in browser for user to review.
+
+    "Here are your logo concepts (CSS/typography based).
+     Pick your favorite, or describe what you'd change."
+
+    IF user picks one:
+      → Proceed to Step 5 (Logo Detail Preview)
+    IF user wants adjustments:
+      → Edit the HTML, re-open in browser
+      → Maximum 5 iterations
+
+4b. IF image type is NOT LOGO:
+    → Output the complete prompt package:
     "Your image generation prompt:
 
      ━━━ PROMPT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -402,15 +425,56 @@ Generate the image and offer refinement options.
      When you have the image, tell me and I'll help integrate it
      into the project."
 
-4b. Offer prompt variations:
+4c. Offer prompt variations:
     "Want me to create alternative prompts?
      a) Same subject, different style
      b) Same style, different composition
      c) Multiple size variants (logo, social, hero)"
 
-4c. When user has the image (returns with it):
+4d. When user has the image (returns with it):
     → Help integrate: determine save location, naming, commit
 ```
+
+### Step 5: LOGO DETAIL PREVIEW (LOGO type only — both modes)
+
+After the user picks a logo concept (AI-generated or CSS-based), build a
+comprehensive logo-preview.html that shows the chosen logo in all contexts.
+
+```
+5a. Build detailed logo-preview.html:
+    → Use the brand fonts (Google Fonts link) and brand colors
+    → Include ALL of the following sections:
+
+    SECTION 1: Chosen logo — large, prominent display (light + dark)
+    SECTION 2: Background variants — the logo on:
+      - White background
+      - Brand cream/light background
+      - Dark background
+      - Primary color background
+    SECTION 3: Size variants — how it looks at:
+      - Favicon (32px)
+      - App icon (48px)
+      - Navbar (36px icon + text)
+      - Hero / header (large)
+    SECTION 4: Usage contexts — mockup-style placements:
+      - Email signature
+      - Social media avatar (circle crop)
+      - Document header
+
+5b. Write the file and open in browser:
+    → Save as logo-preview.html in project root
+    → Open in browser for user review
+
+5c. Finalize:
+    "Here's your complete logo preview with all size and context variants.
+
+     Next steps:
+     - For production use, export as SVG (scalable) + PNG (raster)
+     - Consider professional refinement for print-ready formats
+     - The logo-preview.html serves as your logo usage reference"
+```
+
+---
 
 **Post-generation actions (both modes):**
 
