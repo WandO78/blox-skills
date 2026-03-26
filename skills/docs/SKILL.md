@@ -440,7 +440,7 @@ Generate from git history using conventional commits:
    - Sections marked `<!-- USER-WRITTEN -->` are NEVER touched
    - If unsure whether a section is user-written: preserve it and add new content below
 
-3. **Commit:**
+3. **Commit (if git active):**
    - Stage specific documentation files (NEVER `git add -A` or `git add .`)
    - Commit message based on what was generated:
      - New docs: `docs: add [README | API docs | architecture overview | changelog]`
@@ -469,7 +469,7 @@ Generate from git history using conventional commits:
 4. **Don't overwrite user-written sections** — append, update auto-sections, but protect manual content
 5. **API docs must match implementation** — if a route doesn't exist, don't document it
 6. **Code examples must be runnable** — real imports, real function names, real paths
-7. **Stage specific files** — never `git add -A` or `git add .`
+7. **Stage specific files (if git active)** — never `git add -A` or `git add .`
 8. **No AI attribution** — no Co-Authored-By, Claude, Opus, Anthropic in commits or docs
 9. **Ask before generating** — present scan results first, let user choose what to document
 10. **Validate before saving** — check accuracy before committing

@@ -354,7 +354,7 @@ describe("[ModuleName]", () => {
    - If a new test reveals a bug: report it clearly, don't fix silently
    - If a new test conflicts with existing tests: investigate and resolve
 
-4. **Commit generated tests:**
+4. **Commit generated tests (if git active):**
    - Stage specific test files (NEVER `git add -A` or `git add .`)
    - Commit: `test: add [scope] tests — [N] test cases for [module/feature]`
    - **NEVER** add `Co-Authored-By`, `Claude`, `Opus`, `Anthropic`, or any AI attribution

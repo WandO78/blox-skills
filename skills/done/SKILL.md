@@ -76,7 +76,7 @@ priority: mandatory
 
 This skill closes a blox phase. It uses superpowers for the integration decision:
 
-- **Branch integration:** Use `superpowers:finishing-a-development-branch` for the 4 structured options (merge locally, push and create PR, keep as-is, discard). This handles git operations professionally.
+- **Branch integration (if git active):** Use `superpowers:finishing-a-development-branch` for the 4 structured options (merge locally, push and create PR, keep as-is, discard). This handles git operations professionally. If no .git, skip branch integration entirely.
 - **Verification:** Apply `superpowers:verification-before-completion` before claiming the phase is done — run ALL exit criteria verification commands and confirm output.
 - **What blox adds on top:** Phase Memory (MANDATORY on PASS and FAIL), Quality Score update (QUALITY_SCORE.md trend), START_HERE.md phase tracker update, phase file archival (move to completed/ or failed/), auto-trigger _internal/chain and _internal/cleanup.
 
@@ -240,8 +240,8 @@ Floor: score NEVER goes below 0
   1. Run ALL other phase verification commands (cross-phase impact)
   2. Identify what broke and when
   3. Present to user: rollback vs fix-forward analysis
-     - Rollback: `git revert` — safer but loses work
-     - Fix-forward: targeted fix — keeps work but riskier
+     - Rollback (if git active): `git revert` — safer but loses work
+     - Fix-forward: targeted fix — keeps work but riskier (only option without git)
   4. Wait for user decision
   5. Execute chosen approach
   6. Proceed with S3 actions (Phase Memory, meta-file updates, etc.)

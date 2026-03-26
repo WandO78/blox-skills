@@ -610,7 +610,7 @@ IF called standalone:
   → Suggest: "Run /blox:design to turn these brand tokens into UI components."
 ```
 
-**Git commit (if git repo exists):**
+**Git commit (if git active):**
 ```
 git add docs/brand-guidelines.md design-tokens.css design-tokens.json
 git add brand.tailwind.config.js  # if created

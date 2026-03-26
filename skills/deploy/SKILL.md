@@ -547,7 +547,7 @@ IF called standalone:
   -> Suggest: "Monitor the deployment. Run /blox:check periodically for quality."
 ```
 
-**Git commit (if git repo exists and deploy config was created):**
+**Git commit (if git active and deploy config was created):**
 ```
 git add [new config files: vercel.json, netlify.toml, fly.toml, etc.]
 git commit -m "chore: deployment configuration for [platform]"

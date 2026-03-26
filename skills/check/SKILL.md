@@ -128,7 +128,8 @@ IF called by agent after code change → NORMAL
 **Purpose:** Establish the scope of what needs reviewing.
 
 **Actions:**
-1. Run `git diff` against the baseline (last checkpoint commit or phase start)
+1. If git active: run `git diff` against the baseline (last checkpoint commit or phase start)
+   If no .git: use file modification timestamps and the Phase file's Progress Log to identify changed files
 2. Count changed files, added lines, deleted lines
 3. Categorize changes:
    - `code` — source files (.ts, .py, .js, .rs, etc.)
@@ -137,7 +138,6 @@ IF called by agent after code change → NORMAL
    - `ui` — frontend/UI files (.tsx, .jsx, .vue, .svelte, .html, .css, .scss)
    - `docs` — documentation files
    - `other` — everything else
-4. If no git repository, use file modification timestamps and the Phase file's Progress Log to identify changed files
 
 **Output format:**
 ```

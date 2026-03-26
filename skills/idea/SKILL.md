@@ -386,29 +386,33 @@ completed/   — Completed phases (with Phase Memory)
 failed/      — Failed phases (Phase Memory mandatory)
 ```
 
-**Git initialization:**
+**Version control (git):**
+
+Git is NOT mandatory. Use the brainstorm results (Steps 1-3) to decide:
 
 ```
-IF no .git directory exists:
-  git init
-  Create .gitignore (appropriate for tech stack):
-    - node_modules/ (Node.js)
-    - __pycache__/ (Python)
-    - .env (always)
-    - .env.local (always)
-    - dist/ or build/ (build output)
-    - .next/ (Next.js)
-    - .blox/ (blox internal state — not committed)
-  git add all scaffolded files
-  git commit -m "Initial project setup from /blox:idea"
-
-IF .git exists but is empty:
-  git add all scaffolded files
-  git commit -m "Initial project setup from /blox:idea"
-
-IF .git exists with history:
+IF .git already exists (user chose git before blox):
   git add all scaffolded files
   git commit -m "Add blox project structure from /blox:idea"
+
+IF no .git directory exists:
+  Check the confirmed scope and tech stack from Steps 1-3:
+    ALWAYS initialize local version control (silent, no user action needed):
+      git init
+      Create .gitignore (appropriate for tech stack):
+        - node_modules/ (Node.js)
+        - __pycache__/ (Python)
+        - .env (always)
+        - .env.local (always)
+        - dist/ or build/ (build output)
+        - .next/ (Next.js)
+        - .blox/ (blox internal state — not committed)
+      git add all scaffolded files
+      git commit -m "Initial project setup"
+
+    Note: git init is LOCAL only — not GitHub/GitLab. It gives rollback
+    from minute one at zero cost. Remote backup is suggested later when
+    the project grows (see checkpoint skill).
 ```
 
 ---

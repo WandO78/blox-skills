@@ -162,7 +162,9 @@ For EACH checklist item, follow this cycle:
 - Run tests again → still PASS
   - If tests fail after refactor: revert the refactor, it broke something
 
-**2e. COMMIT**
+**2e. COMMIT (if git active)**
+- **Skip this step if the project has no `.git` directory**
+- **User override:** If user explicitly asks to commit → init git first (see checkpoint skill)
 - Stage specific files (NEVER `git add -A` or `git add .`)
 - Commit with descriptive message following project convention:
   - `feat: [what was added]` — new functionality
@@ -190,19 +192,19 @@ think about checkpoints — they happen in the background.
 ```
 LEVEL 1 (AUTO) — lightweight, frequent:
   - After every 5 completed checklist items
-  - After every git commit
+  - After every git commit (if git active)
   Actions: mark [x], move >>> CURRENT <<<, Progress Log row, Current Step update
 
 LEVEL 2 (SMART) — thorough, planned:
   - At --- CHECKPOINT X --- markers in the phase file
   - When context window feels ~50% full
   - After important architectural decisions
-  Actions: Level 1 + Interim Phase Memory + CONTEXT_CHAIN entry + git commit
+  Actions: Level 1 + Interim Phase Memory + CONTEXT_CHAIN entry + git commit (if git active)
 
 LEVEL 3 (EMERGENCY) — last resort, critical:
   - When context window feels ~80% full
   - Signs: growing context, compression notices, truncation warnings
-  Actions: Level 2 + debug context + open questions + git status snapshot
+  Actions: Level 2 + debug context + open questions + git status snapshot (if git active)
 ```
 
 **Chain:** Follow the checkpoint protocol in `skills/_internal/checkpoint/SKILL.md`
@@ -353,14 +355,14 @@ it GETS a test. When in doubt: write the test.
 
 1. **NEVER skip tests for business logic** — TDD is not optional for testable code
 2. **Tests run BEFORE claiming an item is done** — evidence before assertions
-3. **Commits are small and focused** — one checklist item = one commit (or one logical change)
+3. **Commits are small and focused (if git active)** — one checklist item = one commit (or one logical change)
 4. **Checkpoints fire automatically** — the developer doesn't think about them
 5. **Golden Answers are verified when they exist** — they define correctness
 6. **No code without understanding** — read the checklist item FULLY before writing
 7. **Fix the test, not the assertion** — if a test fails, the implementation is wrong (unless the test itself has a bug)
 8. **Refactor only with green tests** — never refactor on red
-9. **Never force-push or amend during build** — history is sacred, new commits only
-10. **Stage specific files** — never `git add -A` or `git add .`
+9. **Never force-push or amend during build (if git active)** — history is sacred, new commits only
+10. **Stage specific files (if git active)** — never `git add -A` or `git add .`
 
 ---
 
@@ -441,9 +443,10 @@ GREEN — Minimal implementation:
 
 REFACTOR: (none needed — already minimal)
 
-COMMIT:
+COMMIT (if git active):
   git add src/routes/products.ts tests/products.test.ts
   git commit -m "feat: GET /api/products endpoint with test"
+  (Skip if no .git — go straight to UPDATE)
 
 UPDATE:
   [x] **1.3** Create GET /api/products endpoint
@@ -477,9 +480,10 @@ REFACTOR:
   Ensure accessibility: alt tags, focus management, keyboard navigation
   → Run: npm test → still PASS ✓
 
-COMMIT:
+COMMIT (if git active):
   git add src/components/ProductCard.tsx tests/ProductCard.test.tsx
   git commit -m "feat: ProductCard component with accessibility"
+  (Skip if no .git)
 
 UPDATE:
   [x] **2.1** Create ProductCard component
@@ -500,9 +504,10 @@ INSTALL:
   Add "test": "vitest run" to package.json scripts
   Write sample test → run → PASS ✓
 
-COMMIT:
+COMMIT (if git active):
   git add vitest.config.ts package.json package-lock.json
   git commit -m "chore: add Vitest test framework"
+  (Skip if no .git)
 
 NOW proceed with TDD for item 1.1
 ```

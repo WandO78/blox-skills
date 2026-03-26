@@ -94,7 +94,7 @@ READ from recent work:
 
 IF EMERGENCY:
   6. Debug context — what was the error/problem
-  7. Uncommitted files — list files with unsaved changes
+  7. Uncommitted files (if git active) — list files with unsaved changes
 ```
 
 ### Step 2: Write Entry

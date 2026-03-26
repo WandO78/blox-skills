@@ -618,7 +618,7 @@ IF called standalone:
   → Suggest: "Run /blox:build to implement this design."
 ```
 
-**Git commit (if git repo exists):**
+**Git commit (if git active):**
 ```
 git add docs/design/[page-name].md
 git commit -m "feat: UI/UX design — [page/component name] layout, components, handoff"

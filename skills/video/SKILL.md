@@ -471,7 +471,7 @@ UPDATE (if exists):
     Next session task: Video production (external) or continue project build
 ```
 
-**Git commit (if git repo exists):**
+**Git commit (if git active):**
 ```
 git add docs/video/
 git commit -m "content: video pre-production — [video name] storyboard, script, shot list"

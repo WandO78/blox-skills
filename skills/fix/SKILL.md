@@ -127,12 +127,14 @@ This skill debugs issues. It uses superpowers for systematic methodology:
 
 **Actions:**
 1. Read error messages, stack traces, and logs carefully
-2. Check git history: what changed recently?
+2. Check git history (if git active):
    - `git log --oneline -10` — recent commits
    - `git diff HEAD~3` — recent code changes
    - `git log --oneline --all -- [affected files]` — file-specific history
+   If no git: note "No version control — cannot check change history.
+   Debugging relies on error messages, tests, and code reading only."
 3. Check test output: which tests fail? Were they passing before?
-   - `git stash && npm test && git stash pop` — test without local changes (if applicable)
+   - If git active: `git stash && npm test && git stash pop` — test without local changes
 4. Check environment: versions, configs, env vars
    - Node/Python/Go version, dependency versions
    - Environment-specific configuration
@@ -356,7 +358,7 @@ Detection is NON-BLOCKING — debugging always continues regardless of plugin av
 4. **Never skip regression checking**
 5. **If stuck after 3 hypothesis cycles: STOP, explain to user, ask for help**
 6. **Never add debug code to production without cleanup** — remove all temporary logs/assertions before commit
-7. **Stage specific files** — never `git add -A` or `git add .`
+7. **Stage specific files (if git active)** — never `git add -A` or `git add .`
 8. **No AI attribution in commits or code** — no Co-Authored-By, Claude, Opus, Anthropic
 
 ---

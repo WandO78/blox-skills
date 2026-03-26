@@ -430,7 +430,7 @@ IF none of the above:
 ### Step 3: Secrets Detection
 
 > **Goal:** Scan the codebase for hardcoded secrets, API keys, passwords, and tokens.
-> Also verify .gitignore covers sensitive files.
+> If git is active, also verify .gitignore covers sensitive files.
 
 **Pattern scanning — search for these patterns in ALL source files:**
 
@@ -491,7 +491,7 @@ IF .gitignore exists but missing patterns:
   -> MEDIUM finding: list each missing pattern
 ```
 
-**Git history check (if git repo):**
+**Git history check (if git active):**
 
 ```
 Search recent commits for accidentally committed secrets:
@@ -718,7 +718,7 @@ IF called standalone:
   -> Suggest: "Run /blox:deploy after addressing findings."
 ```
 
-**Git commit (if git repo exists):**
+**Git commit (if git active):**
 ```
 git add docs/security-audit.md
 git commit -m "chore: security audit report — [N] findings ([risk level])"

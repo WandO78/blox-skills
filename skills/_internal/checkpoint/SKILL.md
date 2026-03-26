@@ -119,7 +119,22 @@ The agent determines the level based on the trigger:
 
 **When in doubt:** Level 2 is always safe. Over-checkpointing wastes a minute; under-checkpointing can lose hours.
 
-**Edge case — no git repo:** If the project has no git repository, skip all git-related actions (commit, status snapshot). The file-based saves (checklist marks, Progress Log, Phase Memory, CONTEXT_CHAIN) still work and are the primary recovery mechanism.
+**Auto git initialization:** On the FIRST checkpoint (any level), if no `.git` exists:
+1. `git init`
+2. Create `.gitignore` (appropriate for detected tech stack — node_modules, __pycache__, .env, .blox, dist, etc.)
+3. `git add -A && git commit -m "Initial checkpoint — version history enabled"`
+4. One-line inform: "Version history initialized for safe rollback."
+5. All subsequent checkpoints include git commits.
+
+This handles retrofit projects that weren't started with `/blox:idea`.
+Local git is NOT GitHub — it's just local rollback at zero cost.
+
+**Remote backup suggestion:** When the project reaches significant size
+(FE+BE, 20+ files, or deploy config detected), suggest once:
+"Your project is growing. Consider pushing to GitHub/GitLab for backup:
+ git remote add origin <url> && git push -u origin main"
+
+**User override — applies to ALL skills:** If the user explicitly requests a git operation (commit, push, branch, etc.) and no `.git` exists, initialize git first and proceed.
 
 ---
 
@@ -219,7 +234,7 @@ Add a new entry at the TOP of the chain (below the header), following this forma
 
 Keep entries concise: max 15-20 lines. The Resumption Protocol reads the LAST entry.
 
-**3c. Git commit**
+**3c. Git commit (if git active)**
 
 Create a commit with a standardized message:
 
