@@ -363,6 +363,8 @@ it GETS a test. When in doubt: write the test.
 8. **Refactor only with green tests** — never refactor on red
 9. **Never force-push or amend during build (if git active)** — history is sacred, new commits only
 10. **Stage specific files (if git active)** — never `git add -A` or `git add .`
+11. **NEVER simplify tests or types to avoid failures** — if a type has a required field, every test fixture must include it. Making fields optional, removing assertions, or excluding test cases to "make it pass" is a CRITICAL violation. Fix the test data, not the type system.
+12. **Every new source file MUST have a test file** — when creating a component, hook, service, utility, or middleware, the TDD cycle MUST include creating its test file in the same checklist item. No orphaned source files.
 
 ---
 
@@ -406,6 +408,9 @@ it GETS a test. When in doubt: write the test.
 - Quality gate failure ignored: section moved on despite failing tests/lint
 - Refactoring on red: code changed while tests are failing (INVARIANT 8 violation)
 - AI attribution found in commits or generated code
+- Type/interface simplified (e.g., required field made optional) to avoid updating test fixtures (INVARIANT 11 violation)
+- Tests removed, simplified, or assertions weakened to make the suite pass (INVARIANT 11 violation)
+- New source files created without corresponding test files (INVARIANT 12 violation)
 
 ---
 

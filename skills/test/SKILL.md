@@ -284,13 +284,24 @@ what should be tested."
 | 1 | services/api.ts | Network timeout | P1 |
 | 2 | services/api.ts | 500 response | P2 |
 
+### ⚠️ Orphaned Source Files (BLOCKING)
+Files created in this session/phase that have NO test file yet.
+These MUST be resolved before proceeding to next feature work.
+| # | Source File | Type | Status |
+|---|------------|------|--------|
+| 1 | src/components/CostCenterSearch.tsx | component | ❌ No test file |
+| 2 | src/hooks/useBudgetBalance.ts | hook | ❌ No test file |
+
 ### Summary
 - Source files: [N] total, [M] without tests ([X]%)
+- Orphaned files (no test at all): [N] — **BLOCKING if > 0** (INVARIANT 12)
 - Functions: [N] public, [M] untested ([X]%)
 - Edge cases: [N] identified, [M] missing tests
 - Error handlers: [N] found, [M] untested
 - Priority breakdown: P1: [N], P2: [N], P3: [N], P4: [N]
 ```
+
+**CRITICAL:** If orphaned source files > 0, the gap analysis output MUST include a prominent warning. The agent MUST NOT proceed to generate tests for other files while orphaned files exist — orphaned files get P0 priority (above P1).
 
 ---
 
@@ -497,6 +508,8 @@ PREMIUM MODE (Playwright MCP plugin available):
 8. **No AI attribution** — no Co-Authored-By, Claude, Opus, Anthropic in commits or code
 9. **Ask before generating** — always show gap analysis first, let user decide scope
 10. **All tests must pass together** — new tests must not break existing ones
+11. **NEVER simplify or exclude tests** — do not remove test cases, skip assertions, or make fields optional to avoid test failures. If tests are failing, fix the tests or the code — never weaken the test suite. This is enterprise software, not a prototype.
+12. **Every new source file MUST have a dedicated test file** — components, hooks, services, utilities, middleware — all need their own test file. No orphaned source files without tests. Gap analysis (Step 3) enforces this.
 
 ---
 
@@ -537,6 +550,9 @@ PREMIUM MODE (Playwright MCP plugin available):
 - AI attribution found in commits or generated code
 - Coverage numbers fabricated (not from actual tool output)
 - Gap analysis missing priority classification
+- Tests simplified, excluded, or removed to make the suite pass (INVARIANT 11 violation)
+- Source types/interfaces made optional to avoid updating test fixtures (INVARIANT 11 violation)
+- New source files without corresponding test files (INVARIANT 12 violation)
 
 ---
 

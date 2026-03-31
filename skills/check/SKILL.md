@@ -152,7 +152,7 @@ IF called by agent after code change → NORMAL
 
 ---
 
-### Step 2: Pre-Submission Checklist (8 points)
+### Step 2: Pre-Submission Checklist (9 points)
 
 **Purpose:** Systematic quality gate before deeper review.
 
@@ -167,6 +167,7 @@ Run through each item. Mark PASS, FAIL, or N/A:
 [] 5. Tests pass — ALL tests green (not just new ones, OLD ones too)?
 [] 6. Pattern reuse — Is there an existing solution in the codebase that could be reused?
 [] 7. Architecture guard — Does the change violate any Golden Principle?
+[] 8. Test completeness — Does EVERY new source file (component, hook, service, utility) have a dedicated test file? Are required type fields present in all test fixtures (no fields made optional to dodge test updates)?
 ```
 
 **Scoring:**
@@ -495,7 +496,7 @@ Where:
 ```
 
 **Counting rules:**
-- Step 2 (Pre-Submission): each FAIL item → +1 FAIL_count, each uncertain → +1 CONCERN_count
+- Step 2 (Pre-Submission, 9 points): each FAIL item → +1 FAIL_count, each uncertain → +1 CONCERN_count
 - Step 3 (Invariants): each VIOLATED principle → +1 FAIL_count, each "partially" → +1 CONCERN_count
 - Step 4 (Tests): each FAILED test group → +1 FAIL_count
 - Step 5 (Lint): errors → +1 FAIL_count per group, warnings → +1 CONCERN_count per group
@@ -622,7 +623,7 @@ IF score 0-19 OR regression detected (other phase tests broken):
 | Step | Check | Result | Notes |
 |------|-------|--------|-------|
 | 1 | Change Analysis | — | X files, +Y/-Z lines |
-| 2 | Pre-Submission Checklist | X/8 PASS | [details] |
+| 2 | Pre-Submission Checklist | X/9 PASS | [details] |
 | 3 | Architectural Invariants | X/Y PASS | [details] |
 | 4 | Tests | X/Y PASS | [details] |
 | 5 | Lint & Type Check | PASS/FAIL | [details] |
@@ -693,7 +694,7 @@ When running in NORMAL mode (at checkpoints or after code changes), execute ONLY
 | Step | What | Time |
 |------|------|------|
 | 1 | Collect changes (git diff) | ~30s |
-| 2 | Pre-Submission Checklist (8 points) | ~1min |
+| 2 | Pre-Submission Checklist (9 points) | ~1min |
 | 3 | Architectural invariant check | ~1min |
 | 4 | Run tests (Verification Commands) | ~1-2min |
 | 7 | Quality Score calculation | ~30s |
@@ -710,7 +711,7 @@ When running in NORMAL mode (at checkpoints or after code changes), execute ONLY
 ```
 ## Quick Review — [date]
 - Changes: X files, +Y/-Z lines
-- Pre-Submission: X/8 PASS
+- Pre-Submission: X/9 PASS
 - Invariants: X/Y PASS
 - Tests: X/Y PASS
 - Quality Score: XX/100 ([Healthy|Needs Work|Critical|Blocked])
@@ -774,6 +775,8 @@ During Steps 2-4, the agent performs line-by-line analysis of changed code:
 - NORMAL mode used when /blox:done requires THOROUGH
 - Domain checks skipped in THOROUGH mode without N/A reason
 - AI attribution found in review output or code
+- New source files without corresponding test files (PSC #8 FAIL)
+- Type fields made optional or test assertions weakened to avoid test failures (PSC #8 FAIL)
 
 ---
 
@@ -790,7 +793,7 @@ Step 1: Collect Changes
   - Baseline: commit a1b2c3d
 
 Step 2: Pre-Submission Checklist
-  - 8/8 PASS
+  - 9/9 PASS
 
 Step 3: Architectural Invariant Check
   - 5 principles checked, 5/5 PASS
@@ -846,7 +849,7 @@ Step 1: Collect Changes
   - +3200 lines, -180 lines
 
 Step 2: Pre-Submission Checklist
-  - 7/8 PASS
+  - 7/9 PASS
   - FAIL: #7 Architecture guard — GP-3 violated
 
 Step 3: Architectural Invariant Check
@@ -913,7 +916,7 @@ Agent runs /blox:check (NORMAL mode, at checkpoint)
 
 ## Quick Review — 2026-03-17
 - Changes: 5 files, +120/-30 lines
-- Pre-Submission: 8/8 PASS
+- Pre-Submission: 9/9 PASS
 - Invariants: 3/3 PASS (only checked principles relevant to changed files)
 - Tests: 4/4 PASS
 - Quality Score: 100/100 (Healthy)
