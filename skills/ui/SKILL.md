@@ -143,86 +143,230 @@ for the key securely. Never store API keys in conversation, code, or commits.
 
 ---
 
-### Stitch prompting formula
+### Stitch workflow: PREPARE → HANDOFF → HARVEST → BUILD
 
-Structure Stitch prompts with these components for best results:
+The Stitch workflow has 4 clear phases. Claude handles PREPARE and HARVEST (MCP).
+The user handles HANDOFF (Stitch UI). Claude handles BUILD (frontend-design).
 
-```
-IDEA:    What it is (landing page, dashboard, login screen)
-THEME:   Visual style (modern, minimal, dark, high-contrast)
-CONTENT: Specific text, sections, components to include
-IMAGE:   (optional) Description of desired imagery
-
-GOOD:  "A mobile login screen with email/password fields, social login buttons,
-        dark theme with rounded corners and Inter font"
-
-GOOD:  "Product detail page for a Japandi-styled tea store. Neutral, minimal
-        colors, black buttons. Soft, elegant font."
-
-BAD:   "Make it look nice" (too vague — Stitch needs specifics)
-```
-
-**Edit prompts — one targeted change at a time:**
-```
-GOOD:  "Make the CTA button larger and change it to brand blue (#3B82F6)"
-GOOD:  "Add a navigation bar with Home, Products, About, Contact links"
-BAD:   "Completely redesign everything" (too broad — split into steps)
-```
+**IMPORTANT:** Claude does NOT generate screens via MCP. Screen generation is slow
+(2-5 min per screen), timeout-prone, and the user can't see it happening. Instead,
+Claude prepares everything, the user generates in Stitch UI (where they see progress
+in real-time and can iterate), then Claude harvests the HTML results.
 
 ---
 
-### Stitch design engines (modelId selection guide)
+#### PHASE 1: PREPARE (Claude, MCP — 2 min)
 
-Stitch offers multiple AI engines, each optimized for different tasks:
+Claude reads the project's brand context and prepares two things:
 
-| Engine | modelId (MCP) | Best for |
-|--------|--------------|----------|
-| **Thinking 3.1 Pro** | `GEMINI_3_1_PRO` | Complex logic, deep reasoning, production-quality designs. Slower but pixel-perfect. |
-| **Flash** | `GEMINI_3_FLASH` | Rapid iteration, quick edits, wireframing. Fast but less refined. |
-| **Redesign (Nano Banana)** | (UI only) | Modernizing old apps, stylistic experiments, "vibe design". Excels with style keywords. |
-| **2.5 Pro** | (UI only) | High-fidelity HTML, A/B comparisons alongside 3.1 Pro results. |
+**1a. Create Stitch project + design system via MCP:**
+```
+create_project({ title: "Project Name — UI/UX Design" })
+  → projectId
 
-**Style Word Bank (for Redesign mode prompts):**
-- Layout: `Bento Grid`, `Editorial`, `Swiss Style`, `Split-Screen`
-- Texture: `Glassmorphism`, `Claymorphism`, `Skeuomorphic`, `Grainy/Noise`
-- Atmosphere: `Brutalist`, `Cyberpunk`, `Y2K`, `Retro-Futurism`
-- Color: `Duotone`, `Monochromatic`, `Pastel Goth`, `Dark Mode OLED`
+create_design_system({
+  projectId,
+  designSystem: {
+    displayName: "Brand Name",
+    theme: {
+      colorMode: "LIGHT",           ← from brand guide
+      customColor: "#EE0000",        ← brand primary as seed
+      headlineFont: "INTER",         ← closest Stitch match (28 fonts)
+      bodyFont: "INTER",
+      roundness: "ROUND_EIGHT",      ← from brand radius tokens
+      colorVariant: "FIDELITY",      ← preserves exact brand colors
+      overridePrimaryColor: "#...",   ← from brand tokens
+      overrideSecondaryColor: "#...",
+      overrideNeutralColor: "#...",
+      designMd: "..."                ← FULL brand guide as DESIGN.md (see below)
+    }
+  }
+})
+```
 
-**MCP strategy:** Use `GEMINI_3_1_PRO` for initial generation, `GEMINI_3_FLASH` for iteration edits.
+**1b. Compose the DESIGN.md content for `designMd` field:**
+
+Read the project's brand files (brand-guidelines.md, design-tokens.css, etc.)
+and compose a Stitch-optimized DESIGN.md following this format:
+
+```markdown
+# [Brand Name] Design System
+
+## Overview
+[1-2 sentences: what the app is, who uses it, what personality]
+
+## Colors
+- **Primary** (#hex): [role — CTAs, header, links]
+- **Secondary** (#hex): [role — accents, AI features]
+- **Surface** (#hex): [cards, panels]
+- **Background** (#hex): [page background]
+- **Text** (#hex primary, #hex secondary, #hex muted)
+- **Status**: success #hex, warning #hex, error #hex, info #hex
+
+## Typography
+- Font: [name] (body), [name] (headings), [name] (code)
+- Body: [size]px, line-height [value]
+- Headings: [weight], [size range]
+
+## Components
+- Buttons: [radius, height, style]
+- Cards: [radius, padding, shadow]
+- Tables: [row height, stripe color, hover]
+- Inputs: [radius, height, border]
+- Header: [height, background, text color]
+- Sidebar: [width, background, text color]
+
+## Do's and Don'ts
+- Do [specific guidance]
+- Don't [specific anti-pattern]
+```
+
+**1c. Compose the screen generation prompt for the user:**
+
+Build ONE comprehensive prompt that covers ALL screens the project needs.
+Follow the Stitch prompting formula per screen:
+
+```
+IDEA:    What it is (dashboard, inbox, ticket list)
+THEME:   Visual style adjectives (modern, professional, clean)
+CONTENT: Specific content (sections, components, text in target language)
+IMAGE:   Optional image descriptions
+```
+
+The mega-prompt should read like a design brief:
+
+```
+"Design a complete [app type] with [N] screens. Use the loaded design system.
+[Target language] text throughout.
+
+Screen 1 — [Name]:
+[IDEA + THEME + CONTENT for this screen, 5-15 lines of detail]
+
+Screen 2 — [Name]:
+[IDEA + THEME + CONTENT]
+
+...
+
+STYLE NOTES:
+- [Overall visual direction]
+- [Specific component patterns]
+- [Color usage rules]
+- [Animation/interaction hints]"
+```
+
+**Pro tips for better Stitch prompts (from official docs):**
+- Use adjectives to set the vibe: "professional", "minimal", "high-contrast"
+- Use UI/UX keywords: "master-detail layout", "KPI cards", "sidebar navigation"
+- Include actual text content in the target language (not English placeholders)
+- Specify colors with hex values where important
+- Describe desired imagery style if screens include images
+- One major design direction per prompt — use Variants for alternatives
 
 ---
 
-### Stitch critical agent behaviors
+#### PHASE 2: HANDOFF (User, Stitch UI — 10-30 min)
 
-1. **Open Chrome IMMEDIATELY when generation starts** — Do NOT wait for generation to complete.
-   **GENERATION PROTOCOL (mandatory):**
-   ```
-   generate_screen_from_text called (MCP)
-     ↓ IMMEDIATELY (do not wait for MCP response):
-   Open Chrome tab: https://stitch.withgoogle.com/project/{projectId}
-   Tell user: "A Stitch generálás elindult. A Chrome-ban látod a projektet élőben.
-   A generálás 2-5 percet vehet igénybe — a képernyő megjelenik a canvason ha kész.
-   Iterálhatsz a Stitch UI-ban (Edit Theme, Variants), vagy szólj ha tetszik."
-     ↓
-   MCP response arrives (success or timeout — both OK):
-     SUCCESS → screen data available, proceed to harvest when user is done
-     TIMEOUT → the generation is STILL RUNNING in the background
-       DO NOT retry. DO NOT shorten the prompt. DO NOT switch to a faster model.
-       The user can already see the progress in Chrome.
-       Wait for user to say "kész" / "tetszik" / "done"
-     ↓
-   When user signals done → list_screens → get_screen → harvest HTML + screenshots
-   ```
-   **WHY Chrome first:** Stitch UI shows real-time generation progress, offers suggestions
-   (e.g., "Design the Inbox screen"), and allows interactive iteration. The user is NOT blind
-   during the 2-5 min wait — they see everything in Chrome. MCP is for programmatic
-   harvest, not for watching progress.
+Claude opens the Stitch project in Chrome and gives the user the prompt:
 
-2. **NEVER retry after timeout** — The generation runs in the background even after MCP timeout. Retrying creates DUPLICATE screens. If the user sees the screen in Chrome, it worked. Only retry if the user confirms nothing appeared after 5+ minutes.
-3. **Present suggestions** — If `output_components` in the response contains suggestions, present them to the user before acting. If user accepts, call again with the suggestion as the new prompt.
-4. **Download with `curl -L`** — Screen artifact URLs may redirect. Always use `curl -L` to follow redirects when downloading HTML or screenshots.
-5. **One change at a time** — When editing screens with `edit_screens`, make one targeted change per call for best results. Multiple simultaneous changes degrade quality.
-6. **Design system first** — Always create/apply a design system before generating screens for consistent output. Map brand tokens from /blox:brand directly.
+```
+"A Stitch projektben beállítottam a design system-et a brand tokenekből.
+
+Másold be ezt a promptot a Stitch chatbe:
+
+---
+[the composed mega-prompt]
+---
+
+A Stitch generálja a képernyőket. Iterálj kedvedre:
+- Edit Theme: színek, fontok finomhangolása
+- Variants: layout alternatívák generálása (Refine/Explore/Reimagine)
+- Redesign mode: stílusváltások (Style Word Bank: Bento Grid, Swiss Style, stb.)
+- Upload: tölts fel referencia képernyőfotókat ha van
+- A Stitch javasol következő képernyőket is — használd!
+
+Szólj ha minden kész."
+```
+
+The user works in Stitch UI — they see real-time generation, iterate with variants,
+edit themes, and use Stitch's interactive suggestions. Claude waits.
+
+**Stitch UI tips to include for the user:**
+- **Thinking 3.1 Pro**: best for complex screens (dashboard, inbox) — slower but precise
+- **Flash**: best for quick iterations — faster but less refined
+- **Redesign (Nano Banana)**: best for style experiments — use with Style Word Bank keywords
+- **Variants**: generate 1-5 alternatives with creative range (Refine → Explore → Reimagine)
+- **Edit prompts**: one change at a time for best results
+
+---
+
+#### PHASE 3: HARVEST (Claude, MCP — 2 min)
+
+When user says "kész" / "done":
+
+```
+1. list_screens({ projectId })
+   → get list of all screen IDs and titles
+
+2. For each screen:
+   get_screen({ name, projectId, screenId })
+   → extract htmlCode.downloadUrl AND screenshot.downloadUrl
+
+3. Download HTML FIRST (primary — this is what frontend-design needs):
+   curl -L -o docs/design/stitch-screens/{screen-name}.html "HTML_URL"
+
+4. Download screenshot SECOND (visual reference):
+   curl -L -o docs/design/stitch-screens/{screen-name}.png "SCREENSHOT_URL"
+
+5. Verify: count downloaded HTML files = expected screen count
+   If missing → tell user which screens to generate in Stitch
+
+6. Extract Tailwind config from HTML:
+   Parse <script id="tailwind-config"> → colors, fonts, spacing tokens
+   Parse <link> with fonts.googleapis.com → Google Fonts used
+```
+
+**CRITICAL:** Always download HTML (`htmlCode.downloadUrl`), not just screenshots.
+The HTML contains the Tailwind code — a screenshot is just a picture with zero code value.
+URLs may redirect — always use `curl -L`.
+
+---
+
+#### PHASE 4: BUILD (Claude, frontend-design — component library bootstrap)
+
+The first 5-10 Stitch screens create a COMPONENT LIBRARY. After that, Claude builds
+new screens from existing components without needing Stitch again.
+
+```
+STITCH SCREENS (5-10 initial):
+  dashboard.html, inbox.html, ticket-list.html, ticket-detail.html,
+  customer-360.html, ai-chat.html, ...
+       ↓
+FRONTEND-DESIGN CONVERTS (per HTML):
+  Read HTML structure + screenshot visual reference
+  → Map Tailwind classes to project CSS tokens/variables
+  → Generate React components using project's design system
+  → Output: production-ready .tsx files with proper imports
+       ↓
+COMPONENT LIBRARY EMERGES:
+  AppShell (Header, Sidebar, Layout)
+  KPICard, DataTable, FilterBar, Pagination
+  EmailList, EmailDetail, AISuggestionPanel
+  CustomerCard, TicketThread, StatusBadge
+  ChartContainer, ActivityFeed, SearchBar
+  Modal, FormField, Button (already in design system)
+       ↓
+NEW SCREENS = COMPOSITION (no more Stitch needed):
+  Settings page  = AppShell + FormField + DataTable
+  Reports page   = AppShell + ChartContainer + FilterBar
+  Admin page     = AppShell + DataTable + Modal + FormField
+  New feature    = existing components + minimal new ones
+```
+
+After the initial Stitch bootstrap, Claude + frontend-design can create any new
+screen by composing existing components. Stitch is only needed again for:
+- Major new visual directions (completely different page types)
+- Style experiments (Redesign mode)
+- Client presentations (visual mockups before coding)
 
 ---
 
@@ -270,163 +414,7 @@ map its content to `designMd` for Stitch to enforce consistency across screens.
 
 ---
 
-### Corporate design system → Stitch mapping
-
-When a project has an existing corporate design system (Material, Ant, Chakra, or a custom one),
-map it to Stitch's DesignTheme + DESIGN.md before generating screens:
-
-```
-MAPPING STRATEGY:
-  1. DesignTheme fields (enum-constrained — use closest match):
-     - customColor      → corporate primary color hex (e.g., #EE0000)
-     - headlineFont     → closest Stitch font enum match (see 29 fonts)
-     - bodyFont         → same or different closest match
-     - colorMode        → LIGHT or DARK based on corporate theme
-     - roundness        → ROUND_FOUR (4px) / ROUND_EIGHT (8px) / ROUND_TWELVE (12px)
-     - colorVariant     → FIDELITY (preserves brand color exactly)
-     - overrideColors   → map corporate secondary/tertiary/neutral hex values
-
-  2. designMd field (freeform markdown — put EVERYTHING here):
-     - Exact font name if not in Stitch enum (e.g., "Noto Sans", "Custom Corp Font")
-     - Full color palette with roles (52+ colors if corporate has them)
-     - Component-specific rules (pill buttons, card radius, shadow levels)
-     - Spacing system, grid system, accessibility rules
-     - Do's and Don'ts from the brand guide
-     - Semantic token mappings (primary/secondary/surface/border/status)
-
-  3. Reference images (via Stitch UI):
-     - Upload screenshots of existing corporate app screens
-     - Use as reference for edit_screens to maintain visual consistency
-
-WHY both:
-  DesignTheme → Stitch uses these for the core generation engine (color palette, font rendering)
-  designMd   → Stitch reads this as style guidelines (affects layout, component style, spacing)
-  Together they produce designs that are much closer to the corporate system than either alone.
-```
-
-**Important:** Stitch generates HTML + Tailwind, NOT corporate components. The HTML serves
-as a visual reference and layout guide. The actual frontend-design plugin (or /blox:build)
-converts Stitch output to corporate React components (e.g., `<Button variant="primary">`,
-`<Card title="...">` from the project's own component library).
-
----
-
-### Interactive Chrome workflow (recommended for Stitch modes)
-
-When Stitch MCP is available AND the user is present, use this hybrid workflow
-instead of pure MCP automation. The user gets visual control, Claude gets efficiency.
-
-```
-PHASE 1 — Claude sets up (MCP, automated):
-  1. create_project → create_design_system (with corporate DESIGN.md)
-  2. generate_screen_from_text (initial generation with GEMINI_3_1_PRO)
-  3. Open the Stitch project in Chrome: https://stitch.withgoogle.com/project/{projectId}
-  4. Tell user: "The design is in Stitch. Iterate until you're happy:
-     - Edit Theme to tweak colors/fonts
-     - Use Variants for layout alternatives
-     - Upload reference images if needed
-     Tell me when it's ready."
-
-PHASE 2 — User iterates (Stitch UI, manual):
-  → User sees the design on the Stitch canvas
-  → Edit Theme, Generate Variants, Redesign mode
-  → Manual tweaks, drag screens, upload references
-  → User says "kesz" / "ez tetszik" / "done"
-
-PHASE 3 — Claude harvests + converts (MCP + frontend-design):
-  1. list_screens → get_screen for each → download HTML + screenshots (curl -L)
-  2. Extract Tailwind config from HTML (<script id="tailwind-config">)
-  3. Feed HTML + screenshot to frontend-design plugin:
-     "Convert this Stitch HTML to corporate React components.
-      Use the project's design system components: Button, Card, Modal, Input, Table, etc.
-      Map Tailwind classes to the project's CSS variables/tokens."
-  4. Output: production React code using corporate design system
-```
-
-**When to use Chrome workflow vs pure MCP:**
-- Chrome: user is present, design needs human judgment, corporate brand
-- Pure MCP: automated pipelines, CI/CD, batch generation, no human in loop
-
----
-
-### Full Mode workflow (Stitch + frontend-design)
-
-```
-Step 2 (Wireframe/Layout):
-  1. Create Stitch project (create_project)
-  2. Map brand tokens → Stitch design system:
-     - Brand primary color     → theme.customColor (seed) + overridePrimaryColor
-     - Brand secondary color   → theme.overrideSecondaryColor
-     - Brand personality       → theme.designMd (DESIGN.md markdown with Overview + Do's/Don'ts)
-     - Brand heading font      → theme.headlineFont (closest match from 29 fonts)
-     - Brand body font         → theme.bodyFont
-     - Light/dark preference   → theme.colorMode
-     - Corner radius style     → theme.roundness (ROUND_FOUR/EIGHT/TWELVE/FULL)
-     - Color mood              → theme.colorVariant (MONOCHROME for minimal, VIBRANT for energetic)
-     Call: create_design_system with mapped values
-  3. Generate screen (generate_screen_from_text):
-     - Use GEMINI_3_1_PRO for initial generation (higher quality, reasoning)
-     - Set deviceType based on target (DESKTOP for dashboard, MOBILE for app)
-     - Use Stitch prompting formula: IDEA + THEME + CONTENT
-  4. Generate 3 variants (generate_variants):
-     - creativeRange: EXPLORE for first iteration
-     - aspects: [LAYOUT, COLOR_SCHEME] to vary visual direction
-  5. Present screenshots to user → "Which direction do you prefer? (1/2/3)"
-     - If output_components has suggestions → present those too
-  6. User picks → iterate with edit_screens if needed
-     - Use GEMINI_3_FLASH for fast iteration edits
-     - ONE change per edit_screens call
-  7. Apply design system to final screens (apply_design_system) for consistency
-  8. Harvest via MCP (see HARVEST PROTOCOL below)
-
-Step 4 (Component Specification):
-  → Use frontend-design plugin to convert Stitch HTML to production React/Vue components
-  → The Stitch HTML is the PRIMARY input (structure, layout, Tailwind classes)
-  → The Stitch screenshot is SECONDARY (visual reference only)
-  → frontend-design adds: bold typography, motion, accessibility, custom fonts
-```
-
-**HARVEST PROTOCOL (mandatory for all Stitch modes):**
-```
-When user signals "kész" / "tetszik" / "done" → harvest the selected screen(s):
-
-1. get_screen → extract BOTH URLs from response:
-   - htmlCode.downloadUrl  → THIS IS THE PRIMARY OUTPUT (HTML + embedded Tailwind config)
-   - screenshot.downloadUrl → secondary visual reference
-
-2. Download HTML FIRST (this is what frontend-design needs):
-   curl -L -o docs/design/stitch-screens/{screen-name}.html "HTML_DOWNLOAD_URL"
-
-3. Download screenshot SECOND (visual reference):
-   curl -L -o docs/design/stitch-screens/{screen-name}.png "SCREENSHOT_DOWNLOAD_URL"
-
-4. Extract Tailwind config from HTML (design tokens):
-   Parse <script id="tailwind-config"> from the HTML file
-   → Colors, fonts, spacing, border radius — maps to project tokens
-
-5. Feed to frontend-design:
-   INPUT: the HTML file (structural reference) + screenshot (visual reference)
-   PROMPT: "Convert this Stitch HTML to [corporate] React components.
-   Use the project's design system. Map Tailwind classes to project CSS tokens."
-
-CRITICAL: NEVER download only screenshots (PNG). The HTML is the whole point of
-Stitch — it contains the Tailwind code that frontend-design converts to production
-components. A screenshot alone is just a picture with zero code value.
-```
-
-### Stitch Mode workflow (Stitch only)
-
-```
-Step 2: Same as Full Mode steps 1-8
-Step 4: Design-to-code handoff — follow HARVEST PROTOCOL above:
-  1. HTML file is the primary deliverable (Tailwind + structure)
-  2. Screenshot is the visual reference
-  3. Tailwind config extracted = design token bridge
-  4. Component spec in markdown WITH concrete HTML reference
-  → User converts to React/Vue manually, with /blox:build, or with LLM conversion
-```
-
-### Code Mode workflow (frontend-design only — current behavior)
+### Code Mode workflow (frontend-design only — no Stitch)
 
 ```
 Step 2: Text-based wireframe descriptions (ASCII layout options)
@@ -443,52 +431,6 @@ Step 4: Markdown component specs with props, states, variants, a11y requirements
 **Additional plugin capabilities (any mode):**
 - **playground**: Interactive prototype from any wireframe/design
 - **image-generation**: AI-generated UI assets (icons, illustrations, hero images)
-
-**Stitch + reference image workflow (any Stitch mode):**
-If user has a reference image (screenshot, Figma export, sketch):
-```
-Use the Stitch web UI to upload a reference image to the project
-→ The uploaded image becomes a screen on the canvas
-→ Use edit_screens via MCP to iterate on it with AI edits
-→ Iterate with edit_screens + generate_variants as usual
-Note: MCP has NO upload tool — image upload is done via the Stitch UI only
-```
-
-**Stitch theme extraction (design-to-code pipeline):**
-Stitch HTML contains embedded Tailwind config + Google Fonts + Material Symbols.
-Extract for reuse in your project:
-```
-1. Download HTML: curl -L -o design.html "SCREEN_HTML_URL"
-2. Extract Tailwind config: parse <script id="tailwind-config"> from HTML
-   → Contains colors, fonts, spacing, border radius tokens
-3. Extract Google Fonts: parse <link> tags with fonts.googleapis.com
-4. Extract Material Symbols: parse <span class="material-symbols-*">
-5. Use extracted tokens to configure your project's tailwind.config.ts
-```
-
-**Stitch SDK + AI SDK integration:**
-```typescript
-import { stitchTools } from "@google/stitch-sdk/ai";
-import { generateText } from "ai";
-import { google } from "@ai-sdk/google";
-
-const { text } = await generateText({
-  model: google("gemini-3.1-flash-lite-preview"),
-  tools: stitchTools(),  // all 12 MCP tools as AI SDK tools
-  stopWhen: stepCountIs(5),
-  prompt: "Create a project and generate a hero section with a CTA",
-});
-
-// Filter tools: stitchTools({ include: ["create_project", "generate_screen_from_text"] })
-// Env: STITCH_API_KEY, STITCH_HOST (optional)
-```
-
-**Stitch Agent Skills (pre-built automation):**
-```bash
-npx add-skill google-labs-code/stitch-skills --skill react:components --global
-```
-Then prompt: "Convert the Landing Page screen in my Podcast Project"
-→ The agent handles the full pipeline: get screen → download HTML + image → convert to React
 
 ---
 
