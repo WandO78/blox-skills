@@ -194,11 +194,32 @@ Stitch offers multiple AI engines, each optimized for different tasks:
 
 ### Stitch critical agent behaviors
 
-1. **Generation takes 2-5 minutes** — `generate_screen_from_text` and `edit_screens` are slow. Do NOT retry on connection errors or timeouts. Instead, wait and use `get_screen` to check status.
+1. **Generation takes 2-5 minutes** — `generate_screen_from_text` and `edit_screens` are slow. Do NOT retry on connection errors or timeouts. The screen is being generated in the background even after a timeout.
+   **TIMEOUT RECOVERY PROTOCOL (mandatory):**
+   ```
+   generate_screen_from_text → TIMEOUT or connection error
+     ↓
+   DO NOT retry. DO NOT shorten the prompt. DO NOT switch to a faster model.
+   The generation is running in the background.
+     ↓
+   Wait 60 seconds → list_screens
+     ↓
+   If empty {} → wait 60 more seconds → list_screens again
+   Repeat up to 5 times (total ~5 min wait)
+     ↓
+   If screen appears → get_screen → check screenMetadata.status
+     IN_PROGRESS → wait more
+     COMPLETE → success, proceed
+     FAILED → NOW you can retry with a shorter prompt or faster model
+     ↓
+   If still empty after 5 min → THEN retry (shorter prompt or GEMINI_3_FLASH)
+   ```
+   Tell the user what's happening: "A Stitch generálás fut a háttérben. Ez 2-5 percet vehet igénybe. Ellenőrzöm 60 másodpercenként..."
 2. **Present suggestions** — If `output_components` in the response contains suggestions, present them to the user before acting. If user accepts, call again with the suggestion as the new prompt.
 3. **Download with `curl -L`** — Screen artifact URLs may redirect. Always use `curl -L` to follow redirects when downloading HTML or screenshots.
 4. **One change at a time** — When editing screens with `edit_screens`, make one targeted change per call for best results. Multiple simultaneous changes degrade quality.
 5. **Design system first** — Always create/apply a design system before generating screens for consistent output. Map brand tokens from /blox:brand directly.
+6. **Open in Chrome after generation** — Once the screen is COMPLETE, open the Stitch project in Chrome for the user to see and iterate: `https://stitch.withgoogle.com/project/{projectId}`. Tell the user: "A design kész. Megnyitom Chrome-ban — iterálj kedvedre, szólj ha elégedett vagy."
 
 ---
 
