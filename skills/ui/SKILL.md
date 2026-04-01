@@ -377,24 +377,52 @@ Step 2 (Wireframe/Layout):
      - Use GEMINI_3_FLASH for fast iteration edits
      - ONE change per edit_screens call
   7. Apply design system to final screens (apply_design_system) for consistency
-  8. Download final HTML + screenshot (get_screen → curl -L URLs)
+  8. Harvest via MCP (see HARVEST PROTOCOL below)
 
 Step 4 (Component Specification):
   → Use frontend-design plugin to convert Stitch HTML to production React/Vue components
-  → The Stitch screenshot serves as the visual reference
-  → The Stitch HTML serves as the structural reference
+  → The Stitch HTML is the PRIMARY input (structure, layout, Tailwind classes)
+  → The Stitch screenshot is SECONDARY (visual reference only)
   → frontend-design adds: bold typography, motion, accessibility, custom fonts
+```
+
+**HARVEST PROTOCOL (mandatory for all Stitch modes):**
+```
+When user signals "kész" / "tetszik" / "done" → harvest the selected screen(s):
+
+1. get_screen → extract BOTH URLs from response:
+   - htmlCode.downloadUrl  → THIS IS THE PRIMARY OUTPUT (HTML + embedded Tailwind config)
+   - screenshot.downloadUrl → secondary visual reference
+
+2. Download HTML FIRST (this is what frontend-design needs):
+   curl -L -o docs/design/stitch-screens/{screen-name}.html "HTML_DOWNLOAD_URL"
+
+3. Download screenshot SECOND (visual reference):
+   curl -L -o docs/design/stitch-screens/{screen-name}.png "SCREENSHOT_DOWNLOAD_URL"
+
+4. Extract Tailwind config from HTML (design tokens):
+   Parse <script id="tailwind-config"> from the HTML file
+   → Colors, fonts, spacing, border radius — maps to project tokens
+
+5. Feed to frontend-design:
+   INPUT: the HTML file (structural reference) + screenshot (visual reference)
+   PROMPT: "Convert this Stitch HTML to [corporate] React components.
+   Use the project's design system. Map Tailwind classes to project CSS tokens."
+
+CRITICAL: NEVER download only screenshots (PNG). The HTML is the whole point of
+Stitch — it contains the Tailwind code that frontend-design converts to production
+components. A screenshot alone is just a picture with zero code value.
 ```
 
 ### Stitch Mode workflow (Stitch only)
 
 ```
 Step 2: Same as Full Mode steps 1-8
-Step 4: Design-to-code handoff:
-  1. Download HTML: curl -L -o design.html "SCREEN_HTML_URL"
-  2. Download screenshot: curl -L -o design.png "SCREEN_SCREENSHOT_URL"
-  3. Include both in the design handoff document
-  4. Component spec in markdown (like Basic mode) but WITH concrete HTML reference
+Step 4: Design-to-code handoff — follow HARVEST PROTOCOL above:
+  1. HTML file is the primary deliverable (Tailwind + structure)
+  2. Screenshot is the visual reference
+  3. Tailwind config extracted = design token bridge
+  4. Component spec in markdown WITH concrete HTML reference
   → User converts to React/Vue manually, with /blox:build, or with LLM conversion
 ```
 
