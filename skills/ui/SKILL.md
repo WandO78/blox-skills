@@ -224,15 +224,17 @@ Stitch offers multiple AI engines, each optimized for different tasks:
   - `headlineFont` (required) — font for headlines (see font list below)
   - `bodyFont` (required) — font for body text
   - `labelFont` (optional) — font for labels
-  - `roundness` (required) — `ROUND_FOUR | ROUND_EIGHT | ROUND_TWELVE | ROUND_FULL`
+  - `roundness` (required) — `ROUND_FOUR | ROUND_EIGHT | ROUND_TWELVE | ROUND_FULL` (ROUND_TWO deprecated)
   - `colorVariant` (optional) — `MONOCHROME | NEUTRAL | TONAL_SPOT | VIBRANT | EXPRESSIVE | FIDELITY | CONTENT | RAINBOW | FRUIT_SALAD`
+  - `spacingScale` (optional) — `0` (minimal) | `1` (compact) | `2` (normal, default)
   - `overridePrimaryColor` (optional) — hex override for primary
   - `overrideSecondaryColor` (optional) — hex override for secondary
   - `overrideTertiaryColor` (optional) — hex override for tertiary
   - `overrideNeutralColor` (optional) — hex override for neutral
   - `designMd` (optional) — DESIGN.md markdown content (freeform design instructions)
+  - Deprecated fields (do NOT use): `font`, `description`, `preset`, `saturation`, `backgroundDark`, `backgroundLight`
 
-**29 supported fonts:**
+**28 supported fonts (verified from live API):**
 Sans: `INTER`, `DM_SANS`, `GEIST`, `SORA`, `MANROPE`, `LEXEND`, `EPILOGUE`, `BE_VIETNAM_PRO`, `PLUS_JAKARTA_SANS`, `PUBLIC_SANS`, `SPACE_GROTESK`, `SPLINE_SANS`, `WORK_SANS`, `MONTSERRAT`, `METROPOLIS`, `SOURCE_SANS_THREE`, `NUNITO_SANS`, `ARIMO`, `HANKEN_GROTESK`, `RUBIK`, `IBM_PLEX_SANS`
 Serif: `NEWSREADER`, `NOTO_SERIF`, `DOMINE`, `LIBRE_CASLON_TEXT`, `EB_GARAMOND`, `LITERATA`, `SOURCE_SERIF_FOUR`
 
