@@ -85,7 +85,12 @@ The skill auto-detects available tools and runs in the best available mode:
 
 **Tool detection (runs at start of skill):**
 ```
-CHECK Stitch MCP: look for mcp__stitch tools (create_project, generate_screen_from_text, etc.)
+CHECK Stitch MCP: look for mcp__stitch tools — any of these 14 tools:
+  Project:  create_project, get_project, delete_project, list_projects
+  Screens:  list_screens, get_screen, upload_screens_from_images
+  Generate: generate_screen_from_text, edit_screens, generate_variants
+  Design:   create_design_system, update_design_system, list_design_systems, apply_design_system
+
 CHECK frontend-design: look for installed plugin
 CHECK playground: look for installed plugin
 CHECK image-generation: look for installed plugin
@@ -103,16 +108,105 @@ ANNOUNCE to user:
   BASIC:  "Running in basic mode — I'll create detailed wireframe specs and component lists."
 ```
 
+**Stitch MCP setup (if not configured):**
+```
+claude mcp add stitch \
+  --transport http https://stitch.googleapis.com/mcp \
+  --header "X-Goog-Api-Key: API_KEY" \
+  -s user
+
+API key: https://stitch.withgoogle.com/settings → API Keys → Create
+```
+
+---
+
+### Stitch prompting formula
+
+Structure Stitch prompts with these components for best results:
+
+```
+IDEA:    What it is (landing page, dashboard, login screen)
+THEME:   Visual style (modern, minimal, dark, high-contrast)
+CONTENT: Specific text, sections, components to include
+IMAGE:   (optional) Description of desired imagery
+
+GOOD:  "A mobile login screen with email/password fields, social login buttons,
+        dark theme with rounded corners and Inter font"
+
+GOOD:  "Product detail page for a Japandi-styled tea store. Neutral, minimal
+        colors, black buttons. Soft, elegant font."
+
+BAD:   "Make it look nice" (too vague — Stitch needs specifics)
+```
+
+**Edit prompts — one targeted change at a time:**
+```
+GOOD:  "Make the CTA button larger and change it to brand blue (#3B82F6)"
+GOOD:  "Add a navigation bar with Home, Products, About, Contact links"
+BAD:   "Completely redesign everything" (too broad — split into steps)
+```
+
+---
+
+### Stitch critical agent behaviors
+
+1. **Generation takes 2-5 minutes** — `generate_screen_from_text` and `edit_screens` are slow. Do NOT retry on connection errors or timeouts. Instead, wait and use `get_screen` to check status.
+2. **Present suggestions** — If `output_components` in the response contains suggestions, present them to the user before acting. If user accepts, call again with the suggestion as the new prompt.
+3. **Download with `curl -L`** — Screen artifact URLs may redirect. Always use `curl -L` to follow redirects when downloading HTML or screenshots.
+4. **One change at a time** — When editing screens with `edit_screens`, make one targeted change per call for best results. Multiple simultaneous changes degrade quality.
+5. **Design system first** — Always create/apply a design system before generating screens for consistent output. Map brand tokens from /blox:brand directly.
+
+---
+
+### Stitch key parameters
+
+**generate_screen_from_text:**
+- `projectId` (required) — from `create_project`
+- `prompt` (required) — structured with IDEA + THEME + CONTENT
+- `deviceType` — `MOBILE | DESKTOP | TABLET | AGNOSTIC`
+- `modelId` — `GEMINI_3_PRO` (higher quality) | `GEMINI_3_FLASH` (faster, iteration)
+
+**generate_variants:**
+- `variantCount` — 1 to 5 (default 3)
+- `creativeRange` — `REFINE` (subtle) | `EXPLORE` (moderate) | `REIMAGINE` (dramatic)
+- `aspects` — which parts to vary: `LAYOUT`, `COLOR_SCHEME`, `IMAGES`, `TEXT_FONT`, `TEXT_CONTENT`
+
+**create_design_system:**
+- `displayName` — brand name
+- `theme.colorMode` — `LIGHT | DARK`
+- `theme.accentColor` — hex color (e.g., `#3B82F6`)
+- `theme.font` — `INTER | ROBOTO | POPPINS | DM_SANS | GEIST | PLAYFAIR_DISPLAY | MERRIWEATHER | MONTSERRAT | LATO | OPEN_SANS | SOURCE_CODE_PRO | SPACE_MONO | PLUS_JAKARTA_SANS`
+- `theme.roundness` — `SHARP | SLIGHTLY_ROUNDED | ROUNDED | VERY_ROUNDED | PILL`
+- `styleGuidelines` — freeform text (brand personality, do's/don'ts)
+
+---
+
 ### Full Mode workflow (Stitch + frontend-design)
 
 ```
 Step 2 (Wireframe/Layout):
   1. Create Stitch project (create_project)
-  2. Create design system from brand tokens (create_design_system) if /blox:brand ran before
-  3. Generate 3 screen variants (generate_screen_from_text + generate_variants)
-  4. Present screenshots to user → "Which direction do you prefer? (1/2/3)"
-  5. User picks → iterate with edit_screens if needed
-  6. Download final HTML + screenshot (get_screen)
+  2. Map brand tokens → Stitch design system:
+     - Brand primary color     → theme.accentColor
+     - Brand personality       → styleGuidelines (freeform)
+     - Brand heading font      → theme.font (closest match from 13 options)
+     - Light/dark preference   → theme.colorMode
+     - Corner radius style     → theme.roundness
+     Call: create_design_system with mapped values
+  3. Generate screen (generate_screen_from_text):
+     - Use GEMINI_3_PRO for initial generation (higher quality)
+     - Set deviceType based on target (DESKTOP for dashboard, MOBILE for app)
+     - Use Stitch prompting formula: IDEA + THEME + CONTENT
+  4. Generate 3 variants (generate_variants):
+     - creativeRange: EXPLORE for first iteration
+     - aspects: [LAYOUT, COLOR_SCHEME] to vary visual direction
+  5. Present screenshots to user → "Which direction do you prefer? (1/2/3)"
+     - If output_components has suggestions → present those too
+  6. User picks → iterate with edit_screens if needed
+     - Use GEMINI_3_FLASH for fast iteration edits
+     - ONE change per edit_screens call
+  7. Apply design system to final screens (apply_design_system) for consistency
+  8. Download final HTML + screenshot (get_screen → curl -L URLs)
 
 Step 4 (Component Specification):
   → Use frontend-design plugin to convert Stitch HTML to production React/Vue components
@@ -124,10 +218,13 @@ Step 4 (Component Specification):
 ### Stitch Mode workflow (Stitch only)
 
 ```
-Step 2: Same as Full Mode steps 1-6
-Step 4: Output the downloaded HTML + screenshot as the design handoff
-  → Component spec in markdown (like Basic mode) but with concrete HTML reference
-  → User can convert to React/Vue manually or with /blox:build
+Step 2: Same as Full Mode steps 1-8
+Step 4: Design-to-code handoff:
+  1. Download HTML: curl -L -o design.html "SCREEN_HTML_URL"
+  2. Download screenshot: curl -L -o design.png "SCREEN_SCREENSHOT_URL"
+  3. Include both in the design handoff document
+  4. Component spec in markdown (like Basic mode) but WITH concrete HTML reference
+  → User converts to React/Vue manually, with /blox:build, or with LLM conversion
 ```
 
 ### Code Mode workflow (frontend-design only — current behavior)
@@ -147,6 +244,14 @@ Step 4: Markdown component specs with props, states, variants, a11y requirements
 **Additional plugin capabilities (any mode):**
 - **playground**: Interactive prototype from any wireframe/design
 - **image-generation**: AI-generated UI assets (icons, illustrations, hero images)
+
+**Stitch + image upload workflow (any Stitch mode):**
+If user has a reference image (screenshot, Figma export, sketch):
+```
+1. upload_screens_from_images — upload as base64 to create a reference screen
+2. edit_screens — use the uploaded screen as starting point for AI edits
+3. Iterate with edit_screens + generate_variants as usual
+```
 
 ---
 
