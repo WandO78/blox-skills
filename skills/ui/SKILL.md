@@ -148,6 +148,27 @@ BAD:   "Completely redesign everything" (too broad — split into steps)
 
 ---
 
+### Stitch design engines (modelId selection guide)
+
+Stitch offers multiple AI engines, each optimized for different tasks:
+
+| Engine | modelId (MCP) | Best for |
+|--------|--------------|----------|
+| **Thinking 3.1 Pro** | `GEMINI_3_1_PRO` | Complex logic, deep reasoning, production-quality designs. Slower but pixel-perfect. |
+| **Flash** | `GEMINI_3_FLASH` | Rapid iteration, quick edits, wireframing. Fast but less refined. |
+| **Redesign (Nano Banana)** | (UI only) | Modernizing old apps, stylistic experiments, "vibe design". Excels with style keywords. |
+| **2.5 Pro** | (UI only) | High-fidelity HTML, A/B comparisons alongside 3.1 Pro results. |
+
+**Style Word Bank (for Redesign mode prompts):**
+- Layout: `Bento Grid`, `Editorial`, `Swiss Style`, `Split-Screen`
+- Texture: `Glassmorphism`, `Claymorphism`, `Skeuomorphic`, `Grainy/Noise`
+- Atmosphere: `Brutalist`, `Cyberpunk`, `Y2K`, `Retro-Futurism`
+- Color: `Duotone`, `Monochromatic`, `Pastel Goth`, `Dark Mode OLED`
+
+**MCP strategy:** Use `GEMINI_3_1_PRO` for initial generation, `GEMINI_3_FLASH` for iteration edits.
+
+---
+
 ### Stitch critical agent behaviors
 
 1. **Generation takes 2-5 minutes** — `generate_screen_from_text` and `edit_screens` are slow. Do NOT retry on connection errors or timeouts. Instead, wait and use `get_screen` to check status.
@@ -274,8 +295,44 @@ Use the Stitch web UI to upload a reference image to the project
 → The uploaded image becomes a screen on the canvas
 → Use edit_screens via MCP to iterate on it with AI edits
 → Iterate with edit_screens + generate_variants as usual
-Note: MCP does not have an upload tool — image upload is done via the Stitch UI
+Note: MCP has NO upload tool — image upload is done via the Stitch UI only
 ```
+
+**Stitch theme extraction (design-to-code pipeline):**
+Stitch HTML contains embedded Tailwind config + Google Fonts + Material Symbols.
+Extract for reuse in your project:
+```
+1. Download HTML: curl -L -o design.html "SCREEN_HTML_URL"
+2. Extract Tailwind config: parse <script id="tailwind-config"> from HTML
+   → Contains colors, fonts, spacing, border radius tokens
+3. Extract Google Fonts: parse <link> tags with fonts.googleapis.com
+4. Extract Material Symbols: parse <span class="material-symbols-*">
+5. Use extracted tokens to configure your project's tailwind.config.ts
+```
+
+**Stitch SDK + AI SDK integration:**
+```typescript
+import { stitchTools } from "@google/stitch-sdk/ai";
+import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
+
+const { text } = await generateText({
+  model: google("gemini-3.1-flash-lite-preview"),
+  tools: stitchTools(),  // all 12 MCP tools as AI SDK tools
+  stopWhen: stepCountIs(5),
+  prompt: "Create a project and generate a hero section with a CTA",
+});
+
+// Filter tools: stitchTools({ include: ["create_project", "generate_screen_from_text"] })
+// Env: STITCH_API_KEY, STITCH_HOST (optional)
+```
+
+**Stitch Agent Skills (pre-built automation):**
+```bash
+npx add-skill google-labs-code/stitch-skills --skill react:components --global
+```
+Then prompt: "Convert the Landing Page screen in my Podcast Project"
+→ The agent handles the full pipeline: get screen → download HTML + image → convert to React
 
 ---
 
