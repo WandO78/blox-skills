@@ -223,7 +223,7 @@ map its content to `designMd` for Stitch to enforce consistency across screens.
 
 ### Corporate design system → Stitch mapping
 
-When a project has an existing corporate design system (like VDS, Material, Ant, etc.),
+When a project has an existing corporate design system (Material, Ant, Chakra, or a custom one),
 map it to Stitch's DesignTheme + DESIGN.md before generating screens:
 
 ```
@@ -238,7 +238,7 @@ MAPPING STRATEGY:
      - overrideColors   → map corporate secondary/tertiary/neutral hex values
 
   2. designMd field (freeform markdown — put EVERYTHING here):
-     - Exact font name if not in Stitch enum (e.g., "Noto Sans", "TheSansVeolia")
+     - Exact font name if not in Stitch enum (e.g., "Noto Sans", "Custom Corp Font")
      - Full color palette with roles (52+ colors if corporate has them)
      - Component-specific rules (pill buttons, card radius, shadow levels)
      - Spacing system, grid system, accessibility rules
@@ -257,8 +257,8 @@ WHY both:
 
 **Important:** Stitch generates HTML + Tailwind, NOT corporate components. The HTML serves
 as a visual reference and layout guide. The actual frontend-design plugin (or /blox:build)
-converts Stitch output to corporate React components (e.g., VDS `<Button variant="primary">`,
-VDS `<Card cardTitle="...">`, etc.).
+converts Stitch output to corporate React components (e.g., `<Button variant="primary">`,
+`<Card title="...">` from the project's own component library).
 
 ---
 
@@ -288,9 +288,9 @@ PHASE 3 — Claude harvests + converts (MCP + frontend-design):
   1. list_screens → get_screen for each → download HTML + screenshots (curl -L)
   2. Extract Tailwind config from HTML (<script id="tailwind-config">)
   3. Feed HTML + screenshot to frontend-design plugin:
-     "Convert this Stitch HTML to [VDS/corporate] React components.
-      Use these corporate components: Button, Card, Modal, Input, Table, etc.
-      Map Tailwind classes to corporate CSS variables."
+     "Convert this Stitch HTML to corporate React components.
+      Use the project's design system components: Button, Card, Modal, Input, Table, etc.
+      Map Tailwind classes to the project's CSS variables/tokens."
   4. Output: production React code using corporate design system
 ```
 
