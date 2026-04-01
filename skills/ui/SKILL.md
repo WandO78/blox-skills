@@ -221,6 +221,85 @@ map its content to `designMd` for Stitch to enforce consistency across screens.
 
 ---
 
+### Corporate design system → Stitch mapping
+
+When a project has an existing corporate design system (like VDS, Material, Ant, etc.),
+map it to Stitch's DesignTheme + DESIGN.md before generating screens:
+
+```
+MAPPING STRATEGY:
+  1. DesignTheme fields (enum-constrained — use closest match):
+     - customColor      → corporate primary color hex (e.g., #EE0000)
+     - headlineFont     → closest Stitch font enum match (see 29 fonts)
+     - bodyFont         → same or different closest match
+     - colorMode        → LIGHT or DARK based on corporate theme
+     - roundness        → ROUND_FOUR (4px) / ROUND_EIGHT (8px) / ROUND_TWELVE (12px)
+     - colorVariant     → FIDELITY (preserves brand color exactly)
+     - overrideColors   → map corporate secondary/tertiary/neutral hex values
+
+  2. designMd field (freeform markdown — put EVERYTHING here):
+     - Exact font name if not in Stitch enum (e.g., "Noto Sans", "TheSansVeolia")
+     - Full color palette with roles (52+ colors if corporate has them)
+     - Component-specific rules (pill buttons, card radius, shadow levels)
+     - Spacing system, grid system, accessibility rules
+     - Do's and Don'ts from the brand guide
+     - Semantic token mappings (primary/secondary/surface/border/status)
+
+  3. Reference images (via Stitch UI):
+     - Upload screenshots of existing corporate app screens
+     - Use as reference for edit_screens to maintain visual consistency
+
+WHY both:
+  DesignTheme → Stitch uses these for the core generation engine (color palette, font rendering)
+  designMd   → Stitch reads this as style guidelines (affects layout, component style, spacing)
+  Together they produce designs that are much closer to the corporate system than either alone.
+```
+
+**Important:** Stitch generates HTML + Tailwind, NOT corporate components. The HTML serves
+as a visual reference and layout guide. The actual frontend-design plugin (or /blox:build)
+converts Stitch output to corporate React components (e.g., VDS `<Button variant="primary">`,
+VDS `<Card cardTitle="...">`, etc.).
+
+---
+
+### Interactive Chrome workflow (recommended for Stitch modes)
+
+When Stitch MCP is available AND the user is present, use this hybrid workflow
+instead of pure MCP automation. The user gets visual control, Claude gets efficiency.
+
+```
+PHASE 1 — Claude sets up (MCP, automated):
+  1. create_project → create_design_system (with corporate DESIGN.md)
+  2. generate_screen_from_text (initial generation with GEMINI_3_1_PRO)
+  3. Open the Stitch project in Chrome: https://stitch.withgoogle.com/project/{projectId}
+  4. Tell user: "The design is in Stitch. Iterate until you're happy:
+     - Edit Theme to tweak colors/fonts
+     - Use Variants for layout alternatives
+     - Upload reference images if needed
+     Tell me when it's ready."
+
+PHASE 2 — User iterates (Stitch UI, manual):
+  → User sees the design on the Stitch canvas
+  → Edit Theme, Generate Variants, Redesign mode
+  → Manual tweaks, drag screens, upload references
+  → User says "kesz" / "ez tetszik" / "done"
+
+PHASE 3 — Claude harvests + converts (MCP + frontend-design):
+  1. list_screens → get_screen for each → download HTML + screenshots (curl -L)
+  2. Extract Tailwind config from HTML (<script id="tailwind-config">)
+  3. Feed HTML + screenshot to frontend-design plugin:
+     "Convert this Stitch HTML to [VDS/corporate] React components.
+      Use these corporate components: Button, Card, Modal, Input, Table, etc.
+      Map Tailwind classes to corporate CSS variables."
+  4. Output: production React code using corporate design system
+```
+
+**When to use Chrome workflow vs pure MCP:**
+- Chrome: user is present, design needs human judgment, corporate brand
+- Pure MCP: automated pipelines, CI/CD, batch generation, no human in loop
+
+---
+
 ### Full Mode workflow (Stitch + frontend-design)
 
 ```
