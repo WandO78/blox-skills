@@ -85,9 +85,9 @@ The skill auto-detects available tools and runs in the best available mode:
 
 **Tool detection (runs at start of skill):**
 ```
-CHECK Stitch MCP: look for mcp__stitch tools — any of these 14 tools:
-  Project:  create_project, get_project, delete_project, list_projects
-  Screens:  list_screens, get_screen, upload_screens_from_images
+CHECK Stitch MCP: look for mcp__stitch tools — any of these 12 tools:
+  Project:  create_project, get_project, list_projects
+  Screens:  list_screens, get_screen
   Generate: generate_screen_from_text, edit_screens, generate_variants
   Design:   create_design_system, update_design_system, list_design_systems, apply_design_system
 
@@ -164,20 +164,39 @@ BAD:   "Completely redesign everything" (too broad — split into steps)
 - `projectId` (required) — from `create_project`
 - `prompt` (required) — structured with IDEA + THEME + CONTENT
 - `deviceType` — `MOBILE | DESKTOP | TABLET | AGNOSTIC`
-- `modelId` — `GEMINI_3_PRO` (higher quality) | `GEMINI_3_FLASH` (faster, iteration)
+- `modelId` — `GEMINI_3_1_PRO` (higher quality, reasoning) | `GEMINI_3_FLASH` (faster, iteration)
+  - **IMPORTANT:** `GEMINI_3_PRO` is **DEPRECATED** — always use `GEMINI_3_1_PRO` instead
 
 **generate_variants:**
 - `variantCount` — 1 to 5 (default 3)
-- `creativeRange` — `REFINE` (subtle) | `EXPLORE` (moderate) | `REIMAGINE` (dramatic)
+- `creativeRange` — `REFINE` (subtle polish) | `EXPLORE` (balanced, default) | `REIMAGINE` (radical)
 - `aspects` — which parts to vary: `LAYOUT`, `COLOR_SCHEME`, `IMAGES`, `TEXT_FONT`, `TEXT_CONTENT`
 
-**create_design_system:**
-- `displayName` — brand name
-- `theme.colorMode` — `LIGHT | DARK`
-- `theme.accentColor` — hex color (e.g., `#3B82F6`)
-- `theme.font` — `INTER | ROBOTO | POPPINS | DM_SANS | GEIST | PLAYFAIR_DISPLAY | MERRIWEATHER | MONTSERRAT | LATO | OPEN_SANS | SOURCE_CODE_PRO | SPACE_MONO | PLUS_JAKARTA_SANS`
-- `theme.roundness` — `SHARP | SLIGHTLY_ROUNDED | ROUNDED | VERY_ROUNDED | PILL`
-- `styleGuidelines` — freeform text (brand personality, do's/don'ts)
+**create_design_system / update_design_system:**
+- `designSystem.displayName` (required) — brand name
+- `designSystem.theme` (required) — DesignTheme object:
+  - `colorMode` (required) — `LIGHT | DARK`
+  - `customColor` (required) — hex seed color for dynamic color system (e.g., `#3B82F6`)
+  - `headlineFont` (required) — font for headlines (see font list below)
+  - `bodyFont` (required) — font for body text
+  - `labelFont` (optional) — font for labels
+  - `roundness` (required) — `ROUND_FOUR | ROUND_EIGHT | ROUND_TWELVE | ROUND_FULL`
+  - `colorVariant` (optional) — `MONOCHROME | NEUTRAL | TONAL_SPOT | VIBRANT | EXPRESSIVE | FIDELITY | CONTENT | RAINBOW | FRUIT_SALAD`
+  - `overridePrimaryColor` (optional) — hex override for primary
+  - `overrideSecondaryColor` (optional) — hex override for secondary
+  - `overrideTertiaryColor` (optional) — hex override for tertiary
+  - `overrideNeutralColor` (optional) — hex override for neutral
+  - `designMd` (optional) — DESIGN.md markdown content (freeform design instructions)
+
+**29 supported fonts:**
+Sans: `INTER`, `DM_SANS`, `GEIST`, `SORA`, `MANROPE`, `LEXEND`, `EPILOGUE`, `BE_VIETNAM_PRO`, `PLUS_JAKARTA_SANS`, `PUBLIC_SANS`, `SPACE_GROTESK`, `SPLINE_SANS`, `WORK_SANS`, `MONTSERRAT`, `METROPOLIS`, `SOURCE_SANS_THREE`, `NUNITO_SANS`, `ARIMO`, `HANKEN_GROTESK`, `RUBIK`, `IBM_PLEX_SANS`
+Serif: `NEWSREADER`, `NOTO_SERIF`, `DOMINE`, `LIBRE_CASLON_TEXT`, `EB_GARAMOND`, `LITERATA`, `SOURCE_SERIF_FOUR`
+
+**DESIGN.md integration:**
+Stitch supports a `designMd` field in DesignTheme — a markdown document that defines
+the design system in human+agent readable format. Sections: Overview, Colors, Typography,
+Elevation, Components, Do's and Don'ts. When /blox:brand outputs brand-guidelines.md,
+map its content to `designMd` for Stitch to enforce consistency across screens.
 
 ---
 
@@ -187,14 +206,17 @@ BAD:   "Completely redesign everything" (too broad — split into steps)
 Step 2 (Wireframe/Layout):
   1. Create Stitch project (create_project)
   2. Map brand tokens → Stitch design system:
-     - Brand primary color     → theme.accentColor
-     - Brand personality       → styleGuidelines (freeform)
-     - Brand heading font      → theme.font (closest match from 13 options)
+     - Brand primary color     → theme.customColor (seed) + overridePrimaryColor
+     - Brand secondary color   → theme.overrideSecondaryColor
+     - Brand personality       → theme.designMd (DESIGN.md markdown with Overview + Do's/Don'ts)
+     - Brand heading font      → theme.headlineFont (closest match from 29 fonts)
+     - Brand body font         → theme.bodyFont
      - Light/dark preference   → theme.colorMode
-     - Corner radius style     → theme.roundness
+     - Corner radius style     → theme.roundness (ROUND_FOUR/EIGHT/TWELVE/FULL)
+     - Color mood              → theme.colorVariant (MONOCHROME for minimal, VIBRANT for energetic)
      Call: create_design_system with mapped values
   3. Generate screen (generate_screen_from_text):
-     - Use GEMINI_3_PRO for initial generation (higher quality)
+     - Use GEMINI_3_1_PRO for initial generation (higher quality, reasoning)
      - Set deviceType based on target (DESKTOP for dashboard, MOBILE for app)
      - Use Stitch prompting formula: IDEA + THEME + CONTENT
   4. Generate 3 variants (generate_variants):
@@ -245,12 +267,14 @@ Step 4: Markdown component specs with props, states, variants, a11y requirements
 - **playground**: Interactive prototype from any wireframe/design
 - **image-generation**: AI-generated UI assets (icons, illustrations, hero images)
 
-**Stitch + image upload workflow (any Stitch mode):**
+**Stitch + reference image workflow (any Stitch mode):**
 If user has a reference image (screenshot, Figma export, sketch):
 ```
-1. upload_screens_from_images — upload as base64 to create a reference screen
-2. edit_screens — use the uploaded screen as starting point for AI edits
-3. Iterate with edit_screens + generate_variants as usual
+Use the Stitch web UI to upload a reference image to the project
+→ The uploaded image becomes a screen on the canvas
+→ Use edit_screens via MCP to iterate on it with AI edits
+→ Iterate with edit_screens + generate_variants as usual
+Note: MCP does not have an upload tool — image upload is done via the Stitch UI
 ```
 
 ---
