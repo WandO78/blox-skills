@@ -106,17 +106,40 @@ ANNOUNCE to user:
   STITCH: "Stitch detected — I'll generate visual designs (HTML + screenshots). For production code conversion, install the frontend-design plugin."
   CODE:   "Frontend-design detected — I'll write production-grade components directly. For visual exploration first, set up Google Stitch MCP."
   BASIC:  "Running in basic mode — I'll create detailed wireframe specs and component lists."
+
+IF no Stitch MCP detected AND task would benefit from visual design:
+  → Trigger _internal/detect for google-stitch plugin
+  → Ask user: "Stitch MCP is not set up for this project. It would let me
+     generate visual designs you can iterate on. Set it up?
+     You'll need a Stitch API key from https://stitch.withgoogle.com/settings
+     (y/n)"
+  → If yes: guide through setup (see below)
+  → If no: continue in CODE or BASIC mode without blocking
 ```
 
-**Stitch MCP setup (if not configured):**
+**Stitch MCP setup (project-scoped — recommended):**
 ```
+# Project-scoped (recommended — API key stays with this project only):
 claude mcp add stitch \
   --transport http https://stitch.googleapis.com/mcp \
-  --header "X-Goog-Api-Key: API_KEY" \
+  --header "X-Goog-Api-Key: YOUR_KEY" \
+  -s project
+
+# This saves to .mcp.json in the project root.
+# Add .mcp.json to .gitignore (contains API key!)
+
+# Alternative — user-scoped (shared across all projects):
+claude mcp add stitch \
+  --transport http https://stitch.googleapis.com/mcp \
+  --header "X-Goog-Api-Key: YOUR_KEY" \
   -s user
 
 API key: https://stitch.withgoogle.com/settings → API Keys → Create
 ```
+
+**IMPORTANT:** The agent MUST NOT ask for or handle the API key directly.
+Guide the user to run the `claude mcp add` command themselves — it prompts
+for the key securely. Never store API keys in conversation, code, or commits.
 
 ---
 

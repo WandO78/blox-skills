@@ -106,7 +106,8 @@ plugins:
     source: mcp
     tier: curated
     category: design
-    install_method: "claude mcp add stitch --transport http https://stitch.googleapis.com/mcp --header 'X-Goog-Api-Key: YOUR_KEY' -s user"
+    install_method: "claude mcp add stitch --transport http https://stitch.googleapis.com/mcp --header 'X-Goog-Api-Key: YOUR_KEY' -s project"
+    install_note: "Project-scoped (saves to .mcp.json). Add .mcp.json to .gitignore. User runs command themselves — never handle API keys in chat."
     setup_url: "https://stitch.withgoogle.com/settings"
     triggers:
       skills:
@@ -117,7 +118,7 @@ plugins:
       env:
         - "STITCH_API_KEY"
     priority: high
-    description: "AI-powered UI design generation — 14 MCP tools for screens, variants, design systems, image upload via Google Stitch"
+    description: "AI-powered UI design generation — 12 MCP tools for screens, variants, design systems via Google Stitch"
 
   - plugin: playground
     source: anthropics/playground
