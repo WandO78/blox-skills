@@ -194,32 +194,35 @@ Stitch offers multiple AI engines, each optimized for different tasks:
 
 ### Stitch critical agent behaviors
 
-1. **Generation takes 2-5 minutes** — `generate_screen_from_text` and `edit_screens` are slow. Do NOT retry on connection errors or timeouts. The screen is being generated in the background even after a timeout.
-   **TIMEOUT RECOVERY PROTOCOL (mandatory):**
+1. **Open Chrome IMMEDIATELY when generation starts** — Do NOT wait for generation to complete.
+   **GENERATION PROTOCOL (mandatory):**
    ```
-   generate_screen_from_text → TIMEOUT or connection error
+   generate_screen_from_text called (MCP)
+     ↓ IMMEDIATELY (do not wait for MCP response):
+   Open Chrome tab: https://stitch.withgoogle.com/project/{projectId}
+   Tell user: "A Stitch generálás elindult. A Chrome-ban látod a projektet élőben.
+   A generálás 2-5 percet vehet igénybe — a képernyő megjelenik a canvason ha kész.
+   Iterálhatsz a Stitch UI-ban (Edit Theme, Variants), vagy szólj ha tetszik."
      ↓
-   DO NOT retry. DO NOT shorten the prompt. DO NOT switch to a faster model.
-   The generation is running in the background.
+   MCP response arrives (success or timeout — both OK):
+     SUCCESS → screen data available, proceed to harvest when user is done
+     TIMEOUT → the generation is STILL RUNNING in the background
+       DO NOT retry. DO NOT shorten the prompt. DO NOT switch to a faster model.
+       The user can already see the progress in Chrome.
+       Wait for user to say "kész" / "tetszik" / "done"
      ↓
-   Wait 60 seconds → list_screens
-     ↓
-   If empty {} → wait 60 more seconds → list_screens again
-   Repeat up to 5 times (total ~5 min wait)
-     ↓
-   If screen appears → get_screen → check screenMetadata.status
-     IN_PROGRESS → wait more
-     COMPLETE → success, proceed
-     FAILED → NOW you can retry with a shorter prompt or faster model
-     ↓
-   If still empty after 5 min → THEN retry (shorter prompt or GEMINI_3_FLASH)
+   When user signals done → list_screens → get_screen → harvest HTML + screenshots
    ```
-   Tell the user what's happening: "A Stitch generálás fut a háttérben. Ez 2-5 percet vehet igénybe. Ellenőrzöm 60 másodpercenként..."
-2. **Present suggestions** — If `output_components` in the response contains suggestions, present them to the user before acting. If user accepts, call again with the suggestion as the new prompt.
-3. **Download with `curl -L`** — Screen artifact URLs may redirect. Always use `curl -L` to follow redirects when downloading HTML or screenshots.
-4. **One change at a time** — When editing screens with `edit_screens`, make one targeted change per call for best results. Multiple simultaneous changes degrade quality.
-5. **Design system first** — Always create/apply a design system before generating screens for consistent output. Map brand tokens from /blox:brand directly.
-6. **Open in Chrome after generation** — Once the screen is COMPLETE, open the Stitch project in Chrome for the user to see and iterate: `https://stitch.withgoogle.com/project/{projectId}`. Tell the user: "A design kész. Megnyitom Chrome-ban — iterálj kedvedre, szólj ha elégedett vagy."
+   **WHY Chrome first:** Stitch UI shows real-time generation progress, offers suggestions
+   (e.g., "Design the Inbox screen"), and allows interactive iteration. The user is NOT blind
+   during the 2-5 min wait — they see everything in Chrome. MCP is for programmatic
+   harvest, not for watching progress.
+
+2. **NEVER retry after timeout** — The generation runs in the background even after MCP timeout. Retrying creates DUPLICATE screens. If the user sees the screen in Chrome, it worked. Only retry if the user confirms nothing appeared after 5+ minutes.
+3. **Present suggestions** — If `output_components` in the response contains suggestions, present them to the user before acting. If user accepts, call again with the suggestion as the new prompt.
+4. **Download with `curl -L`** — Screen artifact URLs may redirect. Always use `curl -L` to follow redirects when downloading HTML or screenshots.
+5. **One change at a time** — When editing screens with `edit_screens`, make one targeted change per call for best results. Multiple simultaneous changes degrade quality.
+6. **Design system first** — Always create/apply a design system before generating screens for consistent output. Map brand tokens from /blox:brand directly.
 
 ---
 
