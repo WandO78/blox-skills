@@ -160,17 +160,22 @@ IF compound request (two DISTINCT deliverables):
     then design the landing page."
 ```
 
-**TIER 3 — Ask the user (last resort):**
+**TIER 3 — Ask the user (last resort, use AskUserQuestion tool):**
 
 ```
 IF still ambiguous after Tier 1 + 2:
-  "What type of design work do you need?
-
-   a) UI/page design — wireframes, components, UX copy
-   b) Logo or image — AI-generated visual assets
-   c) Video — storyboard, animation, screen recording
-   d) Something else — describe it"
-
+  Use AskUserQuestion tool (pop-up, NOT inline text):
+  AskUserQuestion({
+    questions: [{
+      question: "What type of design work do you need?",
+      header: "Design type",
+      options: [
+        { label: "UI/page design", description: "Wireframes, components, UX copy" },
+        { label: "Logo or image", description: "AI-generated visual assets" },
+        { label: "Video", description: "Storyboard, animation, screen recording" }
+      ]
+    }]
+  })
   Wait for answer → route accordingly.
 ```
 

@@ -94,6 +94,39 @@ This skill generates blox-compatible phase files. It leverages superpowers for t
 
 **Rule:** The OUTPUT of this skill is always a blox phase file (with checklist, checkpoints, exit criteria, Golden Answers), NOT a superpowers plan file (with Task 1, Task 2 format). The superpowers methodology informs the CONTENT, the blox format provides the STRUCTURE.
 
+**User decisions — ALWAYS use AskUserQuestion tool, NEVER inline text:**
+When a decision is needed from the user (architecture choice, approach selection, scope question),
+use the `AskUserQuestion` tool which shows a pop-up with options. NEVER write options as inline
+text in the terminal — the user cannot easily select from inline text. AskUserQuestion provides:
+- Clickable options with descriptions
+- Preview panes for comparing approaches (ASCII mockups, code snippets)
+- Recommended option marked first with "(Recommended)"
+- User can add notes to their selection
+
+Example — WRONG:
+```
+"Két megközelítést látok:
+ a) Közvetlen SQL
+ b) Exchange táblák
+ c) Hibrid
+ Melyiket választod?"
+```
+
+Example — RIGHT:
+```
+AskUserQuestion({
+  questions: [{
+    question: "Az ATHOS kapcsolat technikailag hogyan működjön?",
+    header: "ATHOS",
+    options: [
+      { label: "Hibrid (Recommended)", description: "Közvetlen SQL most, exchange tábla később" },
+      { label: "Közvetlen SQL", description: "Go service közvetlenül az ATHOS SQL Server-en" },
+      { label: "Exchange táblák", description: "ATHOS fejlesztők staging DB-be írnak" }
+    ]
+  }]
+})
+```
+
 ---
 
 ## SKILL LOGIC
