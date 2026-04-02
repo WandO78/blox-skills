@@ -564,22 +564,32 @@ Update the phase tracker table in START_HERE.md:
 3. Link to the phase file in `plans/`
 4. If sub-phases were created: add a row for each
 
-### Step 9: Request Approval (Plan Mode)
+### Step 9: Request Approval (Plannotator)
 
-Submit the generated phase file for user approval via Plan Mode, which triggers Plannotator's visual review UI with **Approve** and **Request Changes** buttons:
+**MANDATORY:** After saving the phase file, open it in Plannotator for user review.
+Do NOT ask "jónak tartod?" in text — the user needs to see and annotate the full document visually.
 
-1. **Save the phase file FIRST** to `plans/PHASE_XX_name.md` (draft state)
+```
+1. Save the phase file to plans/PHASE_XX_name.md
 2. Show a brief summary in CLI: goal, checklist count, sections, key decisions
-3. **Enter Plan Mode and submit for approval:**
-   - Call `EnterPlanMode`
-   - Write the phase file content to the plan file (location specified by system in plan mode)
-   - Call `ExitPlanMode` — this triggers Plannotator with **Approve** and **Request Changes** buttons
-   - The user reviews the FULL plan in the browser with approve/deny capability
-4. **If approved:** Finalize the phase file in `plans/`, update START_HERE.md (Step 8), report: "Phase file saved. Ready to begin execution."
-5. **If denied with feedback:** Process the feedback, revise the phase file with Edit tool, rewrite plan file, call `ExitPlanMode` again. Repeat until approved.
-6. **Fallback (headless/CI, no Plannotator):** Skip plan mode, use `AskUserQuestion` with options: "Approve as-is", "I have changes", "Reject — start over"
+3. Open in Plannotator for visual review:
+   → Skill("plannotator:plannotator-annotate", args: "/full/path/to/plans/PHASE_XX_name.md")
+   → The user sees the FULL plan in the browser
+   → The user can annotate specific sections with feedback
+   → Feedback returns to the conversation structured by section
 
-> **Context preservation:** Plan mode is a tool call within the same conversation — your full context is preserved throughout the approval loop.
+4. Process feedback:
+   → If no annotations / user approved: finalize, update START_HERE.md, proceed
+   → If annotations with feedback: address EACH annotation, edit the file, then
+     re-open in Plannotator: Skill("plannotator:plannotator-annotate", ...) again
+   → Repeat until no more feedback
+
+5. Fallback (if plannotator not available):
+   Use AskUserQuestion with options: "Approve as-is", "I have changes", "Reject"
+```
+
+**IMPORTANT:** Always use the FULL ABSOLUTE path when calling plannotator-annotate.
+Relative paths will fail. Example: `/Users/name/project/plans/PHASE_01.md` not `plans/PHASE_01.md`.
 
 ---
 

@@ -891,6 +891,15 @@ UPDATE (if exists):
     Next session task: /blox:build to implement the design
 ```
 
+**User review via Plannotator (MANDATORY):**
+```
+After saving the handoff document:
+  → Skill("plannotator:plannotator-annotate", args: "/full/path/docs/design/[page-name].md")
+  → User reviews the design spec in the browser, annotates sections
+  → Process feedback, edit file, re-open if needed
+  → When approved: commit and proceed
+```
+
 **Integration with autopilot flow:**
 ```
 IF called from /blox:idea autopilot:

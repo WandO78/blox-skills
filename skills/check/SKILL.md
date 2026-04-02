@@ -685,6 +685,17 @@ Post-mortem required for GOLDEN_PRINCIPLES.md update.
 [Include Step 1-8 outputs as sub-sections for reference]
 ```
 
+**User review via Plannotator (THOROUGH mode, MANDATORY):**
+```
+After generating the review report, save it and open in Plannotator:
+  1. Save report to a temp or docs file (e.g., docs/reviews/review-PHASE_XX-YYYY-MM-DD.md)
+  2. Skill("plannotator:plannotator-annotate", args: "/full/path/to/review-file.md")
+  3. User reviews findings, annotates disagreements or priorities
+  4. Process feedback → adjust severity/recommendations if user overrides
+  5. If S2+ severity: user MUST approve the action (Fix/Accept debt/Reject) via annotation
+```
+Always use FULL ABSOLUTE path. This replaces text-based "Which option?" prompts for severity decisions.
+
 ---
 
 ## NORMAL MODE — Abbreviated Review
