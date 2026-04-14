@@ -16,9 +16,9 @@ for maintainability, but all OUTPUT facing the user follows THEIR language.
 
 # OBSIDIAN KNOWLEDGE BASE
 
-> "The LLM has to do a lot of bookkeeping. A lot of stuff has to be
-> tracked, organized, and made accessible for efficient retrieval."
-> -- Andrej Karpathy
+> "The tedious part of maintaining a knowledge base is not the reading
+> or the thinking — it's the bookkeeping."
+> — Andrej Karpathy
 
 The Karpathy LLM Wiki pattern treats the AI as a knowledge worker that reads,
 distills, and organizes information into a structured wiki. Obsidian is the
@@ -105,8 +105,8 @@ The Obsidian CLI is **required** for all vault operations. Detect it using platf
 4. Windows: `%LOCALAPPDATA%\Obsidian\obsidian-cli.exe`
 
 **If not found:**
-Tell the user: "Obsidian CLI not found. Please start Obsidian and enable the CLI integration
-(Settings > Community plugins > Obsidian CLI), then try again."
+Tell the user: "Obsidian CLI not found. Please start Obsidian and enable the CLI
+(Settings → General → Advanced → Command-line interface), then try again."
 
 **No fallback mode.** The CLI is required for all operations. Do NOT attempt filesystem
 workarounds (reading `.md` files directly, parsing `.obsidian/` config). The CLI handles
@@ -161,31 +161,49 @@ wiki/log.md       — Changelog of all vault modifications
 Create `wiki/index.md` with:
 ```markdown
 ---
-tags: [index, wiki]
+title: Knowledge Index
+tags:
+  - meta/index
+date: [today's date]
 ---
 
 # Knowledge Index
 
-> Master index for [project name]. Updated automatically by /blox:wiki.
+> Master index for [project name]. Updated on every ingest.
 
-## Topics
+## Sources
+<!-- Processed source summaries -->
 
-(No topics yet. Run `/blox:wiki ingest [source]` to add knowledge.)
+## Concepts
+<!-- Key concepts and definitions -->
+
+## Decisions
+<!-- Architecture, technology, and design decisions -->
+
+## Entities
+<!-- People, systems, organizations -->
+
+## Analysis
+<!-- Comparisons, evaluations, synthesis -->
 ```
 
 Create `wiki/log.md` with:
 ```markdown
 ---
-tags: [log, wiki]
+title: Vault Log
+tags:
+  - meta/log
+date: [today's date]
 ---
 
 # Vault Log
 
-> Every vault modification is logged here. Newest entry first.
+> Chronological record of vault operations. Append-only.
+> Format: `## [YYYY-MM-DD] <type> | <title>`
 
-## Entries
-
-- [today's date] — Vault initialized for [project name]
+## [today's date] init | Vault initialized for [project name]
+- Primary vault: [vault name]
+- Connected to project: [project path]
 ```
 
 **Step 5 — Ask about shared vaults:**
@@ -306,69 +324,69 @@ Read `references/sync-workflow.md` for the detailed workflow.
 
 | Command | Description |
 |---------|-------------|
-| `obsidian read "path/to/note"` | Read note content |
-| `obsidian create "path/to/note" --content "..."` | Create a new note |
-| `obsidian append "path/to/note" --content "..."` | Append to existing note |
-| `obsidian prepend "path/to/note" --content "..."` | Prepend to existing note |
-| `obsidian move "old/path" "new/path"` | Move or rename a note |
-| `obsidian delete "path/to/note"` | Delete a note |
+| `obsidian read file="Note Name"` | Read note by name (wikilink-style) |
+| `obsidian read path="folder/note.md"` | Read note by exact path |
+| `obsidian create name="Note Name" content="..." silent` | Create note without opening |
+| `obsidian append file="Note Name" content="..."` | Append to note |
+| `obsidian prepend file="Note Name" content="..."` | Prepend to note |
+| `obsidian move file="Note Name" to="folder/path"` | Move or rename |
+| `obsidian delete file="Note Name"` | Delete note |
 
 ### Search
 
 | Command | Description |
 |---------|-------------|
-| `obsidian search "query"` | Full-text search across vault |
-| `obsidian search:context "query"` | Search with surrounding context |
+| `obsidian search query="text" format=json limit=10` | Full-text search |
+| `obsidian search:context query="text" format=json` | Search with surrounding context |
 
 ### Links
 
 | Command | Description |
 |---------|-------------|
-| `obsidian backlinks "path/to/note"` | Find notes linking TO this note |
-| `obsidian links "path/to/note"` | Find notes this note links TO |
+| `obsidian backlinks file="Note Name" format=json` | Notes linking TO this note |
+| `obsidian links file="Note Name"` | Notes this note links TO |
 | `obsidian orphans` | Notes with no incoming links |
 | `obsidian deadends` | Notes with no outgoing links |
-| `obsidian unresolved` | Broken wikilinks (target does not exist) |
+| `obsidian unresolved verbose` | Broken wikilinks with source files |
 
 ### Properties
 
 | Command | Description |
 |---------|-------------|
-| `obsidian property:set "path" "key" "value"` | Set a frontmatter property |
-| `obsidian property:read "path" "key"` | Read a frontmatter property |
-| `obsidian property:remove "path" "key"` | Remove a frontmatter property |
-| `obsidian properties "path"` | List all frontmatter properties |
+| `obsidian property:set name="key" value="val" file="Note Name"` | Set frontmatter property |
+| `obsidian property:read name="key" file="Note Name"` | Read frontmatter property |
+| `obsidian property:remove name="key" file="Note Name"` | Remove frontmatter property |
+| `obsidian properties file="Note Name" format=yaml` | List all properties |
 
 ### Tags
 
 | Command | Description |
 |---------|-------------|
-| `obsidian tags` | List all tags in the vault |
-| `obsidian tag "tagname"` | Find all notes with this tag |
+| `obsidian tags sort=count counts` | All tags with occurrence counts |
+| `obsidian tag name="tagname" verbose` | Tag details with file list |
 
 ### Daily Notes
 
 | Command | Description |
 |---------|-------------|
 | `obsidian daily:read` | Read today's daily note |
-| `obsidian daily:append --content "..."` | Append to today's daily note |
+| `obsidian daily:append content="text"` | Append to today's daily note |
 
 ### Vault Info
 
 | Command | Description |
 |---------|-------------|
-| `obsidian vaults` | List all known vaults |
-| `obsidian vaults verbose` | List vaults with paths and details |
-| `obsidian vault` | Current vault info |
-| `obsidian files` | List all files in the vault |
-| `obsidian folders` | List all folders in the vault |
+| `obsidian vaults verbose` | List vaults with paths |
+| `obsidian vault info=path` | Current vault path |
+| `obsidian files folder="wiki" ext=md` | List files filtered by folder/extension |
+| `obsidian folders` | List all folders |
 
 ### Tasks
 
 | Command | Description |
 |---------|-------------|
-| `obsidian tasks` | List all tasks across the vault |
-| `obsidian task "path" --content "..."` | Add a task to a note |
+| `obsidian tasks todo verbose` | Incomplete tasks grouped by file |
+| `obsidian tasks done` | Completed tasks |
 
 ---
 
