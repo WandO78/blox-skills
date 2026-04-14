@@ -35,7 +35,7 @@ every change. The vault grows organically as the project evolves.
 
 This skill uses the Obsidian CLI for all vault operations. At runtime:
 
-1. Read `CLAUDE.md` for the `## Obsidian` section — vault name(s), paths, folder structure
+1. Read `CLAUDE.md` for the `## Obsidian Knowledge Base` section — vault name(s), paths, folder structure
 2. Detect Obsidian CLI availability (see Prerequisites)
 3. Read `wiki/index.md` in the vault for current knowledge map
 
@@ -135,7 +135,7 @@ the user has multiple vaults open.
 > **Goal:** Set up Obsidian as the knowledge layer for the current project.
 
 **Step 1 — Check for existing configuration:**
-Read `CLAUDE.md` and look for an `## Obsidian` section. If found, report the
+Read `CLAUDE.md` and look for an `## Obsidian Knowledge Base` section. If found, report the
 existing configuration and ask if the user wants to reconfigure.
 
 **Step 2 — Ask for primary vault:**
@@ -158,53 +158,9 @@ wiki/index.md     — Master index of all wiki topics
 wiki/log.md       — Changelog of all vault modifications
 ```
 
-Create `wiki/index.md` with:
-```markdown
----
-title: Knowledge Index
-tags:
-  - meta/index
-date: [today's date]
----
-
-# Knowledge Index
-
-> Master index for [project name]. Updated on every ingest.
-
-## Sources
-<!-- Processed source summaries -->
-
-## Concepts
-<!-- Key concepts and definitions -->
-
-## Decisions
-<!-- Architecture, technology, and design decisions -->
-
-## Entities
-<!-- People, systems, organizations -->
-
-## Analysis
-<!-- Comparisons, evaluations, synthesis -->
-```
-
-Create `wiki/log.md` with:
-```markdown
----
-title: Vault Log
-tags:
-  - meta/log
-date: [today's date]
----
-
-# Vault Log
-
-> Chronological record of vault operations. Append-only.
-> Format: `## [YYYY-MM-DD] <type> | <title>`
-
-## [today's date] init | Vault initialized for [project name]
-- Primary vault: [vault name]
-- Connected to project: [project path]
-```
+Create `wiki/index.md` and `wiki/log.md` using the templates from
+`references/schema-template.md` (Part 2 and Part 3). Replace all
+`{{PLACEHOLDER}}` tokens with actual values collected in earlier steps.
 
 **Step 5 — Ask about shared vaults:**
 Ask the user: "Do you have any shared or reference vaults that this project should
@@ -215,7 +171,7 @@ If the user names shared vaults, verify each exists via `obsidian vaults verbose
 and record them as read-only.
 
 **Step 6 — Generate CLAUDE.md section:**
-Read `references/schema-template.md` for the exact format. Generate an `## Obsidian`
+Read `references/schema-template.md` for the exact format. Generate an `## Obsidian Knowledge Base`
 section in `CLAUDE.md` containing:
 - Primary vault name and path
 - Folder structure (raw/, wiki/)
@@ -245,6 +201,7 @@ Read `references/ingest-workflow.md` for the detailed workflow.
 5. Update `wiki/index.md` with the new topic entry
 6. Update `wiki/log.md` with the ingest event
 7. Save the original source in `raw/` for reference
+8. Report to user: what was created, what was updated, all files touched
 
 ---
 
@@ -273,10 +230,13 @@ Read `references/lint-workflow.md` for the detailed workflow.
 1. Check for broken wikilinks (`obsidian unresolved`)
 2. Find orphan notes with no incoming links (`obsidian orphans`)
 3. Find dead-end notes with no outgoing links (`obsidian deadends`)
-4. Identify stale notes (not updated in configurable period)
-5. Check tag consistency (similar tags that should be merged)
-6. Generate a health report with findings and severity
-7. Offer to fix issues (broken links, orphan cleanup, tag normalization)
+4. Verify index coverage (all wiki notes listed in index.md)
+5. Identify stale notes (not updated in configurable period)
+6. Check tag consistency (similar tags that should be merged)
+7. Check frontmatter completeness (title, tags, date on every note)
+8. Flag potential contradictions between notes on the same topic
+9. Generate a health report with findings and severity (error/warning/info)
+10. Offer to fix issues with user approval
 
 ---
 
@@ -287,12 +247,12 @@ Read `references/lint-workflow.md` for the detailed workflow.
 Read `references/sync-workflow.md` for the detailed workflow.
 
 **Summary:**
-1. Read git log for recent commits since last sync
+1. Find last sync point from log.md, scan git log since then
 2. Identify unrecorded decisions (architectural changes, new patterns, config changes)
 3. Find stale notes that contradict current code
 4. Check for unprocessed sources in `raw/`
-5. Suggest vault updates — new notes, note revisions, index updates
-6. Execute approved updates with full log entries
+5. Check phase alignment (blox phase files vs vault knowledge)
+6. Generate drift report and suggest updates with user approval
 
 ---
 
@@ -396,7 +356,7 @@ Follow Obsidian Flavored Markdown as described in `references/obsidian-syntax.md
 
 **Key rules:**
 - Use `[[wikilinks]]` for internal links (not markdown links)
-- Every note gets YAML frontmatter with at least `tags`
+- Every note gets YAML frontmatter with at least `title`, `tags`, `date`
 - Use callouts for warnings, tips, and important information (`> [!note]`, `> [!warning]`)
 - Use `![[embed]]` syntax to embed other notes or images
 - Tags use `#tag` inline or `tags: [tag1, tag2]` in frontmatter
@@ -407,7 +367,7 @@ Follow Obsidian Flavored Markdown as described in `references/obsidian-syntax.md
 ## VERIFICATION
 
 ### Success indicators
-- **init:** CLAUDE.md has `## Obsidian` section, vault has `raw/`, `wiki/`, `wiki/index.md`, `wiki/log.md`
+- **init:** CLAUDE.md has `## Obsidian Knowledge Base` section, vault has `raw/`, `wiki/`, `wiki/index.md`, `wiki/log.md`
 - **ingest:** New wiki note created with frontmatter and wikilinks, index updated, log updated, source saved in raw/
 - **query:** Answer synthesized from vault notes with wikilink citations, optional save offered
 - **lint:** Health report generated with broken links, orphans, dead-ends, stale notes, tag issues
