@@ -1,16 +1,17 @@
 {
-  "name": "wando-marketplace",
+  "name": "blox-marketplace",
   "owner": {
-    "name": "WandO78"
+    "name": "WandO78",
+    "url": "https://github.com/WandO78"
   },
   "metadata": {
-    "description": "Private blox-skills marketplace with corporate extensions"
+    "description": "Universal skill library for Claude Code — from idea to production"
   },
   "plugins": [
     {
       "name": "blox",
       "source": "./",
-      "description": "Universal skill library — from idea to production. Private edition with corporate extensions.",
+      "description": "Universal skill library — brainstorm, plan, design, build, test, secure, and deploy with a single entry point.",
       "version": "1.15.0"
     }
   ]

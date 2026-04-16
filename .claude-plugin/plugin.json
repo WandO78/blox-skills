@@ -1,11 +1,13 @@
 {
   "name": "blox",
   "version": "1.15.0",
-  "description": "Universal skill library — from idea to production. Private edition with corporate extensions.",
+  "description": "Universal skill library — from idea to production. Brainstorm, plan, design, build, test, secure, and deploy with a single entry point.",
   "author": {
-    "name": "WandO78"
+    "name": "WandO78",
+    "url": "https://github.com/WandO78"
   },
-  "repository": "https://github.com/WandO78/wando-skills",
+  "homepage": "https://github.com/WandO78/blox-skills",
+  "repository": "https://github.com/WandO78/blox-skills",
   "license": "MIT",
   "keywords": [
     "development",
@@ -17,9 +19,6 @@
     "brand",
     "autopilot",
     "quality",
-    "lifecycle",
-    "obsidian",
-    "wiki",
-    "knowledge-management"
+    "lifecycle"
   ]
 }
