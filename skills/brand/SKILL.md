@@ -48,7 +48,7 @@ when_to_use: |
   brand voice, or design guidelines. Typically the first creative phase after
   /blox:idea scaffolding, or anytime the user wants to define/refine brand identity.
   Do NOT use for layout/component design (use /blox:design), for code implementation
-  (use /blox:build), or for logo/asset generation alone (use /blox:image).
+  (use /blox:build), or for logo/asset generation alone (use /blox:media).
 auto_invoke: false
 priority: recommended
 
@@ -69,7 +69,7 @@ priority: recommended
 |------|---------|-------------|
 | Already have brand guidelines | Don't overwrite existing identity | Review with `/blox:check` (Step 5a) |
 | Need page layouts or components | Layout and component design, not brand | `/blox:design` |
-| Need logo or image assets | Asset generation, not brand system | `/blox:image` |
+| Need logo or image assets | Asset generation, not brand system | `/blox:media` |
 | Need to write code | Implementation, not branding | `/blox:build` |
 | Need to assess project quality | Assessment, not creation | `/blox:scan` |
 
@@ -687,7 +687,7 @@ Every error has a graceful fallback — the skill NEVER blocks.
 |---------------------|------|------|
 | Brand identity complete (autopilot) | Next phase skill (typically `/blox:design`) | After Step 6 — via /blox:idea autopilot |
 | Brand identity complete (standalone) | Suggest `/blox:design` | After Step 6 — user decides |
-| Logo concept needed | `/blox:image` | During Step 4 if image-generation plugin available |
+| Logo concept needed | `/blox:media` | During Step 4 via /blox:media |
 | Brand enforcement needed later | `/blox:check` Step 5a | At quality review — checks brand voice consistency |
 | Brand guidelines exist at review time | `/blox:check` consumes them | Step 5a reads brand-guidelines.md |
 | Design tokens ready for components | `/blox:design` | Next phase — turns tokens into UI components |
@@ -921,7 +921,7 @@ blox: [continues with this personality to Step 2]
 - `references/patterns/knowledge-patterns.md` — Engineering patterns (WCAG enforcement, design tokens)
 - `skills/design/SKILL.md` — UI/component design (chained after brand)
 - `skills/check/SKILL.md` — Quality review Step 5a (brand voice consistency)
-- `skills/image/SKILL.md` — Image/logo generation (optional enhancement)
+- `skills/media/SKILL.md` — Media generation (images, video, audio)
 - `registry/curated-plugins.yaml` — Plugin detection for premium mode
 - `references/design-knowledge/design-md/SCHEMA.md` — 9-section DESIGN.md brand template
 - `references/design-knowledge/design-md/exemplars/` — real brand DESIGN.md exemplars (few-shot)

@@ -58,7 +58,7 @@ priority: mandatory
 |---------|---------|-------------|
 | File created/modified during skill | User creates `.tsx` file during `/blox:build` | Yes |
 | `/blox:plan` master plan generation | Pre-check all plugins needed for the plan | Yes |
-| Skill needs plugin capability | `/blox:image` needs image-generation plugin | Yes |
+| Skill needs plugin capability | `/blox:media` needs image-generation plugin | Yes |
 | `/blox:setup` environment check | Verify all recommended plugins installed | Yes |
 | New dependency added | `package.json` gains `@playwright/test` | Yes |
 
@@ -107,7 +107,7 @@ FOR EACH plugin entry:
 
   3. triggers.skills — blox skill invocations
      MATCH: if the current skill being executed matches a trigger skill name
-     Example: triggers.skills: ["blox:image"] matches when /blox:image is running
+     Example: triggers.skills: ["blox:media"] matches when /blox:media is running
 
   4. triggers.conditions — contextual conditions
      EVALUATE:
@@ -267,7 +267,7 @@ plugins:
     declined_at: null
     last_checked: 2026-03-16
     missing_env: [GEMINI_API_KEY]
-    trigger_match: "skills: blox:image"
+    trigger_match: "skills: blox:media"
 ```
 
 ---
@@ -398,7 +398,7 @@ Install? Run: /plugin add anthropics/csharp-lsp (y/n)
 
 ### Example 4: Plugin with missing API key
 
-**Situation:** `/blox:plan` pre-scan detects `image-generation` plugin needed (skill trigger: `blox:image`).
+**Situation:** `/blox:plan` pre-scan detects `image-generation` plugin needed (skill trigger: `blox:media`).
 
 **Step 2 — Check:** Not installed. `requires.env: [GEMINI_API_KEY]` — env var NOT set.
 

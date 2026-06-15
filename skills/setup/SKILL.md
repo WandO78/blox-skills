@@ -413,7 +413,7 @@ plugins:
     declined_at: null
     last_checked: 2026-03-17
     missing_env: [GEMINI_API_KEY]
-    trigger_match: "skills: blox:image"
+    trigger_match: "skills: blox:media"
 ```
 
 ---

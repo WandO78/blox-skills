@@ -66,7 +66,7 @@ priority: recommended
 |------|---------|-------------|
 | Need brand identity first | Brand before design | `/blox:brand` |
 | Ready to write code | Implementation, not design | `/blox:build` |
-| Need image/logo assets | Asset generation | `/blox:image` |
+| Need image/logo assets | Asset generation | `/blox:media` |
 | Quality review of existing UI | Review, not design | `/blox:check` (Steps 5b, 5c) |
 | Project assessment | Assessment, not creation | `/blox:scan` |
 
@@ -980,7 +980,7 @@ Every error has a graceful fallback — the skill NEVER blocks.
 | Design complete (autopilot) | Next phase skill (typically `/blox:build`) | After Step 5 — via /blox:idea autopilot |
 | Design complete (standalone) | Suggest `/blox:build` | After Step 5 — user decides |
 | No brand identity exists | Suggest `/blox:brand` | Step 1 — if no brand files found |
-| Assets needed (icons, illustrations) | `/blox:image` | During Step 2/4 if image-generation plugin available |
+| Assets needed (icons, illustrations) | `/blox:media` | During Step 2/4 via /blox:media |
 | Interactive prototype requested | Playground plugin | During Step 2 if playground plugin available |
 | Production component code needed | Frontend-design plugin | During Step 4 for enhanced component generation |
 | Design quality review needed later | `/blox:check` Steps 5b, 5c | At quality review — checks a11y and design consistency |
@@ -1311,5 +1311,5 @@ STEP 3-5 — [UX copy for each step, component specs, handoff with flow logic]
 - `skills/brand/SKILL.md` — Brand identity (consumed by design, runs before it)
 - `skills/build/SKILL.md` — Implementation (consumes design handoff, runs after it)
 - `skills/check/SKILL.md` — Quality review Steps 5b, 5c (accessibility, design consistency)
-- `skills/image/SKILL.md` — Image/asset generation (optional enhancement)
+- `skills/media/SKILL.md` — Media generation (images, video, audio)
 - `registry/curated-plugins.yaml` — Plugin detection for premium mode
