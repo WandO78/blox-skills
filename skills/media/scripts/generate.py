@@ -73,7 +73,18 @@ def deep_get(obj, dotted: str):
     return cur
 
 def download(url: str, dest: Path) -> None:
-    urllib.request.urlretrieve(url, dest)
+    # Use the same TLS stack that worked for the API (httpx/certifi); honors
+    # SSL_CERT_FILE / REQUESTS_CA_BUNDLE for corporate CA bundles. urllib fallback.
+    try:
+        import httpx
+        verify = os.environ.get("SSL_CERT_FILE") or os.environ.get("REQUESTS_CA_BUNDLE") or True
+        with httpx.stream("GET", url, verify=verify, follow_redirects=True, timeout=180) as r:
+            r.raise_for_status()
+            with open(dest, "wb") as f:
+                for chunk in r.iter_bytes():
+                    f.write(chunk)
+    except ImportError:
+        urllib.request.urlretrieve(url, dest)
 
 def _require_key():
     if not os.environ.get("FAL_KEY"):
