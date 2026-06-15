@@ -41,7 +41,7 @@ def estimate_cost(entry: dict, count: int = 1, duration: float | None = None) ->
     if price is None:
         return {"known": False, "unit": unit, "fal_id": entry["fal_id"]}
     if unit == "per_second":
-        d = duration if duration is not None else (entry.get("default_args", {}).get("duration", 5))
+        d = float(duration if duration is not None else (entry.get("default_args", {}).get("duration", 5)))
         usd = price * d * count
     elif unit in ("per_image", "per_request"):
         usd = price * count
@@ -120,7 +120,10 @@ def cmd_run(args):
     call = dict(spec.get("default_args", {}))
     if args.aspect_ratio: call["aspect_ratio"] = args.aspect_ratio
     if args.resolution: call["resolution"] = args.resolution
-    if args.duration is not None: call["duration"] = args.duration
+    if args.duration is not None:
+        _dflt = spec.get("default_args", {}).get("duration")
+        # send duration matching the registry's declared type (fal video models want a string enum "5"; image/upscale want int)
+        call["duration"] = str(int(args.duration)) if isinstance(_dflt, str) else int(args.duration)
 
     out_dir = expand_path(load_config().get("output_dir", "~/Documents/Blox Media"))
     folder = expand_path(args.folder) if args.folder else get_or_make_folder(out_dir, args.title)
