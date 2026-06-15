@@ -1,6 +1,6 @@
 ---
 name: blox-design
-description: "Use when the user needs any visual/creative work — UI design, logo, image, video. Routes to the right specialized skill (/blox:ui, /blox:image, /blox:video) after loading brand context and classifying the task."
+description: "Use when the user needs any visual/creative work — UI design, logo, image, video, animation, audio, or a presentation. Routes to the right specialized skill (/blox:ui, /blox:media, /blox:slides) after loading brand context and classifying the task."
 user-invocable: true
 argument-hint: "[describe what you want to design]"
 ---
@@ -32,10 +32,10 @@ This skill reads project state at runtime using Read, Glob, Grep, and Bash tools
 ### Identification
 name: blox-design
 category: domain
-complements: [blox-ui, blox-image, blox-video, blox-brand]
+complements: [blox-ui, blox-media, blox-slides, blox-brand]
 
 ### Triggers — when the agent invokes automatically
-trigger_keywords: [design, wireframe, layout, logo, image, video, visual, UI, UX, page design, tervezes, vizualis, oldal, felulet, logó, kep, videó, animacio]
+trigger_keywords: [design, wireframe, layout, logo, image, video, visual, UI, UX, page design, tervezes, vizualis, oldal, felulet, logó, kep, videó, animacio, presentation, slides, deck, animation, audio, prezentacio, dia]
 trigger_files: [docs/brand-guidelines.md, design-tokens.css]
 trigger_deps: []
 
@@ -56,7 +56,8 @@ priority: recommended
 | UI/page design needed | "Design the settings page" |
 | Logo or brand mark needed | "Create a logo for my project" |
 | Image/illustration needed | "Generate a hero image" |
-| Video/animation needed | "Create a product demo video" |
+| Video/animation/audio needed | "Create a product demo video" |
+| Presentation/deck needed | "Make me a pitch deck" |
 | Visual identity phase | Phase 2 from /blox:idea autopilot |
 | Ambiguous creative request | "Design something for the landing page" |
 
@@ -118,25 +119,27 @@ UI/UX keywords (→ /blox:ui):
   HU: oldal, felulet, komponens, wireframe, elrendezes, urlap,
       navigacio, tabla, beallitasok, iranytopult, folyamat
 
-IMAGE keywords (→ /blox:image):
-  EN: logo, icon, illustration, hero image, graphic, asset,
+MEDIA keywords (→ /blox:media):
+  EN (image): logo, icon, illustration, hero image, graphic, asset,
       brand mark, monogram, social media image, OG image, pattern
-  HU: logó, logo, ikon, illusztracio, kep, grafika, hoskep,
-      mintazat, arculati elem
-
-VIDEO keywords (→ /blox:video):
-  EN: video, animation, motion, storyboard, demo video, explainer,
+  EN (video): video, animation, motion, storyboard, demo video, explainer,
       screen recording, trailer, reel
-  HU: videó, video, animacio, mozgokep, storybord, bemutato,
-      kepernyofelvetel
+  EN (audio): audio, voiceover, tts, music, soundtrack, upscale, transcribe
+  HU: logó, logo, ikon, illusztracio, kep, grafika, hoskep, mintazat,
+      arculati elem, videó, video, animacio, mozgokep, storybord, bemutato,
+      kepernyofelvetel, hang, hangalamondas, zene
+
+SLIDES keywords (→ /blox:slides):
+  EN: presentation, slides, deck, pitch, pitch deck, keynote, powerpoint
+  HU: prezentacio, dia, bemutato
 ```
 
 **IMPORTANT — "asset FOR context" pattern:**
-When an IMAGE keyword is the subject and a UI keyword is only the destination,
-this is IMAGE, not COMPOUND:
-- "hero image FOR the landing page" → IMAGE (the deliverable is an image)
-- "icons FOR the navigation" → IMAGE (the deliverable is icons)
-- "illustration FOR the blog" → IMAGE (the deliverable is an illustration)
+When a MEDIA keyword is the subject and a UI keyword is only the destination,
+this is MEDIA, not COMPOUND:
+- "hero image FOR the landing page" → MEDIA (the deliverable is an image)
+- "icons FOR the navigation" → MEDIA (the deliverable is icons)
+- "illustration FOR the blog" → MEDIA (the deliverable is an illustration)
 vs. true COMPOUND:
 - "design a landing page WITH a logo" → COMPOUND (two distinct deliverables)
 - "create the page AND generate images" → COMPOUND (two tasks)
@@ -148,13 +151,13 @@ IF ambiguous (e.g., "design something for the brand"):
   Check project state:
     - Brand files missing → probably /blox:brand (suggest, don't route)
     - Brand done, no UI yet → probably /blox:ui
-    - Brand done, UI done, need assets → probably /blox:image
-    - Active phase says "Visual Identity" → probably /blox:image (logo)
+    - Brand done, UI done, need assets → probably /blox:media
+    - Active phase says "Visual Identity" → probably /blox:media (logo)
     - Active phase says "UI Design" → probably /blox:ui
 
 IF compound request (two DISTINCT deliverables):
   Decompose into ordered sub-tasks:
-    1. Logo/image first → /blox:image
+    1. Logo/image first → /blox:media
     2. Then page/UI → /blox:ui
   Tell the user: "This has two parts. Let's start with the logo,
     then design the landing page."
@@ -171,8 +174,8 @@ IF still ambiguous after Tier 1 + 2:
       header: "Design type",
       options: [
         { label: "UI/page design", description: "Wireframes, components, UX copy" },
-        { label: "Logo or image", description: "AI-generated visual assets" },
-        { label: "Video", description: "Storyboard, animation, screen recording" }
+        { label: "Media", description: "Logo, image, video, animation, or audio" },
+        { label: "Presentation", description: "Slides, pitch deck, keynote" }
       ]
     }]
   })
@@ -181,8 +184,8 @@ IF still ambiguous after Tier 1 + 2:
 
 **Classification output — ONE of:**
 - `UI` → route to `/blox:ui`
-- `IMAGE` → route to `/blox:image`
-- `VIDEO` → route to `/blox:video`
+- `MEDIA` → route to `/blox:media`
+- `SLIDES` → route to `/blox:slides`
 - `BRAND` → suggest `/blox:brand` (don't route, inform user)
 - `COMPOUND` → decompose and sequence
 
@@ -194,11 +197,11 @@ Chain to the classified skill using instructional invocation.
 
 ```
 ANNOUNCE the routing decision:
-  "This is [UI/image/video] work. Routing to /blox:[skill]."
+  "This is [UI/media/slides] work. Routing to /blox:[skill]."
   (If brand context was loaded, it's already in the conversation.)
 
 INVOKE the target skill:
-  → Use the Skill tool to invoke /blox:ui, /blox:image, or /blox:video
+  → Use the Skill tool to invoke /blox:ui, /blox:media, or /blox:slides
   → The target skill picks up from its own Step 1 (or Step 2 if context
     is already loaded in conversation)
 
@@ -236,14 +239,14 @@ IF COMPOUND:
 
 ### Success Indicators
 - Brand context loaded (or absence noted)
-- Request classified correctly into UI/IMAGE/VIDEO/BRAND/COMPOUND
+- Request classified correctly into UI/MEDIA/SLIDES/BRAND/COMPOUND
 - Target skill invoked with brand context available in conversation
 - Compound requests decomposed and sequenced
 - User informed of routing decision
 
 ### Failure Indicators (STOP and fix!)
 - Router doing actual design work (wireframes, prompts, specs) — delegate!
-- Wrong classification (logo request routed to UI, page request routed to image)
+- Wrong classification (logo request routed to UI, page request routed to media)
 - Skipping brand context loading
 - Asking user to classify when keywords clearly match one category
 - Taking more than 1 minute before routing (too slow)
@@ -282,11 +285,11 @@ STEP 1 — Brand Context:
    Szinek: Deep Teal (#2A6B6B), Amber (#D4A843)."
 
 STEP 2 — Klasszifikacio:
-  Kulcsszavak: "logot" → IMAGE (Tier 1 match)
+  Kulcsszavak: "logot" → MEDIA (Tier 1 match)
 
 STEP 3 — Iranyitas:
-  "Ez logo/kep feladat. Iranyitom a /blox:image skill-hez."
-  → Invoke Skill("blox:image")
+  "Ez logo/kep feladat. Iranyitom a /blox:media skill-hez."
+  → Invoke Skill("blox:media")
 ```
 
 ### Example 3: Compound request (EN)
@@ -298,16 +301,16 @@ STEP 1 — Brand Context:
   Brand loaded.
 
 STEP 2 — Classification:
-  Keywords: "logo" → IMAGE + "landing page" → UI
-  → COMPOUND: [IMAGE first, then UI]
+  Keywords: "logo" → MEDIA + "landing page" → UI
+  → COMPOUND: [MEDIA first, then UI]
 
 STEP 3 — Route:
   "This has two parts:
-   1. Logo creation (first) — routing to /blox:image
+   1. Logo creation (first) — routing to /blox:media
    2. Landing page design (after) — routing to /blox:ui
 
    Let's start with the logo."
-  → Invoke Skill("blox:image")
+  → Invoke Skill("blox:media")
   → After completion: Invoke Skill("blox:ui")
 ```
 
@@ -338,14 +341,30 @@ STEP 1 — Brand Context:
   Brand loaded.
 
 STEP 2 — Classification:
-  Keywords: "demo video" → VIDEO (Tier 1 match)
+  Keywords: "demo video" → MEDIA (Tier 1 match)
 
 STEP 3 — Route:
-  "This is video work. Routing to /blox:video."
-  → Invoke Skill("blox:video")
+  "This is media work. Routing to /blox:media."
+  → Invoke Skill("blox:media")
 ```
 
-### Example 6: Needs brand first
+### Example 6: Presentation request (EN)
+
+```
+User: /blox:design "make me a pitch deck for investors"
+
+STEP 1 — Brand Context:
+  Brand loaded.
+
+STEP 2 — Classification:
+  Keywords: "pitch deck" → SLIDES (Tier 1 match)
+
+STEP 3 — Route:
+  "This is presentation work. Routing to /blox:slides."
+  → Invoke Skill("blox:slides")
+```
+
+### Example 7: Needs brand first
 
 ```
 User: /blox:design "design the full visual identity"
@@ -354,7 +373,7 @@ STEP 1 — Brand Context:
   No brand files found.
 
 STEP 2 — Classification:
-  Keywords: "visual identity" → could be IMAGE (logo) or BRAND (full system)
+  Keywords: "visual identity" → could be MEDIA (logo) or BRAND (full system)
   Context check: no brand files → needs /blox:brand first
 
 STEP 3 — Suggest:
