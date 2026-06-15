@@ -66,7 +66,7 @@ priority: recommended
 |------|---------|-------------|
 | Need brand identity first | Brand before design | `/blox:brand` |
 | Ready to write code | Implementation, not design | `/blox:build` |
-| Need image/logo assets | Asset generation | `/blox:image` |
+| Need image/logo assets | Asset generation | `/blox:media` |
 | Quality review of existing UI | Review, not design | `/blox:check` (Steps 5b, 5c) |
 | Project assessment | Assessment, not creation | `/blox:scan` |
 
@@ -433,6 +433,24 @@ Step 4: Markdown component specs with props, states, variants, a11y requirements
 - **image-generation**: AI-generated UI assets (icons, illustrations, hero images)
 
 ---
+
+## DESIGN KNOWLEDGE & QA GATE
+
+Ground every design decision in the bundled knowledge base. Load it ON DEMAND — never inline it.
+
+**1. Query the design DB before deciding** (palettes, font pairings, UX rules, chart types, styles):
+```
+python3 "${CLAUDE_PLUGIN_ROOT}/references/design-knowledge/ui-ux-pro-max/search.py" "<intent>" [-d color|typography|ux|chart|style]
+```
+Use the returned real palettes / font-pairings / UX rules to justify choices instead of inventing them. Example: before picking colors for a fintech dashboard, run `search.py "fintech dashboard" -d color`.
+
+**2. Apply the design principles** — read the relevant rules on demand from
+`${CLAUDE_PLUGIN_ROOT}/references/design-knowledge/power-design/design-principles.md`
+(visual hierarchy, Gestalt, modular type scale, 8pt grid, contrast, layout).
+
+**3. QA GATE (MANDATORY before Step 5 handoff):** run every UI output through
+`${CLAUDE_PLUGIN_ROOT}/references/design-knowledge/power-design/qa-checklist.md`
+(21 numbered rules with thresholds — e.g. whitespace ≥40%, WCAG contrast ≥4.5:1 body / ≥3:1 large, 8pt grid spacing, ≤4 type sizes per slide/screen). Fix any failing rule before handoff. The gate result is recorded in the handoff doc (Step 5).
 
 ## SKILL LOGIC
 
@@ -859,6 +877,10 @@ Exact files to create/modify:
 - Focus management for modals/dialogs
 - Color contrast verification table
 
+## Design QA Gate
+> Ran against power-design qa-checklist.md (21 rules). Result: [PASS / fixed: list rule #s].
+> Key thresholds confirmed: contrast ≥4.5:1, 8pt spacing grid, ≤4 type sizes, whitespace ≥40%.
+
 ## Implementation Notes
 
 [Practical notes for /blox:build:]
@@ -958,7 +980,7 @@ Every error has a graceful fallback — the skill NEVER blocks.
 | Design complete (autopilot) | Next phase skill (typically `/blox:build`) | After Step 5 — via /blox:idea autopilot |
 | Design complete (standalone) | Suggest `/blox:build` | After Step 5 — user decides |
 | No brand identity exists | Suggest `/blox:brand` | Step 1 — if no brand files found |
-| Assets needed (icons, illustrations) | `/blox:image` | During Step 2/4 if image-generation plugin available |
+| Assets needed (icons, illustrations) | `/blox:media` | During Step 2/4 via /blox:media |
 | Interactive prototype requested | Playground plugin | During Step 2 if playground plugin available |
 | Production component code needed | Frontend-design plugin | During Step 4 for enhanced component generation |
 | Design quality review needed later | `/blox:check` Steps 5b, 5c | At quality review — checks a11y and design consistency |
@@ -1283,8 +1305,11 @@ STEP 3-5 — [UX copy for each step, component specs, handoff with flow logic]
 ## REFERENCES
 
 - `references/patterns/knowledge-patterns.md` — Engineering patterns (WCAG, design tokens, component architecture)
+- `references/design-knowledge/ui-ux-pro-max/` — searchable design DB (palettes, font pairings, UX rules, charts) via `search.py`
+- `references/design-knowledge/power-design/design-principles.md` — design principles (hierarchy, grid, type, color)
+- `references/design-knowledge/power-design/qa-checklist.md` — 21-point QA gate (run before handoff)
 - `skills/brand/SKILL.md` — Brand identity (consumed by design, runs before it)
 - `skills/build/SKILL.md` — Implementation (consumes design handoff, runs after it)
 - `skills/check/SKILL.md` — Quality review Steps 5b, 5c (accessibility, design consistency)
-- `skills/image/SKILL.md` — Image/asset generation (optional enhancement)
+- `skills/media/SKILL.md` — Media generation (images, video, audio)
 - `registry/curated-plugins.yaml` — Plugin detection for premium mode

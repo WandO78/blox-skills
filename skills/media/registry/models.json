@@ -1,0 +1,46 @@
+{
+  "last_updated": "2026-06-15",
+  "notes": "Curated fal.ai registry. Tasks -> tiers (budget/balanced/premium). Agent picks task.default, quotes cost, swaps tier on cheaper/better. Refresh via fal.ai MCP search_models/get_pricing. Long tail = live query.",
+  "tasks": {
+    "text_to_image": {
+      "default": "balanced",
+      "tiers": {
+        "budget":   {"fal_id": "fal-ai/flux/schnell", "tier": "budget", "best_for": "fast cheap drafts", "unit": "per_image", "price_usd": 0.003, "default_args": {}, "output_path": "images[0].url"},
+        "balanced": {"fal_id": "fal-ai/nano-banana-pro", "tier": "balanced", "best_for": "photoreal + strong prompt adherence; TEXT-ONLY (use image_edit for refs)", "unit": "per_image", "price_usd": 0.05, "default_args": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1}, "output_path": "images[0].url"},
+        "premium":  {"fal_id": "fal-ai/gpt-image-2", "tier": "premium", "best_for": "complex multi-subject scenes, stylized", "unit": "per_image", "price_usd": 0.17, "default_args": {"num_images": 1}, "output_path": "images[0].url"}
+      }
+    },
+    "image_edit": {
+      "default": "balanced",
+      "tiers": {
+        "balanced": {"fal_id": "fal-ai/nano-banana-pro/edit", "tier": "balanced", "best_for": "image-to-image; honors reference images for identity/character consistency", "unit": "per_image", "price_usd": 0.05, "default_args": {"aspect_ratio": "1:1", "resolution": "2K", "num_images": 1}, "output_path": "images[0].url"}
+      }
+    },
+    "image_to_video": {
+      "default": "balanced",
+      "tiers": {
+        "budget":   {"fal_id": "bytedance/seedance-2.0/fast/image-to-video", "tier": "budget", "best_for": "fast cheap iteration drafts", "unit": "per_second", "price_usd": null, "default_args": {"duration": 5, "resolution": "1080p"}, "output_path": "video.url"},
+        "balanced": {"fal_id": "bytedance/seedance-2.0/image-to-video", "tier": "balanced", "best_for": "cinematic motion + synced audio, start/end frame control", "unit": "per_second", "price_usd": null, "default_args": {"duration": 5, "resolution": "1080p"}, "output_path": "video.url"},
+        "premium":  {"fal_id": "fal-ai/kling-video/v3/4k/image-to-video", "tier": "premium", "best_for": "native 4K final delivery", "unit": "per_second", "price_usd": 0.42, "price_last_verified": "2026-05-21", "default_args": {"duration": 5}, "output_path": "video.url"}
+      }
+    },
+    "upscale_image": {
+      "default": "balanced",
+      "tiers": {
+        "balanced": {"fal_id": "fal-ai/topaz/upscale/image", "tier": "balanced", "best_for": "sharpen + upscale photos, aspect preserved (single factor)", "unit": "per_image", "price_usd": null, "default_args": {"model": "Standard V2"}, "output_path": "image.url"}
+      }
+    },
+    "upscale_video": {
+      "default": "balanced",
+      "tiers": {
+        "balanced": {"fal_id": "fal-ai/topaz/upscale/video", "tier": "balanced", "best_for": "clean+sharpen+upscale real footage; price DOUBLES at 60fps", "unit": "per_second", "price_usd": 0.02, "price_last_verified": "2026-06-04", "default_args": {"model": "Proteus", "recover_detail": 0.5, "H264_output": true}, "output_path": "video.url"}
+      }
+    },
+    "tts": {
+      "default": "balanced",
+      "tiers": {
+        "balanced": {"fal_id": "fal-ai/kokoro/american-english", "tier": "balanced", "best_for": "cheap narration/voiceover (also runs fully local via pip kokoro)", "unit": "per_request", "price_usd": null, "default_args": {}, "output_path": "audio.url"}
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "output_dir": "~/Documents/Blox Media",
+  "_comment": "Output root. Each generation makes a dated subfolder. Tilde/env expansion supported."
+}

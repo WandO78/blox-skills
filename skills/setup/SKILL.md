@@ -71,6 +71,25 @@ priority: recommended
 
 ---
 
+## DESIGN/MEDIA PREFLIGHT
+
+> **When the user requests a design/media capability** (UI, image, video, audio, brand,
+> TTS, diarization, dubbing, render) — run the doctor and report readiness BEFORE any
+> paid or heavy work, so the user has cost and feasibility transparency up front.
+
+```
+RUN  skills/setup/scripts/doctor.sh   → ✓/✗ report of API keys, tools, packages, components
+READ registry/requirements.yaml       → needed_for + exact fix command per requirement
+
+FOR the requested capability:
+  - Report what is READY (✓) and what is MISSING (✗) with the exact fix command.
+  - State that capabilities DEGRADE GRACEFULLY: missing prerequisites mean a fallback
+    or skipped step, never a crash (e.g. no FAL_KEY → local Kokoro TTS instead of premium).
+  - Only proceed to paid/heavy work after the user has seen the readiness summary.
+```
+
+---
+
 ## ARGUMENTS
 
 | Flag | Effect |
@@ -394,7 +413,7 @@ plugins:
     declined_at: null
     last_checked: 2026-03-17
     missing_env: [GEMINI_API_KEY]
-    trigger_match: "skills: blox:image"
+    trigger_match: "skills: blox:media"
 ```
 
 ---

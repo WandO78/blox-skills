@@ -95,7 +95,7 @@ plugins:
     category: design
     triggers:
       skills:
-        - "blox:image"
+        - "blox:media"
     requires:
       env:
         - "GEMINI_API_KEY"
@@ -143,9 +143,9 @@ plugins:
         - "remotion"
         - "@remotion/cli"
       skills:
-        - "blox:video"
+        - "blox:media"
     priority: high
-    description: "Remotion domain rules — 37 rule files for React-based programmatic video creation (bundled in blox:video)"
+    description: "Remotion domain rules are bundled in blox:media (references/remotion-rules/)"
 
   # ── Testing ────────────────────────────────────────────────────────
 

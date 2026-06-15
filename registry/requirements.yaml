@@ -1,0 +1,22 @@
+# Prerequisites for the blox design/media package. Surfaced by /blox:setup doctor.
+# Each capability degrades gracefully if its requirements are missing.
+api_keys:
+  - name: FAL_KEY
+    needed_for: "image/video/audio generation, registry refresh (fal.ai)"
+    how: "Create a key at fal.ai/dashboard/keys, then: export FAL_KEY=... in ~/.zshrc"
+  - name: ELEVENLABS_API_KEY
+    needed_for: "diarization, audio isolation, dubbing, premium TTS, video-use transcription"
+    how: "Create at elevenlabs.io, then: export ELEVENLABS_API_KEY=... in ~/.zshrc"
+system_tools:
+  - {cmd: ffmpeg,    needed_for: "video edit/render (video-use, HyperFrames)", how: "brew install ffmpeg"}
+  - {cmd: node,      min: "22",   needed_for: "HyperFrames render", how: "brew install node"}
+  - {cmd: python3,   min: "3.10", needed_for: "registry, local audio models", how: "brew install python"}
+  - {cmd: espeak-ng, needed_for: "Kokoro local TTS phonemizer", how: "brew install espeak-ng"}
+  - {cmd: git,       needed_for: "installing video-use", how: "xcode-select --install"}
+python_packages:
+  - {pkg: fal-client,   needed_for: "fal.ai generation", how: "pip install fal-client"}
+  - {pkg: kokoro,       needed_for: "local TTS (default)", how: "pip install kokoro"}
+  - {pkg: parakeet-mlx, needed_for: "local STT on Apple Silicon (default)", how: "pip install parakeet-mlx"}
+components:
+  - {name: video-use,   needed_for: "real-footage ingest/trim/edit", how: "git clone https://github.com/browser-use/video-use ~/Developer/video-use"}
+  - {name: hyperframes, needed_for: "HTML->MP4 animate/render", how: "npx --yes hyperframes --version (fetched on demand)"}

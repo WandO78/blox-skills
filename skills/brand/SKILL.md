@@ -48,7 +48,7 @@ when_to_use: |
   brand voice, or design guidelines. Typically the first creative phase after
   /blox:idea scaffolding, or anytime the user wants to define/refine brand identity.
   Do NOT use for layout/component design (use /blox:design), for code implementation
-  (use /blox:build), or for logo/asset generation alone (use /blox:image).
+  (use /blox:build), or for logo/asset generation alone (use /blox:media).
 auto_invoke: false
 priority: recommended
 
@@ -69,7 +69,7 @@ priority: recommended
 |------|---------|-------------|
 | Already have brand guidelines | Don't overwrite existing identity | Review with `/blox:check` (Step 5a) |
 | Need page layouts or components | Layout and component design, not brand | `/blox:design` |
-| Need logo or image assets | Asset generation, not brand system | `/blox:image` |
+| Need logo or image assets | Asset generation, not brand system | `/blox:media` |
 | Need to write code | Implementation, not branding | `/blox:build` |
 | Need to assess project quality | Assessment, not creation | `/blox:scan` |
 
@@ -110,6 +110,22 @@ IF neither:
 > **6-step pipeline from brand personality discovery to integrated design tokens.**
 > Step 1 is interactive (user answers questions).
 > Steps 2-6 are generated (user confirms each before moving on).
+
+### Step 0: EXTRACT FROM AN EXISTING BRAND (optional fast path)
+
+If the user references an existing brand/site to match or evolve (e.g. "make it feel like
+stripe.com", "we already have a site at <url>"), extract its identity instead of asking
+discovery questions from scratch:
+
+1. Follow the recipe at `${CLAUDE_PLUGIN_ROOT}/references/design-knowledge/power-design/extract-brand.md`
+   (uses Firecrawl's branding extraction to pull palette, typography, and voice from a URL).
+2. Map the result into the brand guidelines (Step 4) and design tokens (Step 5).
+3. Confirm the extracted identity with the user, then refine.
+
+If no existing brand is referenced, skip this and go to Step 1 (discovery from scratch).
+Use `${CLAUDE_PLUGIN_ROOT}/references/design-knowledge/design-md/exemplars/` (real DESIGN.md
+files for apple, stripe, linear, vercel, notion, spotify, airbnb, tesla) as few-shot reference,
+and `.../power-design/brands/` (73 brand-style files) as a broader library.
 
 ### Step 1: BRAND DISCOVERY
 
@@ -184,6 +200,14 @@ Q5: "What should your brand NEVER be?"
 ---
 
 ### Step 2: COLOR PALETTE GENERATION
+
+**Ground the palette in real data first.** Query the design DB for proven palettes that fit
+the brand's product type and personality, then adapt — don't invent from zero:
+```
+python3 "${CLAUDE_PLUGIN_ROOT}/references/design-knowledge/ui-ux-pro-max/search.py" "<product type + personality>" -d color
+```
+Use the returned palettes (with their WCAG-checked foreground/background pairings) as the
+starting point, then tailor to the brand. Carry contrast compliance (≥4.5:1 body text) into the tokens.
 
 Based on the confirmed brand personality, generate a complete color palette.
 
@@ -308,6 +332,14 @@ and wait for user confirmation before proceeding.
 ---
 
 ### Step 3: TYPOGRAPHY SELECTION
+
+**Ground type choices in proven pairings first.** Query the design DB for font pairings that
+fit the brand personality, then adapt:
+```
+python3 "${CLAUDE_PLUGIN_ROOT}/references/design-knowledge/ui-ux-pro-max/search.py" "<personality / use case>" -d typography
+```
+Each result includes the Google Fonts URL + CSS import + Tailwind config. Prefer a returned
+pairing over an ad-hoc choice; record the rationale.
 
 Based on brand personality, suggest appropriate typefaces.
 
@@ -655,7 +687,7 @@ Every error has a graceful fallback — the skill NEVER blocks.
 |---------------------|------|------|
 | Brand identity complete (autopilot) | Next phase skill (typically `/blox:design`) | After Step 6 — via /blox:idea autopilot |
 | Brand identity complete (standalone) | Suggest `/blox:design` | After Step 6 — user decides |
-| Logo concept needed | `/blox:image` | During Step 4 if image-generation plugin available |
+| Logo concept needed | `/blox:media` | During Step 4 via /blox:media |
 | Brand enforcement needed later | `/blox:check` Step 5a | At quality review — checks brand voice consistency |
 | Brand guidelines exist at review time | `/blox:check` consumes them | Step 5a reads brand-guidelines.md |
 | Design tokens ready for components | `/blox:design` | Next phase — turns tokens into UI components |
@@ -889,5 +921,10 @@ blox: [continues with this personality to Step 2]
 - `references/patterns/knowledge-patterns.md` — Engineering patterns (WCAG enforcement, design tokens)
 - `skills/design/SKILL.md` — UI/component design (chained after brand)
 - `skills/check/SKILL.md` — Quality review Step 5a (brand voice consistency)
-- `skills/image/SKILL.md` — Image/logo generation (optional enhancement)
+- `skills/media/SKILL.md` — Media generation (images, video, audio)
 - `registry/curated-plugins.yaml` — Plugin detection for premium mode
+- `references/design-knowledge/design-md/SCHEMA.md` — 9-section DESIGN.md brand template
+- `references/design-knowledge/design-md/exemplars/` — real brand DESIGN.md exemplars (few-shot)
+- `references/design-knowledge/power-design/brands/` — 73-brand style library
+- `references/design-knowledge/power-design/extract-brand.md` — extract identity from a URL (Firecrawl)
+- `references/design-knowledge/ui-ux-pro-max/` — searchable palettes / font pairings via `search.py`
