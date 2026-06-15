@@ -64,24 +64,26 @@
         "budget": {
           "fal_id": "bytedance/seedance-2.0/fast/image-to-video",
           "tier": "budget",
-          "best_for": "fast cheap iteration drafts",
+          "best_for": "fast cheap iteration drafts (silent 720p by default; enable audio/1080p explicitly)",
           "unit": "per_second",
           "price_usd": null,
           "default_args": {
             "duration": "5",
-            "resolution": "1080p"
+            "resolution": "720p",
+            "generate_audio": false
           },
           "output_path": "video.url"
         },
         "balanced": {
           "fal_id": "bytedance/seedance-2.0/image-to-video",
           "tier": "balanced",
-          "best_for": "cinematic motion + synced audio, start/end frame control",
+          "best_for": "cinematic motion + synced audio, start/end frame control (silent 720p by default; enable audio/1080p explicitly)",
           "unit": "per_second",
           "price_usd": null,
           "default_args": {
             "duration": "5",
-            "resolution": "1080p"
+            "resolution": "720p",
+            "generate_audio": false
           },
           "output_path": "video.url"
         },
