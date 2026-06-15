@@ -13,6 +13,7 @@ command -v ffmpeg >/dev/null   && ok "ffmpeg"   || no "ffmpeg missing"   "brew i
 command -v node >/dev/null     && ok "node $(node -v 2>/dev/null)" || no "node missing (need 22+)" "brew install node"
 command -v python3 >/dev/null  && ok "python3 $(python3 -V 2>&1 | awk '{print $2}')" || no "python3 missing" "brew install python"
 command -v espeak-ng >/dev/null && ok "espeak-ng" || no "espeak-ng missing (Kokoro TTS)" "brew install espeak-ng"
+command -v git >/dev/null      && ok "git"      || no "git missing"      "xcode-select --install"
 echo "Python packages:"
 for p in fal_client kokoro parakeet_mlx; do
   python3 -c "import $p" 2>/dev/null && ok "$p" || no "$p not installed" "pip install ${p//_/-}"
