@@ -1,5 +1,16 @@
-# Prerequisites for the blox design/media package. Surfaced by /blox:setup doctor.
+# Prerequisites for the blox package. Surfaced by /blox:setup doctor.
 # Each capability degrades gracefully if its requirements are missing.
+# companions = blox's own sibling skills (fixed list, not project-scanned).
+companions:
+  - name: superpowers
+    needed_for: "methodology pillar blox defers to (TDD, plan execution, brainstorming, code review). Without it, blox skills run in a lighter standalone mode. STRONGLY recommended."
+    how: "/plugin install superpowers"
+  - name: frontend-design
+    needed_for: "production frontend code handoff from /blox:ui"
+    how: "/plugin install frontend-design"
+  - name: plannotator
+    needed_for: "plan/code annotation UI used by /blox:plan for visual review (optional)"
+    how: "/plugin install plannotator"
 api_keys:
   - name: FAL_KEY
     needed_for: "image/video/audio generation, registry refresh (fal.ai)"

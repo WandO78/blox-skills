@@ -482,13 +482,15 @@ Wrong:    Phase 1: Build + Brand mixed together
 
 ### Step 6: SETUP CHECK
 
-After plan generation, chain to `/blox:setup` to check and install needed plugins.
+After plan generation, chain to `/blox:setup` to report readiness.
 
 **Instructional chain:**
-"Now follow the `/blox:setup` skill to check and install needed plugins."
+"Now follow the `/blox:setup` skill to report blox companions + media prerequisites."
 
-Only suggest plugins needed for the generated plan's phases — don't overwhelm with
-everything in the registry. The setup skill handles the interactive install flow.
+`/blox:setup` runs a slim doctor: it reports which blox companions (superpowers,
+frontend-design, plannotator) and which media/build prerequisites are present, with
+exact fix commands for anything missing. It never installs anything and never blocks —
+the user gets the readiness picture and can fix items as needed.
 
 ---
 
@@ -582,7 +584,6 @@ Every error has a graceful fallback — the skill NEVER blocks.
 | Master plan generated | `/blox:setup` | Step 6 — plugin check and install |
 | Autopilot starts Phase 1 | Corresponding `/blox:*` skill | Step 7 — phase execution |
 | Autopilot phase transition | Next phase's `/blox:*` skill | Step 7 — after user confirms |
-| Project scaffolded | `_internal/detect` | Via `/blox:setup` — plugin detection |
 
 ---
 

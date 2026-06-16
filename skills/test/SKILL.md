@@ -520,7 +520,7 @@ PREMIUM MODE (Playwright MCP plugin available):
 | No test framework detected | `/blox:build` TDD framework setup | Step 1 — if user chooses to set up |
 | Bug found during test generation | `/blox:fix` | Step 4 — if new test reveals a bug |
 | Test generation complete, quality check needed | `/blox:check` | After Step 4 — suggest quality review |
-| E2E tests need Playwright plugin | `_internal/detect` | Step 5 — plugin detection |
+| E2E tests need a missing tool (e.g. Playwright) | Inform in one line, continue | Step 5 — non-blocking |
 | Tests generated during a phase | `_internal/checkpoint` | After commit, if checkpoint conditions met |
 | Test gaps reveal missing features | `/blox:plan` | If gaps indicate unplanned work |
 
@@ -721,5 +721,4 @@ Step 4: Generate tests for payment.ts
 
 - `references/patterns/knowledge-patterns.md` — TDD methodology, quality gates
 - `skills/build/SKILL.md` — TDD WHEN NO TEST FRAMEWORK section (framework setup)
-- `skills/_internal/detect/SKILL.md` — Plugin detection for Playwright and other test tools
 - @superpowers:test-driven-development — TDD reference for test generation approach

@@ -81,7 +81,7 @@ This skill executes blox phase checklists. It uses superpowers for implementatio
 - **TDD cycle:** Follow `superpowers:test-driven-development` (RED-GREEN-REFACTOR) for every code item. This is an Iron Law — no production code without a failing test first.
 - **Execution engine:** For phases with multiple independent tasks, use `superpowers:subagent-driven-development` (fresh subagent per task + two-stage review). For sequential work, use `superpowers:executing-plans`.
 - **Git isolation:** Use `superpowers:using-git-worktrees` for feature work that needs isolation.
-- **What blox adds on top:** Automatic checkpoint saves (every 5 items via _internal/checkpoint), plugin detection (_internal/detect), phase checklist tracking (`[x]` marks, `>>> CURRENT <<<` movement), and section dependency enforcement (brand before build).
+- **What blox adds on top:** Automatic checkpoint saves (every 5 items via _internal/checkpoint), phase checklist tracking (`[x]` marks, `>>> CURRENT <<<` movement), and section dependency enforcement (brand before build).
 
 **Rule:** The superpowers provide discipline (TDD, review, worktree). blox provides tracking (checkpoints, phase file, quality score). Both run together.
 
@@ -114,7 +114,8 @@ Read project context and find the current work item.
 
 1c. Read the phase's Skills & Tools table
     - Know which tools/plugins are available for this phase
-    - If a plugin is listed but not installed → trigger `_internal/detect`
+    - If a tool/companion needed for this step is missing, tell the user what to
+      install (one line) and continue — don't block.
 
 1d. Repo Knowledge Check (MANDATORY on first invocation this session)
     Read these 5 files BEFORE writing any code:
@@ -216,23 +217,23 @@ LEVEL 3 (EMERGENCY) — last resort, critical:
 
 ---
 
-### Step 4: Plugin Detection
+### Step 4: Missing Tools — Inform, Don't Block
 
-First-time triggers during the build cycle invoke `_internal/detect` automatically:
+If a tool or companion needed for the current step is missing (e.g. frontend-design
+for UI work, a test runner, an LSP), tell the user what to install in ONE line and
+keep going. Never pause the TDD cycle to wait on an install.
 
 ```
-First time writing code in a language → _detect checks for LSP plugin
-First time writing tests              → _detect checks for test runner plugin
-First time writing frontend components → _detect checks for frontend-design plugin
-First time writing API endpoints       → _detect checks for security/API plugins
+Need a tool the environment doesn't have?
+  → Print one line: "Tip: install <thing> for <benefit> (<command>)."
+  → Continue the TDD cycle regardless.
 ```
-
-**Chain:** Follow the detection protocol in `skills/_internal/detect/SKILL.md`
 
 **Rules:**
-- Detection is NON-BLOCKING — work always continues regardless of plugin status
-- If user declines a plugin: don't re-ask this session
-- If plugin enhances the current work: note the enhancement in commit/checklist
+- This is NON-BLOCKING — work always continues regardless of tool/companion status.
+- Don't re-suggest the same install repeatedly this session.
+- If a companion (e.g. frontend-design) is present and enhances the current work,
+  use it and note the enhancement in the commit/checklist.
 
 ---
 
@@ -373,7 +374,7 @@ it GETS a test. When in doubt: write the test.
 | When this happens... | Call | When |
 |---------------------|------|------|
 | 5 items done / commit made / checkpoint marker reached | `_internal/checkpoint` | Automatic during TDD cycle (Step 3) |
-| First time writing code in a new language / first test / first frontend | `_internal/detect` | Automatic plugin detection (Step 4) |
+| A tool/companion needed for the current step is missing | Inform in one line, continue | Non-blocking (Step 4) |
 | All sections complete | `/blox:check` | Suggest quality review (Step 6) |
 | Quality review passed | `/blox:done` | Phase closure (Step 6) |
 | Autopilot mode — phase complete | Next `/blox:*` per master plan | Chained by /blox:idea (Step 6) |
@@ -465,8 +466,8 @@ UPDATE:
 ```
 UNDERSTAND:
   Item: Create ProductCard component
-  Skills & Tools table shows: frontend-design plugin installed
-  _detect: frontend-design plugin available → enhanced mode
+  Skills & Tools table shows: frontend-design companion installed
+  frontend-design available → enhanced mode
 
 RED — Write test:
   test("ProductCard renders product name and price", () => {
@@ -597,4 +598,3 @@ All gates passed. Continue to Section 3.
 - `references/templates/phase-template.md` — Phase file format (checklist structure, checkpoint format)
 - `references/patterns/knowledge-patterns.md` — Engineering patterns (TDD, quality gates, architecture invariants)
 - `skills/_internal/checkpoint/SKILL.md` — Checkpoint protocol (Level 1/2/3)
-- `skills/_internal/detect/SKILL.md` — Plugin detection protocol

@@ -474,10 +474,6 @@ The mapping is a HINT for the agent, not a rigid requirement.
 
 **If no skills match:** The table still has the 3 mandatory skills above. An empty scan result is NOT a failure — it just means no additional skills are relevant.
 
-**Chain to `_internal/detect`:** After generating the Skills & Tools table, invoke
-`_internal/detect` to check if any recommended plugins are missing for the planned
-work. This ensures the user gets plugin suggestions BEFORE phase execution begins.
-
 ### Step 5: Checklist Generation
 
 Generate the hierarchical checklist following these rules:
@@ -635,7 +631,6 @@ Relative paths will fail. Example: `/Users/name/project/plans/PHASE_01.md` not `
 | Phase ready for execution (no subagents) | `/executing-plans` (superpowers) | FALLBACK — only when subagent support is unavailable |
 | Phase has Parallel Work Plan | Advanced parallel coordination | For Leader-Worker coordination |
 | Called from init pipeline | `/blox:idea` | Stage 4 calls plan for phase generation |
-| Plugin pre-check during plan generation | `_internal/detect` | After Skills & Tools table generated (Step 4) |
 
 ---
 
@@ -656,7 +651,6 @@ Relative paths will fail. Example: `/Users/name/project/plans/PHASE_01.md` not `
 - If Evolution (Z7) detected: all 4 extra sections present (Impact Analysis, Rollback Plan, Feature Flag, Regression Checkpoint)
 - Tech stack dynamically detected (specific technologies listed, no predefined categories)
 - Zone labels use human-readable names with Z-code in parentheses
-- `_internal/detect` invoked after plan generation for plugin pre-check
 
 ### Failure indicators (STOP and fix!)
 - Checklist > 50 items without sub-phase split
@@ -691,9 +685,8 @@ Relative paths will fail. Example: `/Users/name/project/plans/PHASE_01.md` not `
 6. Checklist -> ~30 items in 3 sections (Schema + API, Frontend Components, Integration)
 7. Exit Criteria -> Dashboard renders, API returns data, tests PASS, lint PASS
 8. Invariants -> "Zod schema FIRST", "Route handler max 50 lines"
-9. `_internal/detect` -> checks plugins, suggests missing ones
-10. START_HERE.md -> new row added
-11. Present to user -> approved
+9. START_HERE.md -> new row added
+10. Present to user -> approved
 
 ### Example 2: Evolution Phase (production system)
 

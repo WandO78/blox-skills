@@ -80,7 +80,7 @@ This skill debugs issues. It uses superpowers for systematic methodology:
 
 - **Root cause analysis:** Follow `superpowers:systematic-debugging` 4-phase process: (1) Root Cause Investigation — read errors, reproduce, check changes; (2) Pattern Analysis — find working examples, compare; (3) Hypothesis Testing — form theory, test minimally; (4) Implementation — create failing test, fix, verify.
 - **TDD for fixes:** Phase 4 uses `superpowers:test-driven-development` — write a failing test that reproduces the bug BEFORE implementing the fix.
-- **What blox adds on top:** Checkpoint context (resume debugging across sessions via _internal/checkpoint), plugin detection (_internal/detect for debugging tools), phase checklist integration (mark bug fix items as [x]).
+- **What blox adds on top:** Checkpoint context (resume debugging across sessions via _internal/checkpoint), phase checklist integration (mark bug fix items as [x]).
 
 **Rule:** Superpowers provides the debugging discipline (never guess, always find root cause). blox provides continuity (checkpoints, context chain, phase tracking).
 
@@ -335,9 +335,9 @@ c) [specific scenario to test manually]"
 
 ---
 
-## PLUGIN DETECTION
+## TOOL SUGGESTIONS
 
-During debugging, `_internal/detect` may suggest tools:
+During debugging, if a tool would help and is missing, inform the user in one line and continue:
 
 | Context | Potential tool | Purpose |
 |---------|---------------|---------|
@@ -346,7 +346,7 @@ During debugging, `_internal/detect` may suggest tools:
 | API debugging | HTTP client / Postman MCP | Request/response inspection |
 | Complex state issues | Debugger integration | Step-through debugging |
 
-Detection is NON-BLOCKING — debugging always continues regardless of plugin availability.
+This is NON-BLOCKING — debugging always continues regardless of tool availability.
 
 ---
 
@@ -581,5 +581,4 @@ c) Tell me if the 30-second timing is exact or approximate"
 
 - `references/patterns/knowledge-patterns.md` — Pattern 2 (Decision Waterfall), Pattern 4 (Fix Environment Not Agent)
 - `skills/_internal/checkpoint/SKILL.md` — Checkpoint protocol (if fixing during a phase)
-- `skills/_internal/detect/SKILL.md` — Plugin detection for debugging tools
 - @superpowers:test-driven-development — TDD methodology reference

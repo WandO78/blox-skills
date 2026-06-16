@@ -108,7 +108,7 @@ ANNOUNCE to user:
   BASIC:  "Running in basic mode — I'll create detailed wireframe specs and component lists."
 
 IF no Stitch MCP detected AND task would benefit from visual design:
-  → Trigger _internal/detect for google-stitch plugin
+  → Inform the user (non-blocking) and continue:
   → Ask user: "Stitch MCP is not set up for this project. It would let me
      generate visual designs you can iterate on. Set it up?
      You'll need a Stitch API key from https://stitch.withgoogle.com/settings
@@ -1312,4 +1312,4 @@ STEP 3-5 — [UX copy for each step, component specs, handoff with flow logic]
 - `skills/build/SKILL.md` — Implementation (consumes design handoff, runs after it)
 - `skills/check/SKILL.md` — Quality review Steps 5b, 5c (accessibility, design consistency)
 - `skills/media/SKILL.md` — Media generation (images, video, audio)
-- `registry/curated-plugins.yaml` — Plugin detection for premium mode
+- `registry/requirements.yaml` — blox companions + media/build prerequisites (premium-mode tools)

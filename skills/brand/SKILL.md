@@ -922,7 +922,7 @@ blox: [continues with this personality to Step 2]
 - `skills/design/SKILL.md` — UI/component design (chained after brand)
 - `skills/check/SKILL.md` — Quality review Step 5a (brand voice consistency)
 - `skills/media/SKILL.md` — Media generation (images, video, audio)
-- `registry/curated-plugins.yaml` — Plugin detection for premium mode
+- `registry/requirements.yaml` — blox companions + media/build prerequisites (premium-mode tools)
 - `references/design-knowledge/design-md/SCHEMA.md` — 9-section DESIGN.md brand template
 - `references/design-knowledge/design-md/exemplars/` — real brand DESIGN.md exemplars (few-shot)
 - `references/design-knowledge/power-design/brands/` — 73-brand style library

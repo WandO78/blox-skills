@@ -851,4 +851,4 @@ STEP 4 — Post-deploy Verification:
 - `skills/check/SKILL.md` — Quality review (for post-deploy performance issues)
 - `skills/build/SKILL.md` — Build skill (for fixing pre-deploy build failures)
 - `skills/fix/SKILL.md` — Fix skill (for debugging post-deploy failures)
-- `registry/curated-plugins.yaml` — Plugin detection for premium mode
+- `registry/requirements.yaml` — blox companions + media/build prerequisites (premium-mode tools)

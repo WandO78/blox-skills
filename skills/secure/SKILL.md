@@ -943,4 +943,4 @@ After audit:
 - `skills/check/SKILL.md` — Quality review Step 5e (security pattern scan — lighter version)
 - `skills/deploy/SKILL.md` — Deployment skill (references security audit in pre-deploy checks)
 - `skills/build/SKILL.md` — Build skill (security checklist items auto-injected by /blox:plan Section 9)
-- `registry/curated-plugins.yaml` — Plugin detection for premium mode
+- `registry/requirements.yaml` — blox companions + media/build prerequisites (premium-mode tools)

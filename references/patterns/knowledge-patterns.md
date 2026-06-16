@@ -115,4 +115,4 @@ Everything works at basic level, plugins enhance:
 - API key missing → warn, don't block
 - Error → log, continue, suggest fix
 
-**Applied by:** _internal/detect, all domain skills
+**Applied by:** /blox:setup (doctor), all domain skills
