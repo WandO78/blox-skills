@@ -122,34 +122,13 @@ DETECTION ORDER:
    - Cypress → `cypress` in deps or `cypress.config.*`
    - Puppeteer → `puppeteer` in deps
 
-**If NO test framework found:**
-```
-STOP and inform:
-"No test framework detected. Before generating tests, a framework is needed.
+**If NO test framework found:** STOP and present the no-framework prompt (see
+`references/output-templates.md`), then route:
+- User chooses **A** → follow `/blox:build` TDD WHEN NO TEST FRAMEWORK protocol
+- User chooses **B** → skip to Step 3 (gap analysis only, no execution)
+- User chooses **C** → install the chosen framework
 
-Recommended for this project: [framework based on language/stack]
-
-Options:
-A) Set up [framework] now (I'll install and configure it)
-B) Skip test framework setup, just analyze code for testable areas
-C) Use a different framework: [list alternatives]"
-
-If user chooses A → follow /blox:build TDD WHEN NO TEST FRAMEWORK protocol
-If user chooses B → skip to Step 3 (gap analysis only, no execution)
-If user chooses C → install the chosen framework
-```
-
-**Output format:**
-```
-## Test Framework Detection
-- Language: [TypeScript | Python | Go | Rust | ...]
-- Framework: [Vitest | Jest | pytest | go test | cargo test | ...]
-- Runner command: [npm test | pytest | go test ./... | ...]
-- Coverage tool: [c8 | istanbul | pytest-cov | go cover | none]
-- E2E framework: [Playwright | Cypress | none]
-- Test file pattern: [*.test.ts | test_*.py | *_test.go | ...]
-- Config file: [vitest.config.ts | pytest.ini | ...]
-```
+**Output:** Use the "Test Framework Detection" template in `references/output-templates.md`.
 
 ---
 
@@ -178,33 +157,8 @@ If user chooses C → install the chosen framework
 - If test runner crashes → report the error, suggest fix
 - If dependency missing → report which dependency, suggest install command
 
-**Output format:**
-```
-## Test Results
-- Total: [N] tests
-- Passed: [N] ([X]%)
-- Failed: [N] ([X]%)
-- Skipped: [N]
-- Duration: [X]s
-
-### Failing Tests
-| # | Test | File:Line | Error |
-|---|------|-----------|-------|
-| 1 | should validate email | auth.test.ts:42 | Expected "valid" got "invalid" |
-| 2 | ... | ... | ... |
-
-### Coverage Summary (if available)
-- Statements: [X]% ([N]/[M])
-- Branches: [X]% ([N]/[M])
-- Functions: [X]% ([N]/[M])
-- Lines: [X]% ([N]/[M])
-
-### Lowest Coverage Files
-| # | File | Statements | Branches | Functions |
-|---|------|-----------|----------|-----------|
-| 1 | src/utils/validation.ts | 23% | 10% | 20% |
-| 2 | ... | ... | ... | ... |
-```
+**Output:** Use the "Test Results" template in `references/output-templates.md` (totals,
+failing-tests table, coverage summary, lowest-coverage files).
 
 **If no tests exist (0 test files found):**
 ```
@@ -256,50 +210,9 @@ what should be tested."
    - **P3 — Utility/Helper:** Pure functions, formatters, validators
    - **P4 — UI/Presentation:** Component rendering, styling logic (lowest priority)
 
-**Output format:**
-```
-## Gap Analysis
-
-### Untested Source Files (no corresponding test file)
-| # | Source File | Priority | Reason |
-|---|------------|----------|--------|
-| 1 | src/services/payment.ts | P1 | Critical business logic, handles transactions |
-| 2 | src/utils/format.ts | P3 | Pure utility functions |
-
-### Untested Functions (in partially tested files)
-| # | Function | File | Priority | Why it matters |
-|---|----------|------|----------|----------------|
-| 1 | processRefund() | services/payment.ts | P1 | Financial operation |
-| 2 | formatCurrency() | utils/format.ts | P3 | Display helper |
-
-### Missing Edge Cases
-| # | Test File | Function | Missing Case | Priority |
-|---|-----------|----------|-------------|----------|
-| 1 | auth.test.ts | validateToken() | expired token | P1 |
-| 2 | auth.test.ts | validateToken() | malformed JWT | P2 |
-
-### Missing Error Handling Tests
-| # | Source File | Error Condition | Priority |
-|---|------------|----------------|----------|
-| 1 | services/api.ts | Network timeout | P1 |
-| 2 | services/api.ts | 500 response | P2 |
-
-### ⚠️ Orphaned Source Files (BLOCKING)
-Files created in this session/phase that have NO test file yet.
-These MUST be resolved before proceeding to next feature work.
-| # | Source File | Type | Status |
-|---|------------|------|--------|
-| 1 | src/components/CostCenterSearch.tsx | component | ❌ No test file |
-| 2 | src/hooks/useBudgetBalance.ts | hook | ❌ No test file |
-
-### Summary
-- Source files: [N] total, [M] without tests ([X]%)
-- Orphaned files (no test at all): [N] — **BLOCKING if > 0** (INVARIANT 12)
-- Functions: [N] public, [M] untested ([X]%)
-- Edge cases: [N] identified, [M] missing tests
-- Error handlers: [N] found, [M] untested
-- Priority breakdown: P1: [N], P2: [N], P3: [N], P4: [N]
-```
+**Output:** Use the "Gap Analysis" template in `references/output-templates.md` (untested
+files, untested functions, missing edge cases, missing error-handling tests, the
+⚠️ Orphaned Source Files BLOCKING table, and the summary with the P1-P4 breakdown).
 
 **CRITICAL:** If orphaned source files > 0, the gap analysis output MUST include a prominent warning. The agent MUST NOT proceed to generate tests for other files while orphaned files exist — orphaned files get P0 priority (above P1).
 
@@ -310,15 +223,9 @@ These MUST be resolved before proceeding to next feature work.
 **Purpose:** Write tests for identified gaps using TDD methodology.
 
 **Trigger:** User explicitly requests test generation, OR user confirms after gap analysis.
-Do NOT auto-generate — always present gaps first (Step 3) and ask:
-
-```
-"Found [N] testing gaps ([X] critical). Generate tests?
-A) All gaps (P1-P4) — [estimated N test files, M test cases]
-B) Critical only (P1) — [estimated N test files, M test cases]
-C) Specific scope — tell me which files/functions
-D) Skip — just use the gap report"
-```
+Do NOT auto-generate — always present gaps first (Step 3) and ask using the generation
+prompt in `references/output-templates.md` (options A=all / B=critical only / C=specific
+scope / D=skip).
 
 **Actions (when user confirms):**
 
@@ -337,28 +244,9 @@ D) Skip — just use the gap report"
       - Related edge cases grouped together
       - Clear test names: `"should [expected behavior] when [condition]"`
 
-2. **Test structure per file:**
-
-```
-// [test framework imports]
-// [source imports — the module being tested]
-
-describe("[ModuleName]", () => {
-  // Setup / mocks (if needed)
-
-  describe("[functionName]", () => {
-    // Happy path
-    it("should [expected behavior] with valid input", () => { ... });
-
-    // Edge cases
-    it("should handle empty input", () => { ... });
-    it("should handle null/undefined", () => { ... });
-
-    // Error cases
-    it("should throw when [error condition]", () => { ... });
-  });
-});
-```
+2. **Test structure per file:** one `describe` block per module, nested `describe` per
+   function, grouping happy-path / edge-case / error-case `it()` blocks. Scaffold in
+   `references/output-templates.md`.
 
 3. **Run ALL tests after generating each file:**
    - New tests + existing tests → ALL must pass
@@ -372,25 +260,8 @@ describe("[ModuleName]", () => {
 
 **Reference:** @superpowers:test-driven-development for TDD methodology.
 
-**Output format:**
-```
-## Generated Tests
-| # | Test File | Tests Added | Coverage Before | Coverage After |
-|---|-----------|------------|----------------|---------------|
-| 1 | test/services/payment.test.ts | 12 | 0% | 85% |
-| 2 | test/utils/format.test.ts | 8 | 30% | 92% |
-
-### Bugs Found During Test Generation
-| # | Test | File | Bug Description |
-|---|------|------|----------------|
-| 1 | "should handle negative amounts" | payment.test.ts | processRefund() allows negative amounts |
-
-### Test Run After Generation
-- Total: [N] tests (was [M])
-- Passed: [N]
-- Failed: [N] (bugs found — see above)
-- Coverage: [X]% (was [Y]%)
-```
+**Output:** Use the "Generated Tests" template in `references/output-templates.md`
+(tests-added table with before/after coverage, bugs-found table, post-generation test run).
 
 ---
 
@@ -431,45 +302,11 @@ PREMIUM MODE (Playwright MCP plugin available):
      - Onboarding flow (if applicable)
      - Error recovery (404, session expired, offline)
 
-2. **Write test specifications:**
+2. **Write test specifications** using the spec format in `references/output-templates.md`
+   (priority, numbered steps, assertions, variants per flow).
 
-```markdown
-### E2E Test Specifications
-
-#### Flow 1: User Authentication
-**Priority:** P1 — Critical
-**Steps:**
-1. Navigate to /login
-2. Enter valid email and password
-3. Click "Sign in" button
-4. Assert: redirected to /dashboard
-5. Assert: user name displayed in header
-6. Assert: auth token stored in cookies
-
-**Variants:**
-- Invalid credentials → error message displayed
-- Empty form → validation errors shown
-- Remember me → token persists after browser close
-
-#### Flow 2: [Next flow...]
-```
-
-3. **If Playwright is the E2E framework:**
-   - Generate Playwright test file stubs with proper structure:
-     ```typescript
-     import { test, expect } from '@playwright/test';
-
-     test.describe('Authentication', () => {
-       test('should login with valid credentials', async ({ page }) => {
-         await page.goto('/login');
-         await page.fill('[data-testid="email"]', 'user@example.com');
-         await page.fill('[data-testid="password"]', 'validpassword');
-         await page.click('[data-testid="submit"]');
-         await expect(page).toHaveURL('/dashboard');
-         await expect(page.locator('[data-testid="user-name"]')).toBeVisible();
-       });
-     });
-     ```
+3. **If Playwright is the E2E framework:** generate Playwright test file stubs using the
+   stub scaffold in `references/output-templates.md`.
 
 **Actions (PREMIUM mode — Playwright plugin available):**
 
@@ -479,20 +316,7 @@ PREMIUM MODE (Playwright MCP plugin available):
 4. Capture screenshots on failure
 5. Report with visual evidence
 
-**Output format:**
-```
-## E2E Test Report
-- Mode: [BASIC | PREMIUM]
-- Flows identified: [N]
-- Test specs generated: [N]
-- Test files created: [list] (BASIC: stubs only, PREMIUM: full tests)
-
-### User Flows
-| # | Flow | Priority | Tests | Status |
-|---|------|----------|-------|--------|
-| 1 | Authentication | P1 | 4 specs | [Generated | Executed: PASS/FAIL] |
-| 2 | Product CRUD | P1 | 6 specs | [Generated | Executed: PASS/FAIL] |
-```
+**Output:** Use the "E2E Test Report" template in `references/output-templates.md`.
 
 ---
 
@@ -558,167 +382,16 @@ PREMIUM MODE (Playwright MCP plugin available):
 
 ## EXAMPLES
 
-### Example 1: Full pipeline — TypeScript project with Vitest
-
-```
-User: "/blox:test"
-
-Step 1: Detect Framework
-  Language: TypeScript
-  Framework: Vitest
-  Runner: npm test (vitest run)
-  Coverage: c8 (built-in)
-  E2E: Playwright (installed)
-  Config: vitest.config.ts
-
-Step 2: Run Existing Tests
-  Total: 87 tests
-  Passed: 84 (97%)
-  Failed: 2 (2%)
-  Skipped: 1
-  Duration: 4.2s
-
-  Failing Tests:
-  | 1 | should reject expired token | auth.test.ts:89 | Token still accepted after expiry |
-  | 2 | should paginate results | api.test.ts:156 | Returns all results, no pagination |
-
-  Coverage: 62% statements, 48% branches, 55% functions
-
-Step 3: Identify Gaps
-  Untested files: 8/24 source files (33%)
-  P1 Critical: payment.ts (0%), auth-middleware.ts (20%)
-  P2 Error handling: 12 try/catch blocks without test coverage
-  P3 Utilities: format.ts (30%), validate.ts (45%)
-
-  → "Found 42 testing gaps (8 critical). Generate tests?
-     A) All gaps (P1-P4) — ~8 test files, ~95 test cases
-     B) Critical only (P1) — ~2 test files, ~24 test cases
-     C) Specific scope
-     D) Skip"
-
-User: "B"
-
-Step 4: Generate Missing Tests
-  Generated: payment.test.ts (14 tests), auth-middleware.test.ts (10 tests)
-  Bugs found: 1 (payment allows negative refund amounts)
-  All tests: 111 total, 110 passed, 1 failed (the bug)
-  Coverage: 62% → 78% statements
-
-  git add test/services/payment.test.ts test/middleware/auth-middleware.test.ts
-  git commit -m "test: add payment and auth-middleware tests — 24 critical path tests"
-```
-
-### Example 2: Python project — gap analysis only
-
-```
-User: "/blox:test — just show me what's untested"
-
-Step 1: Detect Framework
-  Language: Python
-  Framework: pytest
-  Runner: pytest
-  Coverage: pytest-cov
-
-Step 2: Run Existing Tests
-  Total: 156 tests
-  Passed: 156 (100%)
-  Coverage: 71% statements
-
-Step 3: Identify Gaps
-  Untested: 5/18 modules (28%)
-  P1: services/billing.py (0 tests), services/notifications.py (12% coverage)
-  P2: 8 exception handlers without tests
-  P3: utils/date_helpers.py (40% coverage)
-
-  Summary presented to user. User chose D (skip generation).
-
-  → No tests generated. Gap report delivered.
-```
-
-### Example 3: E2E test generation — Next.js with Playwright
-
-```
-User: "/blox:test e2e"
-
-Step 1: Detect Framework
-  E2E: Playwright (@playwright/test in devDependencies)
-  Config: playwright.config.ts
-
-Step 5: E2E Tests (BASIC mode — no Playwright plugin)
-  Flows identified:
-  1. Authentication (login, register, logout) — P1
-  2. Product CRUD (create, read, update, delete) — P1
-  3. Checkout (add to cart, payment, confirmation) — P1
-  4. User settings (profile edit, password change) — P2
-  5. Search and filter — P2
-
-  Generated: e2e/auth.spec.ts, e2e/products.spec.ts (stubs with test descriptions)
-  "These are test specifications with Playwright structure.
-   Run `npx playwright test` to execute, or `npx playwright codegen` to record actual interactions."
-
-  git add e2e/auth.spec.ts e2e/products.spec.ts
-  git commit -m "test: add E2E test specs for auth and product flows"
-```
-
-### Example 4: No test framework — setup first
-
-```
-User: "/blox:test"
-
-Step 1: Detect Framework
-  Language: TypeScript (from tsconfig.json)
-  Framework: NONE detected
-  → "No test framework detected. Recommended: Vitest (modern, fast, TypeScript-native).
-
-     Options:
-     A) Set up Vitest now
-     B) Skip setup, just analyze code for testable areas
-     C) Use a different framework (Jest, Mocha, etc.)"
-
-User: "A"
-
-  → Follow /blox:build TDD WHEN NO TEST FRAMEWORK protocol
-  → Install vitest, create config, verify with sample test
-  → Then continue with Step 2
-```
-
-### Example 5: Targeted test generation — specific module
-
-```
-User: "/blox:test src/services/payment.ts"
-
-Step 1: Detect Framework → Vitest (already detected)
-
-Step 2: Run Existing Tests → 87/87 PASS, 62% coverage
-
-Step 3: Identify Gaps (scoped to payment.ts)
-  Functions in payment.ts: processPayment, processRefund, validateCard, getTransactionHistory
-  Tested: processPayment (partial — happy path only)
-  Untested: processRefund, validateCard, getTransactionHistory
-  Missing edge cases: processPayment with invalid amount, expired card, duplicate transaction
-
-  → "Found 18 gaps in payment.ts (all P1 critical). Generate tests?"
-
-User: "Yes"
-
-Step 4: Generate tests for payment.ts
-  Generated: test/services/payment.test.ts (18 tests)
-  - processRefund: 5 tests (happy path, negative amount, zero, exceed balance, not found)
-  - validateCard: 4 tests (valid, expired, invalid number, missing CVV)
-  - getTransactionHistory: 3 tests (with results, empty, date range filter)
-  - processPayment edge cases: 6 tests (invalid amount, expired card, duplicate, timeout, partial, currency)
-
-  All tests: 105 total, 104 passed, 1 failed
-  Bug found: processRefund allows negative amounts (no validation)
-
-  git add test/services/payment.test.ts
-  git commit -m "test: add payment service tests — 18 tests covering refund, validation, history"
-```
+Five worked pipeline walkthroughs (full Vitest pipeline, Python gap-analysis-only,
+Next.js E2E generation, no-framework setup, targeted single-module generation) live in
+`references/examples.md`.
 
 ---
 
 ## REFERENCES
 
+- `references/examples.md` — 5 worked pipeline walkthroughs
+- `references/output-templates.md` — per-step output formats + test-file/E2E scaffolds
 - `references/patterns/knowledge-patterns.md` — TDD methodology, quality gates
 - `skills/build/SKILL.md` — TDD WHEN NO TEST FRAMEWORK section (framework setup)
 - @superpowers:test-driven-development — TDD reference for test generation approach
