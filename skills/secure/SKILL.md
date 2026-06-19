@@ -77,6 +77,7 @@ priority: recommended
 | Deployment | Deploy, not audit | `/blox:deploy` |
 | Brand/design review | Different domain | `/blox:brand` or `/blox:design` |
 | No code exists yet | Nothing to audit | `/blox:plan` |
+| Single-diff/PR security pass | Not a full audit | `/security-review` command / `security-guidance` plugin — `/blox:secure` is the full OWASP+deps+secrets+auth audit, those are lighter per-change checks |
 
 ---
 
@@ -118,249 +119,22 @@ IF no plugin:
 > **Goal:** Systematically check the codebase against each OWASP Top 10 (2021) category.
 > For each category, scan relevant files, identify patterns, and classify findings.
 
-**Check each category in order:**
+**Check each category in order.** Full grep-pattern catalog (SCAN FOR / HOW TO
+CHECK / FINDING SEVERITY per category) lives in
+`references/owasp-checklist.md` — load it when running Step 1.
 
-#### A01: Broken Access Control
-
-```
-SCAN FOR:
-  - Endpoints without authorization middleware
-  - Direct object references (user IDs in URLs without ownership check)
-  - Missing role-based access control (RBAC)
-  - Privilege escalation paths (user accessing admin endpoints)
-  - CORS misconfiguration (wildcard origins, missing credentials flag)
-  - Directory traversal in file access (../ in user-supplied paths)
-  - Missing HTTP method restrictions (GET vs POST enforcement)
-
-HOW TO CHECK:
-  - grep for route definitions -> verify auth middleware applied
-  - grep for req.params.id, req.query.id -> verify ownership check
-  - grep for CORS config -> verify origin whitelist, not '*'
-  - grep for file read/write operations -> verify path sanitization
-  - grep for role/permission checks -> verify on every protected route
-
-FINDING SEVERITY:
-  - No auth on sensitive endpoints -> CRITICAL
-  - Missing ownership check -> HIGH
-  - CORS wildcard on API with credentials -> HIGH
-  - Missing role check on admin routes -> CRITICAL
-  - Directory traversal possible -> CRITICAL
-```
-
-#### A02: Cryptographic Failures
-
-```
-SCAN FOR:
-  - Weak hashing algorithms (MD5, SHA1 for passwords)
-  - Missing encryption for sensitive data at rest
-  - HTTP (not HTTPS) for sensitive data in transit
-  - Weak or default encryption keys
-  - Sensitive data in logs (passwords, tokens, PII in console.log/print)
-  - Cookies without Secure/HttpOnly/SameSite flags
-
-HOW TO CHECK:
-  - grep for md5, sha1 in password contexts
-  - grep for bcrypt, argon2, scrypt -> should be used for passwords
-  - grep for console.log, print, logger -> check for sensitive data
-  - grep for cookie settings -> verify Secure, HttpOnly, SameSite flags
-  - grep for encryption -> verify AES-256 or equivalent
-
-FINDING SEVERITY:
-  - MD5/SHA1 for password hashing -> CRITICAL
-  - Sensitive data in logs -> HIGH
-  - Cookies without Secure/HttpOnly -> MEDIUM
-  - No encryption at rest for PII -> HIGH
-```
-
-#### A03: Injection
-
-```
-SCAN FOR:
-  - SQL injection: raw SQL with string concatenation/interpolation
-  - NoSQL injection: unsanitized user input in MongoDB queries
-  - Command injection: unsafe process invocation with user input
-  - XSS: innerHTML, dangerouslySetInnerHTML, v-html with user data
-  - LDAP injection: unsanitized user input in LDAP queries
-  - Template injection: user input in server-side template strings
-  - Code injection: dynamic code evaluation with user-controlled input
-
-HOW TO CHECK:
-  - grep for raw SQL (SELECT, INSERT, UPDATE, DELETE) with template literals
-  - grep for unsafe process invocation functions -> check for user input
-  - grep for innerHTML, dangerouslySetInnerHTML -> check for user data
-  - grep for $where, $regex in MongoDB queries with user input
-  - Verify ORM/parameterized queries are used everywhere
-
-FINDING SEVERITY:
-  - SQL injection possible -> CRITICAL
-  - Command injection possible -> CRITICAL
-  - XSS in user-generated content -> HIGH
-  - NoSQL injection -> HIGH
-  - Template injection -> CRITICAL
-  - Dynamic code evaluation with user input -> CRITICAL
-```
-
-#### A04: Insecure Design
-
-```
-SCAN FOR:
-  - Missing rate limiting on auth endpoints
-  - No account lockout after failed attempts
-  - Password reset without proper token validation
-  - Missing CAPTCHA on public forms
-  - Business logic that trusts client-side validation only
-  - Missing input length limits
-
-HOW TO CHECK:
-  - grep for rate-limit, rateLimit, throttle -> verify on auth routes
-  - Check login endpoint for attempt counting/lockout logic
-  - Check password reset flow for token expiry and single-use
-  - Check forms for server-side validation (not just client-side)
-
-FINDING SEVERITY:
-  - No rate limiting on login -> HIGH
-  - No account lockout -> MEDIUM
-  - Client-side only validation -> MEDIUM
-  - Missing input length limits -> LOW
-```
-
-#### A05: Security Misconfiguration
-
-```
-SCAN FOR:
-  - Debug mode enabled in production configs
-  - Default credentials in configuration
-  - Verbose error messages exposed to users (stack traces)
-  - Unnecessary HTTP headers (X-Powered-By, Server)
-  - Directory listing enabled
-  - Default/sample files in production
-
-HOW TO CHECK:
-  - grep for DEBUG=true, NODE_ENV=development in production configs
-  - grep for admin/admin, password123, default in config files
-  - Check error handlers -> verify they don't expose stack traces
-  - Check HTTP response headers for information leakage
-  - Check for README.md, CHANGELOG.md exposed via web server
-
-FINDING SEVERITY:
-  - Debug mode in production -> HIGH
-  - Default credentials -> CRITICAL
-  - Stack traces exposed -> MEDIUM
-  - Information leakage headers -> LOW
-```
-
-#### A06: Vulnerable and Outdated Components
-
-```
-SCAN FOR:
-  - Known vulnerable dependencies
-  - Outdated packages with security patches available
-  - Unmaintained dependencies (no updates in 2+ years)
-  - Dependencies with known CVEs
-
-HOW TO CHECK:
-  -> Delegated to Step 2 (Dependency Scan) for detailed analysis
-  - Note: This OWASP category overlaps with Step 2 — list here, detail there
-
-FINDING SEVERITY:
-  - Critical CVE in dependency -> CRITICAL
-  - High CVE in dependency -> HIGH
-  - Outdated but no known CVE -> LOW
-```
-
-#### A07: Identification and Authentication Failures
-
-```
-SCAN FOR:
-  - Weak password requirements (no length, complexity check)
-  - Tokens stored in localStorage (XSS-accessible)
-  - Missing token expiration
-  - Session fixation vulnerabilities
-  - Missing MFA for sensitive operations
-  - Credentials transmitted without encryption
-
-HOW TO CHECK:
-  - grep for password validation -> check min length (>= 8), complexity
-  - grep for localStorage.setItem with token/jwt/session
-  - grep for token expiry settings -> verify reasonable expiration
-  - Check session handling -> verify session ID changes after login
-  - Check for TLS/HTTPS enforcement
-
-FINDING SEVERITY:
-  - Tokens in localStorage -> HIGH
-  - No password requirements -> MEDIUM
-  - Missing token expiration -> HIGH
-  - No session renewal after login -> MEDIUM
-```
-
-#### A08: Software and Data Integrity Failures
-
-```
-SCAN FOR:
-  - Deserialization of untrusted data (unsafe parsing of user-controlled input,
-    pickle.loads, unsafe YAML.load)
-  - Missing integrity checks on downloaded resources (no SRI, no checksum)
-  - CI/CD pipeline without signed commits or verified sources
-  - Auto-update mechanisms without signature verification
-  - Dynamic code evaluation with user-controllable input
-
-HOW TO CHECK:
-  - grep for pickle.loads, yaml.load (unsafe), unserialize()
-  - Check CDN includes for SRI (integrity="sha256-...") attributes
-  - Check CI/CD config for pinned action versions (not @main/@latest)
-  - grep for JSON.parse -> verify input source is trusted
-
-FINDING SEVERITY:
-  - Unsafe deserialization with user input -> CRITICAL
-  - Missing SRI on CDN resources -> MEDIUM
-  - Unpinned CI/CD actions -> MEDIUM
-  - Dynamic code evaluation with user input -> CRITICAL
-```
-
-#### A09: Security Logging and Monitoring Failures
-
-```
-SCAN FOR:
-  - Missing logging for auth events (login, logout, failed attempts)
-  - Missing logging for access control failures
-  - No structured logging format (hard to analyze)
-  - Sensitive data in log entries (passwords, tokens, PII)
-  - No log rotation or retention policy
-  - Missing alerting for security events
-
-HOW TO CHECK:
-  - grep for login/auth handlers -> verify logging present
-  - grep for 401/403 responses -> verify failure logging
-  - grep for console.log vs structured logger (winston, pino, loguru)
-  - grep log entries for password, token, secret patterns
-
-FINDING SEVERITY:
-  - No auth event logging -> MEDIUM
-  - Sensitive data in logs -> HIGH
-  - No structured logging -> LOW
-  - No failure alerting -> MEDIUM
-```
-
-#### A10: Server-Side Request Forgery (SSRF)
-
-```
-SCAN FOR:
-  - User-supplied URLs used in server-side HTTP requests
-  - URL redirect based on user input without allowlist
-  - Webhook URLs without validation
-  - Image/file download from user-supplied URLs
-
-HOW TO CHECK:
-  - grep for fetch, axios, requests.get with dynamic URLs
-  - grep for redirect with user-controllable destination
-  - grep for webhook URL configuration -> verify allowlist
-  - Check URL validation -> verify protocol and host restrictions
-
-FINDING SEVERITY:
-  - SSRF with unrestricted URL -> CRITICAL
-  - Open redirect -> MEDIUM
-  - Webhook without URL validation -> HIGH
-```
+| # | Category | Highest-severity patterns to catch |
+|---|----------|-----------------------------------|
+| A01 | Broken Access Control | Missing auth/role checks, IDOR, CORS wildcard, path traversal (CRITICAL/HIGH) |
+| A02 | Cryptographic Failures | MD5/SHA1 for passwords, plaintext PII, secrets in logs (CRITICAL/HIGH) |
+| A03 | Injection | SQL/command/template injection, XSS, NoSQL injection (CRITICAL/HIGH) |
+| A04 | Insecure Design | No rate limiting/lockout, client-only validation (HIGH/MEDIUM) |
+| A05 | Security Misconfiguration | Default creds, debug mode, exposed stack traces (CRITICAL/HIGH) |
+| A06 | Vulnerable Components | CVEs in deps — detailed in Step 2 (CRITICAL/HIGH) |
+| A07 | Auth Failures | Tokens in localStorage, no expiry, weak passwords (HIGH/MEDIUM) |
+| A08 | Data Integrity Failures | Unsafe deserialization, missing SRI, unpinned CI actions (CRITICAL/MEDIUM) |
+| A09 | Logging Failures | Missing auth-event logging, sensitive data in logs (HIGH/MEDIUM) |
+| A10 | SSRF | Unrestricted server-side URLs, open redirects (CRITICAL/HIGH) |
 
 **Output from Step 1:** A table of findings per OWASP category with severity, affected files, and line references.
 
@@ -801,144 +575,18 @@ Every error has a graceful fallback — the skill NEVER blocks.
 
 ## EXAMPLES
 
-### Example 1: Full audit — Mixed findings (standalone)
-
-```
-User: /blox:secure
-
-STEP 1 — OWASP Top 10 Review:
-  A01: Broken Access Control -> 2 findings
-    - HIGH: /api/users/:id endpoint has no ownership check (src/routes/users.ts:28)
-    - MEDIUM: CORS allows all origins in development config (src/config/cors.ts:5)
-  A02: Cryptographic Failures -> PASS
-  A03: Injection -> 1 finding
-    - CRITICAL: Raw SQL with template literal (src/services/search.ts:42)
-  A04: Insecure Design -> 1 finding
-    - MEDIUM: No rate limiting on /api/auth/login (src/routes/auth.ts:15)
-  A05: Security Misconfiguration -> PASS
-  A06: Vulnerable Components -> see Step 2
-  A07: Auth Failures -> 1 finding
-    - HIGH: JWT stored in localStorage (src/lib/auth.ts:23)
-  A08: Data Integrity Failures -> PASS
-  A09: Logging Failures -> 1 finding
-    - LOW: No structured logging — using console.log throughout
-  A10: SSRF -> PASS
-
-STEP 2 — Dependency Scan:
-  npm audit:
-    - 1 critical: lodash prototype pollution (CVE-2021-23337) -> fix: npm audit fix
-    - 2 moderate: axios SSRF (update to 1.6.0+)
-    -> 3 total vulnerabilities
-
-STEP 3 — Secrets Detection:
-  - 0 hardcoded secrets found
-  - .gitignore: PARTIAL — missing .env.local coverage
-  - Git history: CLEAN — no secrets in commits
-
-STEP 4 — Auth/Authz Review:
-  - Token storage: FAIL (localStorage)
-  - Token expiration: PASS (15min access, 7d refresh)
-  - Password hashing: PASS (bcrypt, cost 12)
-  - CSRF: FAIL (no CSRF tokens on POST endpoints)
-  - Rate limiting: FAIL (no rate limiting on auth)
-  - Input validation: PASS (Zod schemas on all endpoints)
-
-STEP 5 — Security Report:
-  Overall Risk: CRITICAL
-  Total: 9 findings (1 critical, 3 high, 3 medium, 1 low, 1 info)
-
-  Report saved to docs/security-audit.md
-  2 principles added to GOLDEN_PRINCIPLES.md
-
-  "CRITICAL: SQL injection found in search service. Fix immediately
-   before deployment. Full report in docs/security-audit.md."
-```
-
-### Example 2: Pre-deployment audit — Clean result
-
-```
-User: /blox:secure "pre-deployment check"
-
-STEP 1 — OWASP Top 10:
-  A01-A10: All PASS — no findings
-
-STEP 2 — Dependency Scan:
-  npm audit: 0 vulnerabilities
-
-STEP 3 — Secrets Detection:
-  0 secrets found, .gitignore: PASS, git history: CLEAN
-
-STEP 4 — Auth/Authz Review:
-  All checks: PASS
-
-STEP 5 — Security Report:
-  Overall Risk: CLEAN
-  Total: 0 findings
-
-  Report saved to docs/security-audit.md
-
-  "Security audit complete — no findings. Safe to deploy.
-   Run /blox:deploy when ready."
-```
-
-### Example 3: Focused audit — Auth only
-
-```
-User: /blox:secure "authentication system"
-
-Agent scopes to auth-related files only:
-  - src/routes/auth.ts
-  - src/middleware/auth.ts
-  - src/lib/jwt.ts
-  - src/lib/session.ts
-
-STEP 1 — OWASP (scoped to A01, A02, A04, A05, A07):
-  A07: Auth Failures -> 2 findings
-    - HIGH: Refresh token has no rotation (reuse after refresh)
-    - MEDIUM: No account lockout after failed attempts
-
-STEP 4 — Auth/Authz Review (full depth):
-  Token lifecycle: partial — missing rotation
-  Session: PASS
-  Password: PASS
-  CSRF: PASS
-  Permissions: PASS
-
-STEP 5 — Report:
-  Overall Risk: HIGH
-  Total: 2 findings (0 critical, 1 high, 1 medium)
-
-  "Auth system is mostly solid. Key issue: refresh token rotation
-   missing — implement one-time-use refresh tokens. Report in
-   docs/security-audit.md."
-```
-
-### Example 4: Premium mode with security-guidance plugin
-
-```
-User: /blox:secure
-
-Plugin detected: security-guidance
--> Enhanced mode active — real-time hooks enabled
-
-[Standard 5-step audit runs with enhanced detection]
-
-Additional premium features:
-  - PreToolUse hook installed: blocks Write/Edit if content contains secrets
-  - PostToolUse hook installed: scans written files for security patterns
-  - CVE database: enhanced lookup with fix suggestions
-
-After audit:
-  "Security audit complete. Premium hooks are now ACTIVE:
-   - Secrets blocker: prevents committing hardcoded secrets
-   - Pattern scanner: flags unsafe patterns as you code
-   These stay active for the rest of this session."
-```
+See `references/examples.md` for 4 full worked walkthroughs:
+1. Full audit — mixed findings (standalone)
+2. Pre-deployment audit — clean result
+3. Focused audit — auth only
+4. Premium mode with security-guidance plugin
 
 ---
 
 ## REFERENCES
 
+- `references/owasp-checklist.md` — Full OWASP A01-A10 grep-pattern catalog (Step 1 detail)
+- `references/examples.md` — 4 worked audit walkthroughs
 - `references/patterns/knowledge-patterns.md` — Engineering patterns (security awareness, mechanical enforcement)
 - `skills/check/SKILL.md` — Quality review Step 5e (security pattern scan — lighter version)
 - `skills/deploy/SKILL.md` — Deployment skill (references security audit in pre-deploy checks)

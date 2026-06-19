@@ -161,214 +161,24 @@ F) All of the above
 Which docs should I generate?"
 ```
 
-**Actions per document type:**
+**Actions per document type.** Full verbatim section templates for each type
+live in `references/doc-templates.md` — load the relevant block when generating
+that document. Per-type essentials:
 
-#### 2a: README.md
-
-Generate or update with these sections (skip if the project already has them and they're accurate):
-
-```markdown
-# [Project Name]
-
-> [One-line description from package.json / pyproject.toml]
-
-## Overview
-[2-3 paragraph project description derived from code structure and purpose]
-
-## Features
-- [Feature 1 — derived from routes, components, services]
-- [Feature 2]
-- [...]
-
-## Prerequisites
-- [Runtime] >= [version] (from engines/python_requires/go directive)
-- [Database] (if detected from deps/config)
-- [Other services] (if detected)
-
-## Installation
-[Step-by-step install derived from actual project setup:]
-```bash
-git clone [repo URL if available]
-cd [project name]
-[package manager install command]
-[environment setup]
-```
-
-## Quick Start
-[Minimal steps to get the project running:]
-```bash
-[actual start command from package.json scripts / Makefile / main entry]
-```
-
-## Usage
-[Key usage examples derived from API routes, CLI commands, or main features]
-
-## API Reference
-[Summary table of endpoints — link to full API docs if separate]
-
-## Project Structure
-[Directory tree derived from actual structure, annotated with purpose]
-
-## Configuration
-[Environment variables from .env.example with descriptions]
-
-## Development
-[Dev setup: how to run tests, lint, build — from package.json scripts / Makefile]
-
-## Contributing
-[Standard contributing guide — or skip if project is private/personal]
-
-## License
-[License type — from LICENSE file]
-```
-
-**User-written section protection:**
-- If README.md already exists, identify sections written by the user
-- Mark them with `<!-- USER-WRITTEN: do not auto-update -->` comments
-- Update ONLY sections that are auto-generated or clearly outdated
-- Append new sections at the end, don't reorganize user structure
-
-#### 2b: API Documentation
-
-For each API endpoint found in the codebase:
-
-```markdown
-# API Documentation
-
-## Authentication
-[Auth mechanism derived from middleware: JWT, API key, session, OAuth]
-
-## Endpoints
-
-### [HTTP Method] [Path]
-**Description:** [Derived from handler function name and logic]
-**Auth:** [Required | Optional | None]
-
-**Request:**
-- Headers: [required headers]
-- Params: [path parameters with types]
-- Query: [query parameters with types and defaults]
-- Body: [request body schema — from TypeScript types, Pydantic models, Go structs]
-
-```json
-{
-  "example": "request body derived from type definition"
-}
-```
-
-**Response:**
-- Status: [success status code]
-- Body: [response schema]
-
-```json
-{
-  "example": "response body derived from type definition"
-}
-```
-
-**Errors:**
-| Status | Description |
-|--------|------------|
-| 400 | [validation error — from error handler] |
-| 401 | [unauthorized — from auth middleware] |
-| 404 | [not found — from handler logic] |
-```
-
-**If OpenAPI/Swagger spec exists:** Read and verify it matches actual routes.
-If discrepancies: report them and update the spec.
-
-#### 2c: ARCHITECTURE.md
-
-Generate from actual code structure:
-
-```markdown
-# Architecture Overview
-
-## System Diagram
-[ASCII diagram showing main components and data flow, derived from code]
-
-## Tech Stack
-- **Runtime:** [language + version]
-- **Framework:** [web framework]
-- **Database:** [DB type + ORM]
-- **Cache:** [if detected]
-- **Queue:** [if detected]
-- **Frontend:** [framework + UI library]
-
-## Directory Structure
-[Annotated directory tree — actual structure, not aspirational]
-
-## Data Flow
-[How a request flows through the system: entry → middleware → handler → service → DB → response]
-
-## Key Design Decisions
-[Derived from code patterns: why certain libraries, patterns, or structures were chosen]
-
-## Dependencies
-[Key external dependencies with purpose — not the full dep list, just the important ones]
-```
-
-#### 2d: Component Documentation (UI libraries)
-
-For each component:
-
-```markdown
-## [ComponentName]
-
-**File:** `src/components/ComponentName.tsx`
-
-### Props
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| name | string | yes | — | [derived from usage context] |
-| variant | "primary" \| "secondary" | no | "primary" | [derived from implementation] |
-
-### Usage
-```tsx
-import { ComponentName } from '@/components/ComponentName';
-
-<ComponentName name="Example" variant="primary" />
-```
-
-### Variants
-[List variants with descriptions, derived from prop types and conditional rendering]
-
-### Notes
-[Any special behavior, side effects, or requirements derived from implementation]
-```
-
-#### 2e: Changelog
-
-Generate from git history using conventional commits:
-
-```markdown
-# Changelog
-
-## [version or "Unreleased"] — [date]
-
-### Features
-- [feat commit message] ([commit hash])
-- [...]
-
-### Bug Fixes
-- [fix commit message] ([commit hash])
-- [...]
-
-### Improvements
-- [refactor/perf commit message] ([commit hash])
-- [...]
-
-### Other
-- [chore/ci/docs commit message] ([commit hash])
-- [...]
-```
-
-**Grouping logic:**
-- `feat:` → Features
-- `fix:` → Bug Fixes
-- `refactor:` / `perf:` → Improvements
-- `chore:` / `ci:` / `docs:` / `build:` → Other
-- Non-conventional commits → Other (include full message)
+- **2a README.md** — Overview, Features, Prerequisites, Installation, Quick Start,
+  Usage, API Reference, Project Structure, Configuration, Development, License.
+  Protect user-written sections (`<!-- USER-WRITTEN -->`); update auto-sections,
+  append new ones — never reorganize.
+- **2b API docs** — Per endpoint: method+path, auth, request (headers/params/
+  query/body schema), response schema, error table. Derive schemas from real
+  types. If OpenAPI/Swagger exists, verify it matches actual routes.
+- **2c ARCHITECTURE.md** — System diagram, tech stack, directory structure, data
+  flow, key design decisions, dependencies — all from actual code, not aspirational.
+- **2d Component docs** — Per component: file path, props table (from real
+  interfaces/PropTypes), usage example, variants, notes.
+- **2e Changelog** — From git conventional commits. Grouping: `feat:`→Features,
+  `fix:`→Bug Fixes, `refactor:`/`perf:`→Improvements, `chore:`/`ci:`/`docs:`/
+  `build:`→Other; non-conventional → Other (full message).
 
 ---
 
@@ -584,98 +394,17 @@ Step 4: Save (edit, not overwrite)
   git commit -m "docs: update README with webhook endpoints and config"
 ```
 
-### Example 3: API documentation for a Python FastAPI project
-
-```
-User: "/blox:docs api"
-
-Step 1: Scan Project
-  Framework: FastAPI (auto-generates OpenAPI)
-  Existing: openapi.json at /docs (auto-generated)
-  Routes: 24 endpoints across 5 routers
-
-Step 2: Generate API docs
-  Read FastAPI route decorators + Pydantic models
-  Generate docs/api.md with:
-  - 24 endpoints with full request/response schemas
-  - Authentication section (OAuth2 with JWT)
-  - Error response catalog (from HTTPException patterns)
-  - Rate limiting info (from middleware)
-
-Step 3: Validate
-  Cross-referenced with openapi.json — 24/24 match
-  Pydantic models verified: all field types and constraints accurate
-  2 undocumented query parameters found → added
-
-Step 4: Save
-  git add docs/api.md
-  git commit -m "docs: add API documentation for 24 endpoints with schemas"
-```
-
-### Example 4: Component documentation for a React library
-
-```
-User: "/blox:docs components"
-
-Step 1: Scan Project
-  Framework: React + TypeScript
-  Components: 15 in src/components/
-  Storybook: yes (stories for 8/15 components)
-  Types: all components have TypeScript prop interfaces
-
-Step 2: Generate component docs
-  For each component: read exported interface, JSDoc comments, default values
-  Generated: docs/components.md with:
-  - 15 components documented
-  - Props tables from TypeScript interfaces
-  - Usage examples from Storybook stories (8 components) or derived from props (7 components)
-  - Variant lists from union type props
-
-Step 3: Validate
-  All import paths valid
-  All prop types match source interfaces
-  Storybook examples cross-referenced with actual stories
-
-Step 4: Save
-  git add docs/components.md
-  git commit -m "docs: add component documentation for 15 React components"
-```
-
-### Example 5: Changelog from git history
-
-```
-User: "/blox:docs changelog"
-
-Step 1: Scan Project
-  Tags: v1.0.0 (2026-02-01), v1.1.0 (2026-02-15), v1.2.0 (2026-03-01)
-  Commits since v1.2.0: 31
-  Conventional commits: 28/31 (90%)
-
-Step 2: Generate Changelog
-  ## Unreleased — 2026-03-17
-  ### Features (8)
-  - Add webhook integration for order events (abc1234)
-  - Add bulk export for products (def5678)
-  - [...]
-  ### Bug Fixes (5)
-  - Fix race condition in payment processing (ghi9012)
-  - [...]
-  ### Improvements (7)
-  - Refactor auth middleware for clarity (jkl3456)
-  - [...]
-  ### Other (11)
-  - [...]
-
-Step 3: Validate — all commit hashes valid, dates correct
-Step 4: Save
-  git add CHANGELOG.md
-  git commit -m "docs: add changelog — 31 changes since v1.2.0"
-```
+See `references/examples.md` for 3 more worked walkthroughs:
+- API documentation for a Python FastAPI project
+- Component documentation for a React library
+- Changelog from git history
 
 ---
 
 ## REFERENCES
 
+- `references/doc-templates.md` — Verbatim section templates per doc type (Step 2 detail)
+- `references/examples.md` — 3 additional worked walkthroughs (API / components / changelog)
 - `references/patterns/knowledge-patterns.md` — Evidence-based documentation patterns
 - `skills/build/SKILL.md` — Code structure conventions that docs should reflect
 - `skills/check/SKILL.md` — PSC-4 (docs updated) check that triggers this skill
