@@ -212,14 +212,12 @@ COMPARE:
   1. Installed skills (skills/*/SKILL.md files)
   2. CLAUDE.md skill registry (if exists)
   3. Phase file "Skills & Tools" sections
-  4. curated-plugins.yaml (if exists) — entries match available plugins
 
 CHECK:
   - Every installed skill is in the registry
   - Every registry entry has a matching SKILL.md
   - Phase files reference only installed skills
   - AUTO-DISCOVERY blocks are consistent with actual triggers
-  - curated-plugins.yaml entries are valid and consistent
 ```
 
 ---

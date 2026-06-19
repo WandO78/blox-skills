@@ -50,7 +50,10 @@ No pre-loading of vault content — the skill reads on demand via CLI.
 ### Identification
 name: blox-wiki
 category: knowledge-management
-complements: [blox-idea, blox-plan, blox-done, blox-scan]
+complements: [blox-docs]
+# Standalone, user-invoked knowledge tool. NOT part of the idea→plan→build→done
+# chain — no blox phase or driver invokes it automatically. It relates to /blox:docs
+# (both manage project knowledge) but is never auto-reached from the chain.
 
 ### Triggers — when the agent invokes automatically
 trigger_keywords: [wiki, vault, obsidian, knowledge base, ingest, "search the vault", "what do we know", lint, "vault health", orphan, sync vault]
@@ -59,6 +62,9 @@ trigger_deps: []
 
 ### Phase integration
 when_to_use: |
+  Standalone, USER-INVOKED knowledge tool — the user explicitly runs /blox:wiki.
+  It is NOT chained into by any blox phase or driver; the idea→plan→build→done
+  flow never reaches it automatically.
   Invoke when the user wants structured knowledge management via Obsidian.
   This includes: initializing a project vault, ingesting sources (articles,
   docs, PDFs, notes) into distilled wiki notes, querying the vault for

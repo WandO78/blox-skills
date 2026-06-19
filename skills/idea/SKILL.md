@@ -315,76 +315,10 @@ IF no extensions:
 Generate the project structure using `references/templates/project-scaffold.md` as
 the source of truth.
 
-**Files to create:**
-
-```
-1. CLAUDE.md
-   Content:
-   - Project name (from vision)
-   - 1-2 sentence description (from Step 2 scope summary)
-   - Tech stack (from Step 3)
-   - Language setting: language: [detected code]
-   - Installed Skills section (blox-skills listed)
-   - Conventions section (empty — to be filled during development)
-
-2. START_HERE.md
-   Content:
-   - Resumption Protocol (from template)
-   - Empty Phase Tracker table (phases will be filled in Step 5)
-   - Active Phase pointer (will be set in Step 5)
-
-3. CONTEXT_CHAIN.md
-   Content:
-   - Header with "Newest entry first" instruction
-   - First entry: "[today's date] — Project created from /blox:idea"
-     Phase: Setup
-     Status: completed
-     What happened: Project scaffolded from idea: "[idea summary]"
-     Next session task: Begin Phase 1
-
-4. ARCHITECTURE.md
-   Content:
-   - Overview section (high-level description from vision)
-   - Layer Diagram (based on tech stack — adapt layers to actual stack)
-   - Tech Stack table (technology + rationale for each layer)
-   - Key Decisions table (empty — AD-1 will be first entry)
-
-5. GOLDEN_PRINCIPLES.md
-   Content:
-   - Universal principles (always included):
-     1. "Evidence before assertions — never claim done without verification"
-     2. "Fix the environment, not the agent — lint rules > documentation"
-     3. "Corrections are cheap, waiting is expensive — ship at 80%, fix at next checkpoint"
-   - Tech-specific principles (based on stack):
-     Next.js: "Server components by default, client components only when needed"
-     Supabase: "Row-level security on every table — no exceptions"
-     FastAPI: "Pydantic models for all request/response schemas"
-     TypeScript: "Strict mode always — no any types without documented reason"
-     React Native: "Test on both platforms — iOS behavior != Android behavior"
-     Python: "Type hints on all function signatures"
-     Go: "Error handling at every call site — no silent failures"
-     (add relevant principles based on the chosen tech stack)
-
-6. QUALITY_SCORE.md
-   Content:
-   - Formula: 100 - (20 x FAILs) - (10 x CONCERNs)
-   - Current Score: 100/100 (fresh start)
-   - History table with first entry: today's date, 100, "Project created"
-
-7. TECH_DEBT.md
-   Content:
-   - Open table (empty — no debt yet)
-   - Resolved table (empty)
-```
-
-**Directories to create:**
-
-```
-docs/        — Project documentation
-plans/       — Active phase files
-completed/   — Completed phases (with Phase Memory)
-failed/      — Failed phases (Phase Memory mandatory)
-```
+**Files + directories to create:** Follow the per-file content spec and directory list
+in `references/scaffold-templates.md` (7 meta files: CLAUDE.md, START_HERE.md,
+CONTEXT_CHAIN.md, ARCHITECTURE.md, GOLDEN_PRINCIPLES.md, QUALITY_SCORE.md, TECH_DEBT.md
++ directories docs/, plans/, completed/, failed/).
 
 **Version control (git):**
 
@@ -478,17 +412,26 @@ Correct:  Phase 1: Brand → Phase 2: Design → Phase 3: Build
 Also OK:  Phase 1: Section 1 Brand (FIRST) → Section 2 Build (REQUIRES: Section 1)
 Wrong:    Phase 1: Build + Brand mixed together
 
+**Creative-phase routing:** Creative work (video, marketing assets, decks, images,
+audio, animation) routes through `/blox:design` — the design router classifies the task
+and dispatches to `/blox:media` (images/video/audio/animation) or `/blox:slides`
+(presentations). Do NOT add separate phase rows for media/slides; they have no
+first-class phase template and are reached only via the `/blox:design` driver. A
+creative phase's driver is always `/blox:design`.
+
 ---
 
 ### Step 6: SETUP CHECK
 
-After plan generation, chain to `/blox:setup` to check and install needed plugins.
+After plan generation, chain to `/blox:setup` to report readiness.
 
 **Instructional chain:**
-"Now follow the `/blox:setup` skill to check and install needed plugins."
+"Now follow the `/blox:setup` skill to report blox companions + media prerequisites."
 
-Only suggest plugins needed for the generated plan's phases — don't overwhelm with
-everything in the registry. The setup skill handles the interactive install flow.
+`/blox:setup` runs a slim doctor: it reports which blox companions (superpowers,
+frontend-design, plannotator) and which media/build prerequisites are present, with
+exact fix commands for anything missing. It never installs anything and never blocks —
+the user gets the readiness picture and can fix items as needed.
 
 ---
 
@@ -520,10 +463,16 @@ blox skill. For example, if Phase 1 is "Brand Identity", chain to `/blox:brand`.
 command. Your project structure and plan are saved."
 
 **At EVERY phase transition:**
-"Phase [N] ([name]) complete. Continue to Phase [N+1] ([name])? (y/n)"
+Phase transitions are executed by `/blox:done` Step 9e (next-phase activation), which
+respects the USER CONTROL LEVEL detected here:
+- **Autopilot:** `/blox:done` chains directly into the next phase's `/blox:*` driver and
+  continues the loop, announcing "Phase [N] complete. Continuing to Phase [N+1] via
+  /blox:[driver]" (the user can interrupt, but the flow does not stall).
+- **Guided / Manual:** `/blox:done` hands back with the explicit next command —
+  "Phase [N] complete. Next: Phase [N+1]. Run /blox:[driver] when ready."
 
-This ensures the user always has control over when to proceed, while maintaining
-the autopilot flow.
+This ensures the autopilot loop actually advances each phase (never silently halts),
+while Guided/Manual users keep an explicit checkpoint.
 
 ---
 
@@ -582,7 +531,6 @@ Every error has a graceful fallback — the skill NEVER blocks.
 | Master plan generated | `/blox:setup` | Step 6 — plugin check and install |
 | Autopilot starts Phase 1 | Corresponding `/blox:*` skill | Step 7 — phase execution |
 | Autopilot phase transition | Next phase's `/blox:*` skill | Step 7 — after user confirms |
-| Project scaffolded | `_internal/detect` | Via `/blox:setup` — plugin detection |
 
 ---
 
@@ -616,215 +564,15 @@ Every error has a graceful fallback — the skill NEVER blocks.
 
 ## EXAMPLES
 
-### Example 1: Complete beginner (Autopilot mode)
-
-```
-User: /blox:idea "I want to build a restaurant website where people can book tables"
-
-blox: "Great idea! Let me ask a few questions to understand what you need.
-
-       Who is this website for?
-       a) A specific restaurant you own/work at
-       b) A template for any restaurant
-       c) A platform where multiple restaurants can list"
-
-User: "a"
-
-blox: "What should visitors be able to do on the site?
-       a) Just see the menu and contact info
-       b) Book a table online
-       c) Book a table + order food for delivery
-       d) All of the above"
-
-User: "b"
-
-blox: "Any similar sites you've seen that you like? (optional — skip if none)"
-
-User: "no"
-
-blox: "Any constraints? Budget, timeline, must-use technology?
-       (skip if none)"
-
-User: "no"
-
-blox: "Got it! Here's what I see:
-
-       A website for a specific restaurant where visitors can view the menu,
-       see restaurant info, and book tables online.
-
-       This involves:
-       - Public-facing site with menu and restaurant info
-       - Table booking system with date/time selection
-       - Admin view for the restaurant to manage bookings
-
-       Does this capture what you want to build?"
-
-User: "yes"
-
-blox: "For this, I suggest:
-
-       Next.js + Supabase + Vercel
-
-       This gives you a fast website with a database for bookings,
-       user-friendly admin panel, and free hosting on Vercel.
-
-       Sound good?"
-
-User: "yes"
-
-blox: [scaffolds project — CLAUDE.md, START_HERE.md, etc.]
-      [chains to /blox:plan — generates 5-phase master plan]
-      [chains to /blox:setup — checks plugins]
-
-      "Everything is ready!
-
-       5 phases planned
-       4 plugins installed
-       7 files + 4 directories created
-
-       Phase 1: Brand Identity — colors, fonts, style (/blox:brand)
-       Phase 2: UI Design — pages and components (/blox:design)
-       Phase 3: Core Build — booking system, menu page (/blox:build)
-       Phase 4: Testing & Security (/blox:test + /blox:secure)
-       Phase 5: Deploy to Vercel (/blox:deploy)
-
-       Start with Phase 1? (y/n)"
-
-User: "y"
-
-blox: [loads Phase 1, chains to /blox:brand]
-```
-
-### Example 2: Experienced developer (Guided/Manual mode)
-
-```
-User: /blox:idea "REST API in Go with PostgreSQL for inventory management"
-
-blox: "Who will use this API?
-       a) Just you / personal project
-       b) Small team (2-10 people)
-       c) Public API (anyone can access)
-       d) Enterprise / internal company tool"
-
-User: "Internal warehouse team, about 20 users"
-
-blox: "What specific functionality do you need?
-       (The core idea is clear — what are the key endpoints?)"
-
-User: "JWT auth, CRUD for products, stock levels, barcode scanning endpoint"
-
-blox: "Here's what I see:
-
-       Go REST API with PostgreSQL for warehouse inventory management.
-       JWT authentication, product CRUD operations, stock level tracking,
-       and a barcode scanning endpoint. Internal use for ~20 warehouse users.
-
-       This involves:
-       - Auth middleware (JWT)
-       - Product management (CRUD + stock levels)
-       - Barcode scanning integration
-       - Admin/reporting endpoints
-
-       Correct?"
-
-User: "yes, and I'll use Chi router and sqlx"
-
-blox: "Perfect. Using your stack: Go + Chi + sqlx + PostgreSQL.
-
-       [scaffolds project with Go-specific structure]
-       [chains to /blox:plan — generates plan, skips brand/design phases]
-       [chains to /blox:setup — checks Go-relevant plugins]
-
-       Everything is ready!
-
-       5 phases planned
-       2 plugins installed
-       7 files + 4 directories created
-
-       Phase 1: Foundation — DB schema, auth middleware (/blox:build)
-       Phase 2: Core API — product CRUD, stock endpoints (/blox:build)
-       Phase 3: Barcode — scanning endpoint integration (/blox:build)
-       Phase 4: Testing & Security (/blox:test + /blox:secure)
-       Phase 5: Deploy (/blox:deploy)
-
-       Start? (y/n)"
-```
-
-### Example 3: User provides everything upfront
-
-```
-User: /blox:idea "Personal finance tracker. React Native + Expo + Supabase.
-       I want to track expenses, set budgets, and see charts. Just for me."
-
-blox: [detects: vision clear, tech stack specified, audience known]
-      [skips Q1 (already answered), Q2 (personal use), Q3 (clear), Q5 (no constraints mentioned)]
-
-      "Any similar apps you've seen that you like? (optional)"
-
-User: "YNAB is great but too expensive"
-
-blox: [notes: YNAB as inspiration — envelope budgeting style]
-
-      "Here's what I see:
-
-       Personal finance tracker for mobile (React Native + Expo + Supabase).
-       Track expenses, set budgets (YNAB-inspired envelope style),
-       and visualize spending with charts. Personal use only.
-
-       This involves:
-       - Expense tracking (add, categorize, search)
-       - Budget management (envelope-style, monthly reset)
-       - Charts and reports (spending by category, trends)
-       - Data sync via Supabase (accessible from any device)
-
-       Does this capture what you want?"
-
-User: "yes"
-
-blox: "Using your chosen stack: React Native + Expo + Supabase.
-
-       [scaffolds, plans, setup]
-
-       6 phases planned...
-       Start with Phase 1? (y/n)"
-```
-
-### Example 4: Scope too ambitious — MVP suggestion
-
-```
-User: /blox:idea "I want to build the next Airbnb but for office spaces,
-       with AI matching, blockchain payments, and VR tours"
-
-blox: [Q1 answered, proceeds with Q2-Q5]
-      ...
-
-blox: "This is a big vision! It has several independent systems:
-       - Office listing marketplace
-       - AI matching engine
-       - Blockchain payment system
-       - VR tour integration
-
-       I suggest starting with an MVP:
-       Office listing marketplace with search and booking.
-       We can add AI matching, blockchain, and VR as separate phases later.
-
-       This MVP involves:
-       - Office listings with photos and details
-       - Search and filter by location, size, price
-       - Booking and payment (standard, not blockchain yet)
-       - User accounts for hosts and renters
-
-       Start with this scope?"
-
-User: "yes, that makes sense"
-
-blox: [proceeds with MVP scope]
-```
+Four worked end-to-end walkthroughs (autopilot beginner, experienced dev, everything-upfront,
+ambitious-MVP) live in `references/examples.md`.
 
 ---
 
 ## REFERENCES
 
+- `references/examples.md` — 4 worked end-to-end walkthroughs of the 8-step pipeline
+- `references/scaffold-templates.md` — Step 4 per-file content spec + directory list
 - `references/templates/project-scaffold.md` — Project scaffold template (source of truth for Step 4)
 - `references/patterns/knowledge-patterns.md` — Knowledge patterns applied automatically
 - `skills/plan/SKILL.md` — Master plan generation (chained in Step 5)

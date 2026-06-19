@@ -1,29 +1,34 @@
 ---
 name: blox-setup
-description: "Install and update recommended plugins for your project. Run this after /blox:idea or anytime to check your plugin ecosystem."
+description: "Slim doctor: report whether blox's companion skills and media/build prerequisites are present, with exact fix commands. Never blocks. Run after /blox:idea or anytime."
 user-invocable: true
-argument-hint: "[--all | --check-only]"
+argument-hint: "[--check-only]"
 ---
 
 ## Language Protocol
 
 Detect the user's language from the conversation context. All generated content
-(status output, install prompts, state file entries) MUST be written in the user's
-language. The skill logic instructions below are in English for maintainability,
-but all OUTPUT facing the user follows THEIR language.
+(status output, fix hints) MUST be written in the user's language. The skill logic
+instructions below are in English for maintainability, but all OUTPUT facing the
+user follows THEIR language.
 
 ---
 
 ## Context Discovery
 
-This skill reads project state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
+This skill reads state at runtime using Read, Glob, Grep, and Bash tools. No pre-loading needed.
 
 # /blox:setup
 
-> **Purpose:** Check, install, and update recommended plugins for the user's project.
-> Reads the curated plugin registry, scans the project tech stack, shows a grouped
-> status dashboard, and offers to install missing plugins interactively.
-> Run after `/blox:idea`, after installing blox-skills, or anytime to audit your plugin ecosystem.
+> **Purpose:** Report whether blox's companion skills + media/build prerequisites
+> are present, with exact fix commands. This is a slim DOCTOR — it checks two fixed
+> things and never blocks:
+>   1. **blox companions** — the sibling skills blox defers to (superpowers, frontend-design, plannotator).
+>   2. **media/build prerequisites** — API keys, system tools, and packages the media pipeline needs.
+>
+> It does NOT scan your project for arbitrary plugins or recommend an external
+> ecosystem. It reports readiness for the things blox actually depends on, so you
+> know what to install before paid or heavy work begins.
 
 ---
 
@@ -34,19 +39,20 @@ This skill reads project state at runtime using Read, Glob, Grep, and Bash tools
 ### Identification
 name: blox-setup
 category: setup
-complements: [blox-idea, blox-plan, _internal/detect]
+complements: [blox-idea, blox-plan]
 
 ### Triggers — when the agent invokes automatically
-trigger_keywords: [setup, install, plugin, update, upgrade]
-trigger_files: [.blox/plugin-state.yaml, registry/curated-plugins.yaml]
+trigger_keywords: [setup, doctor, prerequisites, companions, check]
+trigger_files: [registry/requirements.yaml]
 trigger_deps: []
 
 ### Phase integration
 when_to_use: |
-  Invoke when the user explicitly runs /blox:setup, when /blox:idea chains
-  to it during autopilot, or when starting work on a project with a new tech stack.
-  Reads registry/curated-plugins.yaml, scans the project, shows grouped status,
-  and offers to install missing plugins interactively.
+  Invoke when the user runs /blox:setup, when /blox:idea chains to it after plan
+  generation, or before any design/media work to report readiness. Reads
+  registry/requirements.yaml + runs scripts/doctor.sh, then reports which blox
+  companions and media/build prerequisites are present (✓) or missing (✗) with the
+  exact fix command. Never installs anything; never blocks.
 auto_invoke: false
 priority: recommended
 
@@ -56,18 +62,17 @@ priority: recommended
 
 | Trigger | Example | Auto-invoke? |
 |---------|---------|-------------|
-| After installing blox-skills | First run: "What plugins do I need?" | No — user invokes |
-| `/blox:idea` chains to it | Autopilot: master plan generated, now setup plugins | No — idea invokes |
-| User wants to check/update | "Are my plugins up to date?" | No — user invokes |
-| New tech stack detected | Project gained Python or React code | No — user invokes |
+| After installing blox-skills | First run: "What does blox need?" | No — user invokes |
+| `/blox:idea` chains to it | Autopilot: master plan generated, now report readiness | No — idea invokes |
+| Before design/media work | "Am I ready to generate images/video?" | No — user invokes |
+| User wants a readiness check | "Are my prerequisites set up?" | No — user invokes |
 
 ## WHEN NOT TO USE
 
 | Case | Why NOT | Use Instead |
 |------|---------|-------------|
-| During active coding | Detection would interrupt flow | `_internal/detect` (non-blocking) |
-| No project directory exists | Nothing to scan | Create a project first |
-| Already ran setup this session | Results haven't changed | Check `.blox/plugin-state.yaml` |
+| During active coding | Don't interrupt flow for a status report | Continue; fix prereqs when needed |
+| You only need a project health assessment | This checks blox deps, not project quality | `/blox:scan` |
 
 ---
 
@@ -78,7 +83,7 @@ priority: recommended
 > paid or heavy work, so the user has cost and feasibility transparency up front.
 
 ```
-RUN  skills/setup/scripts/doctor.sh   → ✓/✗ report of API keys, tools, packages, components
+RUN  skills/setup/scripts/doctor.sh   → ✓/✗ report of companions, API keys, tools, packages, components
 READ registry/requirements.yaml       → needed_for + exact fix command per requirement
 
 FOR the requested capability:
@@ -94,357 +99,117 @@ FOR the requested capability:
 
 | Flag | Effect |
 |------|--------|
-| *(none)* | Interactive mode — show status, offer to install missing plugins one by one |
-| `--all` | Install all missing relevant plugins without asking (batch mode) |
-| `--check-only` | Show grouped status only — do NOT offer to install anything |
+| *(none)* | Run the doctor, show the readiness report, and list exact fix commands for anything missing. |
+| `--check-only` | Same report. (This skill never installs anything anyway — the flag is a no-op kept for compatibility.) |
 
 ---
 
 ## SKILL LOGIC
 
-> **5-step pipeline. Always shows the full status dashboard before any install prompts.**
-> The pipeline is SAFE: it never installs anything without user consent (unless `--all` flag).
+> **The doctor checks TWO fixed things and reports. It never installs, never blocks.**
 
-### Step 1: Read Registry
-
-Load the curated plugin registry bundled with blox-skills:
+### Step 1: Run the doctor script
 
 ```
-READ registry/curated-plugins.yaml
-
-PARSE two sections:
-  1. plugins[] — curated tier (tested, compatible, guaranteed)
-  2. known[]   — known tier (exists, trigger defined, not fully tested)
-
-FOR EACH entry, extract:
-  - plugin: name
-  - source: GitHub user/repo (for /plugin add command)
-  - tier: curated | known
-  - category: orchestration | code-quality | design | testing | deploy | integration | research
-  - triggers: detection rules (files, deps, skills, conditions, always, always_on_code)
-  - requires: env vars, system prerequisites (optional)
-  - priority: critical | high | medium | low
-  - description: short description
-
-COLLECT into: all_plugins[]
+RUN: bash skills/setup/scripts/doctor.sh
+  → Exits 0 always (informational only).
+  → Prints ✓/✗ for blox companions, API keys, system tools, python packages, components.
+  → For each ✗, prints the exact fix command.
 ```
 
-### Step 2: Scan Project
-
-Detect the project tech stack and match plugins against it:
+### Step 2: Read the requirements registry
 
 ```
-SCAN PROJECT FILES:
-  1. package.json        → Node.js, frontend frameworks (React, Next.js, Vue, Svelte)
-  2. requirements.txt    → Python
-  3. pyproject.toml      → Python (modern)
-  4. Cargo.toml          → Rust
-  5. go.mod              → Go
-  6. pom.xml             → Java (Maven)
-  7. build.gradle        → Java/Kotlin (Gradle)
-  8. Gemfile             → Ruby
-  9. *.csproj            → C# / .NET
-  10. CMakeLists.txt     → C/C++
-  11. Makefile            → C/C++ / generic build
-  12. docker-compose.yml → Docker
-  13. vercel.json         → Vercel deployment
-  14. next.config.*       → Next.js
-  15. supabase/config.toml → Supabase
-  16. playwright.config.* → Playwright testing
-  17. .git               → Git repository
-  18. .gitlab-ci.yml     → GitLab CI
+READ registry/requirements.yaml
+  → companions[]      — superpowers / frontend-design / plannotator (name, needed_for, how)
+  → api_keys[]        — FAL_KEY, ELEVENLABS_API_KEY (name, needed_for, how)
+  → system_tools[]    — ffmpeg, node, python3, espeak-ng, git (cmd, min, needed_for, how)
+  → python_packages[] — fal-client, kokoro, parakeet-mlx (pkg, needed_for, how)
+  → components[]      — video-use, hyperframes (name, needed_for, how)
 
-FOR EACH plugin in all_plugins[]:
-  EVALUATE triggers (same logic as _internal/detect):
-
-  1. triggers.always: true
-     → MATCH unconditionally if any code project detected
-
-  2. triggers.always_on_code: true
-     → MATCH if project contains .ts, .js, .py, .java, .go, .rs, .cs, or other source files
-
-  3. triggers.files: [glob patterns]
-     → MATCH if any glob matches a file in the project directory
-
-  4. triggers.deps: [package names]
-     → MATCH if any dep name appears in any dependency manifest
-       (package.json dependencies/devDependencies, requirements.txt, pyproject.toml, etc.)
-
-  5. triggers.skills: [skill names]
-     → MATCH if the project has used or would benefit from these blox skills
-       (check phase files, .blox/ directory for skill usage history)
-
-  6. triggers.conditions: [condition strings]
-     → EVALUATE each condition:
-       "github remote detected"     → git remote -v contains github.com
-       "gitlab remote detected"     → git remote -v contains gitlab
-       "web project detected"       → index.html, or package.json with react/vue/svelte/next
-       "known framework detected"   → Next.js, Django, Rails, FastAPI, Express, etc.
-       "claude_agent_sdk import detected" → grep for claude_agent_sdk in .py files
-
-  IF any trigger matches → add to: relevant_plugins[]
-  IF no triggers match   → add to: skipped_plugins[] (with reason)
+Use this to enrich the doctor output with needed_for context and the canonical fix command.
 ```
 
-### Step 3: Check Installation Status
+### Step 3: Report readiness
 
-For each relevant plugin, determine its current state:
-
-```
-LOAD .blox/plugin-state.yaml (if exists)
-
-FOR EACH plugin in relevant_plugins[]:
-
-  CHECK installation:
-    METHOD 1: Scan ~/.claude/plugins/ for plugin directory name
-    METHOD 2: Check .blox/plugin-state.yaml for status: installed
-    IF either confirms → mark as INSTALLED
-
-  CHECK declined:
-    READ .blox/plugin-state.yaml
-    IF plugin entry exists AND status == "declined" → mark as DECLINED
-
-  CHECK env requirements:
-    IF plugin has requires.env:
-      FOR EACH env_var in requires.env:
-        CHECK: is env_var set in the current environment?
-        IF set     → add to env_ok[]
-        IF missing → add to env_missing[]
-
-  CLASSIFY into one of:
-    ✅ INSTALLED       — plugin directory found
-    ⬆️ UPDATE_AVAILABLE — installed but newer version exists (if version tracking exists)
-    ❌ NOT_INSTALLED   — relevant but not installed, not declined
-    ⏭️ DECLINED        — user previously declined (in plugin-state.yaml)
-
-FOR EACH plugin in skipped_plugins[]:
-  CLASSIFY as:
-    ⏭️ SKIPPED — not relevant for this project (with reason)
-```
-
-### Step 4: Display Grouped Status
-
-Show all results grouped by category with emoji status indicators:
+Present a grouped, readable summary:
 
 ```
-GROUP plugins by category, then sort within each group by priority (critical first).
+🧩 blox companions
+  ✓ superpowers — methodology pillar blox defers to (STRONGLY recommended)
+  ✗ frontend-design — production frontend handoff from /blox:ui
+     → /plugin install frontend-design
+  ✗ plannotator — plan/code annotation UI (optional)
+     → /plugin install plannotator
 
-DISPLAY FORMAT (example):
+🔑 API keys
+  ✓ FAL_KEY
+  ✗ ELEVENLABS_API_KEY — diarization, dubbing, premium TTS, video-use transcription
+     → export ELEVENLABS_API_KEY=... in ~/.zshrc
 
-  🔧 Orchestration (1/1)
-    ✅ superpowers — up to date
+🛠 System tools
+  ✓ ffmpeg / node / python3 / git
+  ✗ espeak-ng — Kokoro local TTS phonemizer → brew install espeak-ng
 
-  🛡️ Code Quality (2/3)
-    ✅ security-guidance — installed
-    ✅ typescript-lsp — installed
-    ❌ pyright-lsp — not installed
-       → Install: /plugin add anthropics/pyright-lsp
+📦 Python packages
+  ✓ fal-client
+  ✗ parakeet-mlx → pip install parakeet-mlx
 
-  🎨 Design (1/2)
-    ✅ frontend-design — installed
-    ❌ image-generation — not installed
-       → Install: /plugin add anthropics/image-generation
-       ⚠️ Requires: GEMINI_API_KEY
-
-  🧪 Testing (0/1)
-    ⏭️ playwright — skipped (no web project detected)
-
-  🚀 Deploy (1/1)
-    ✅ vercel — installed
-
-  🔗 Integration (2/3)
-    ✅ github — installed
-    ❌ supabase — not installed
-       → Install: /plugin add anthropics/supabase
-       ⚠️ Requires: SUPABASE_URL, SUPABASE_ANON_KEY
-    ⏭️ context7 — skipped (no known framework detected)
-
-  🔍 Research (0/1)
-    ⏭️ firecrawl — skipped (not triggered)
-
-CATEGORY ICONS:
-  🔧 orchestration
-  🛡️ code-quality
-  🎨 design
-  🧪 testing
-  🚀 deploy
-  🔗 integration
-  🔍 research
-
-EMOJI LEGEND:
-  ✅ installed and up to date
-  ⬆️ update available
-  ❌ not installed (relevant for this project)
-  ⏭️ skipped (not relevant) or previously declined
-  ⚠️ missing requirement (env var or system dep)
-
-CATEGORY COUNTER: (installed/relevant) — only counts relevant plugins, not skipped ones
-
-AFTER CATEGORY GROUPS, show API key summary:
-
-  🔑 API Keys
-    ✅ GITHUB_TOKEN — configured
-    ⚠️ VERCEL_TOKEN — missing (needed for /blox:deploy)
-       💡 Setup: vercel.com/account/tokens → Create Token
-                 export VERCEL_TOKEN="tvl_..." in shell profile
-    ⚠️ GEMINI_API_KEY — missing (needed for image generation)
-       💡 Setup: aistudio.google.com/apikey → Create API Key
-                 export GEMINI_API_KEY="..." in shell profile
-
-  Only show API key section if there are env requirements (ok or missing).
-  For each missing key, provide:
-    1. The specific URL where the user can create the key
-    2. The exact export command to add to their shell profile
-
-FINISH with summary line:
-
-  📊 Summary: 8/12 relevant plugins installed
+🧱 Components
+  ✓ video-use cloned
+  ℹ hyperframes — fetched on demand (npx --yes hyperframes)
 ```
 
-**Known plugins disclaimer:** When displaying known-tier plugins, append `(community)` after the name:
-
-```
-  ❌ csharp-lsp (community) — not installed
-     → Install: /plugin add anthropics/csharp-lsp
-     ℹ️ Community plugin — not fully tested with blox
-```
-
-### Step 5: Interactive Install
-
-After showing the full status (Step 4), offer to install missing plugins:
-
-```
-IF --check-only flag:
-  STOP HERE. Do not offer installation. Display only.
-
-IF --all flag:
-  FOR EACH ❌ NOT_INSTALLED plugin (sorted by priority: critical > high > medium > low):
-    DISPLAY: "Installing [plugin]... Run: /plugin add [source]"
-    INSTRUCT user to run the /plugin add command
-    After user confirms install:
-      UPDATE .blox/plugin-state.yaml → status: installed, installed_at: today
-    IF plugin has missing env vars:
-      DISPLAY env setup instructions (URL + export command)
-
-IF no flags (interactive mode):
-  COUNT missing = number of ❌ NOT_INSTALLED plugins
-
-  IF missing == 0:
-    DISPLAY: "All relevant plugins are installed! ✅"
-    SKIP to state update.
-
-  IF missing == 1-2:
-    FOR EACH ❌ plugin:
-      ASK: "Install [plugin]? (y/n)"
-      y → instruct user to run /plugin add [source], then verify
-      n → record as declined in .blox/plugin-state.yaml
-
-  IF missing >= 3:
-    ASK: "Install all [N] missing plugins? (y/n/select)"
-    y     → install all (same as --all)
-    n     → decline all, record in state
-    select → show numbered list, user picks (e.g., "1,3,5")
-
-  AFTER all install decisions:
-    IF plugin has missing env vars:
-      DISPLAY env setup instructions for ALL installed plugins that need them
-```
-
-**After all installs/declines, update state (Step 5b):**
-
-```
-IF .blox/ directory does not exist:
-  CREATE .blox/ directory
-
-IF .blox/plugin-state.yaml does not exist:
-  CREATE with header:
-    # blox plugin state — auto-managed by /blox:setup and _internal/detect
-    # Do not edit manually unless you know what you're doing.
-    last_scan: [YYYY-MM-DD]
-    plugins: {}
-
-FOR EACH plugin that was checked in this run:
-  UPDATE .blox/plugin-state.yaml:
-    plugins:
-      [plugin-name]:
-        status: installed | declined | suggested
-        tier: curated | known
-        installed_at: [YYYY-MM-DD] or null
-        declined_at: [YYYY-MM-DD] or null
-        last_checked: [YYYY-MM-DD]
-        missing_env: [list of missing env vars] or null
-        trigger_match: [what triggered the detection, e.g., "files: **/*.tsx"]
-
-UPDATE top-level:
-  last_scan: [YYYY-MM-DD]
-```
+**Rules:**
+- ALWAYS show what is present (✓) and what is missing (✗) with the exact fix command.
+- companions are NOT mandatory. State the graceful-degradation reality:
+  without `superpowers`, blox skills run in a lighter standalone mode; without
+  `frontend-design`, /blox:ui still produces code but without the production handoff;
+  `plannotator` is purely optional.
+- media prerequisites degrade gracefully too (no FAL_KEY → local Kokoro TTS, etc.).
+- NEVER install anything. NEVER block. Report and hand the user the commands.
 
 ---
 
-## STATE FILE FORMAT
+## BLOX COMPANIONS
 
-The `.blox/plugin-state.yaml` file tracks all plugin state (shared with `_internal/detect`):
+The three sibling skills blox is designed to work with. These are FIXED — not
+discovered from a registry, not project-specific.
 
-```yaml
-# blox plugin state — auto-managed by /blox:setup and _internal/detect
-# Do not edit manually unless you know what you're doing.
-last_scan: 2026-03-17
-plugins:
-  superpowers:
-    status: installed
-    tier: curated
-    installed_at: 2026-03-15
-    declined_at: null
-    last_checked: 2026-03-17
-    missing_env: null
-    trigger_match: "always: true"
-  frontend-design:
-    status: declined
-    tier: curated
-    installed_at: null
-    declined_at: 2026-03-17
-    last_checked: 2026-03-17
-    missing_env: null
-    trigger_match: "files: **/*.tsx"
-  image-generation:
-    status: suggested
-    tier: curated
-    installed_at: null
-    declined_at: null
-    last_checked: 2026-03-17
-    missing_env: [GEMINI_API_KEY]
-    trigger_match: "skills: blox:media"
-```
+| Companion | Why blox wants it | Recommendation | Install |
+|-----------|-------------------|----------------|---------|
+| `superpowers` | The methodology pillar blox defers to (TDD, plan execution, brainstorming, code review). Without it, blox skills run in a lighter standalone mode. | STRONGLY recommended | `/plugin install superpowers` |
+| `frontend-design` | Production frontend code handoff from `/blox:ui`. | Recommended for frontend work | `/plugin install frontend-design` |
+| `plannotator` | Plan / code annotation UI used by `/blox:plan` for visual review. | Optional | `/plugin install plannotator` |
+
+**Detection:** look for the companion under `~/.claude/plugins/` (the doctor checks
+`~/.claude/plugins/cache/*/<name>`). Found → ✓. Not found → ✗ with the install hint.
 
 ---
 
-## API KEY REFERENCE
+## MEDIA / BUILD PREREQUISITES
 
-Specific setup instructions for each known API key requirement:
+Sourced from `registry/requirements.yaml`. The media pipeline (/blox:media, /blox:ui,
+/blox:slides) and the build toolchain rely on these. Each degrades gracefully if missing.
 
-| Env Var | Plugin | URL | Export Command |
-|---------|--------|-----|---------------|
-| `VERCEL_TOKEN` | vercel | `vercel.com/account/tokens` | `export VERCEL_TOKEN="tvl_..."` |
-| `GITHUB_TOKEN` | github | `github.com/settings/tokens` | `export GITHUB_TOKEN="ghp_..."` |
-| `GEMINI_API_KEY` | image-generation | `aistudio.google.com/apikey` | `export GEMINI_API_KEY="..."` |
-| `FIRECRAWL_API_KEY` | firecrawl | `firecrawl.dev/dashboard` | `export FIRECRAWL_API_KEY="fc-..."` |
-| `SUPABASE_URL` | supabase | `supabase.com/dashboard` → Project Settings → API | `export SUPABASE_URL="https://xxx.supabase.co"` |
-| `SUPABASE_ANON_KEY` | supabase | `supabase.com/dashboard` → Project Settings → API | `export SUPABASE_ANON_KEY="eyJ..."` |
+- **API keys:** `FAL_KEY` (fal.ai generation), `ELEVENLABS_API_KEY` (diarization, dubbing, premium TTS, video-use transcription).
+- **System tools:** `ffmpeg`, `node` (22+), `python3` (3.10+), `espeak-ng`, `git`.
+- **Python packages:** `fal-client`, `kokoro`, `parakeet-mlx`.
+- **Components:** `video-use` (clone), `hyperframes` (fetched on demand via npx).
 
-When an API key is missing, ALWAYS provide the URL and export command from this table.
-If a key is not in this table, provide a generic instruction: "Check the plugin documentation for setup instructions."
+The canonical `needed_for` reason and `how` fix command for each live in
+`registry/requirements.yaml` — that file is the source of truth, the doctor script mirrors it.
 
 ---
 
 ## INVARIANTS
 
-1. **Never auto-installs without consent** — unless `--all` flag is explicitly passed, every install requires user confirmation.
-2. **Respects declined plugins** — declined plugins are recorded in `.blox/plugin-state.yaml` and not re-asked until the next `/blox:setup` run.
-3. **Full status BEFORE install prompts** — always show the complete grouped dashboard before asking to install anything.
-4. **Actionable API key instructions** — every missing env var includes the specific URL and exact export command.
-5. **Skips irrelevant plugins** — trigger evaluation prevents suggesting Playwright for CLI projects, Supabase for projects without it, etc.
-6. **Registry is source of truth** — only plugins listed in `registry/curated-plugins.yaml` are shown. Never suggest arbitrary plugins.
-7. **State shared with _detect** — setup and `_internal/detect` read and write the same `.blox/plugin-state.yaml` file.
+1. **Never installs anything** — the doctor only reports and hands the user exact fix commands.
+2. **Never blocks** — the script exits 0 always; missing prerequisites mean graceful degradation, not failure.
+3. **Fixed scope** — checks exactly two things: blox companions and media/build prerequisites. Never scans the project for arbitrary plugins.
+4. **Actionable fixes** — every ✗ includes the exact command (install / export / brew / pip / git clone).
+5. **Requirements registry is the source of truth** — `registry/requirements.yaml` defines the prereqs; the doctor script mirrors it.
+6. **No AI attribution in output** — no Co-Authored-By, Claude, Opus, Anthropic.
 
 ---
 
@@ -452,196 +217,78 @@ If a key is not in this table, provide a generic instruction: "Check the plugin 
 
 | When this happens... | Call | When |
 |---------------------|------|------|
-| `/blox:idea` completes master plan | `/blox:setup` runs | After plan generation (autopilot chain) |
-| Setup discovers deep project issues | `/blox:scan` | If structural problems found during scan |
-| User installs a plugin | `_internal/detect` reads updated state | Next skill invocation |
-| `/blox:plan` needs plugin pre-check | `_internal/detect` | During plan generation (lightweight check) |
-
-**Chain from `/blox:idea`:**
-When `/blox:idea` chains to setup, show only plugins needed for the master plan's phases:
-```
-Your plan needs 3 plugins. Install? (y/n/all)
-```
+| `/blox:idea` completes master plan | `/blox:setup` runs | After plan generation (autopilot chain) — reports readiness |
+| User requests design/media work | `/blox:setup` (DESIGN/MEDIA PREFLIGHT) | Before any paid or heavy work |
+| Setup surfaces deep project issues | `/blox:scan` | If the user wants a full project assessment |
 
 ---
 
 ## VERIFICATION
 
 ### Success indicators
-- Grouped status dashboard displayed with correct category grouping and emoji indicators
-- Category counters match actual installed/relevant counts
-- Plugin trigger evaluation matches project tech stack accurately
-- Missing plugins show the correct `/plugin add [source]` command
-- API key section shows specific URL + export command for each missing key
-- Known-tier plugins display `(community)` disclaimer
-- Skipped plugins show reason (e.g., "no web project detected")
-- `.blox/plugin-state.yaml` updated with correct status for each checked plugin
-- Declined plugins recorded and not re-prompted in interactive mode
-- Summary line shows accurate totals
-- No AI attribution in plugin-state.yaml or output (no Co-Authored-By, Claude, Opus, Anthropic)
+- Doctor script runs and exits 0 (informational, never blocks)
+- blox companions reported (superpowers / frontend-design / plannotator) with ✓/✗ and install hint
+- Media/build prerequisites reported (API keys, system tools, python packages, components) with ✓/✗ and exact fix
+- Every ✗ shows the exact fix command
+- Graceful-degradation reality stated for missing items
+- No AI attribution in output
 
 ### Failure indicators (STOP and fix!)
-- Installing a plugin without user consent and without `--all` flag (INVARIANT 1 violation)
-- Re-prompting for a declined plugin in the same run (INVARIANT 2 violation)
-- Showing install prompts before the full status dashboard (INVARIANT 3 violation)
-- Missing API key without setup URL/command (INVARIANT 4 violation)
-- Suggesting Playwright for a Python-only CLI project (INVARIANT 5 violation — triggers not evaluated)
-- Suggesting a plugin not in `registry/curated-plugins.yaml` (INVARIANT 6 violation)
-- `.blox/plugin-state.yaml` corrupted or invalid YAML after update
-- Category counter mismatch (e.g., showing 3/4 when only 2 are installed)
+- Installing anything (INVARIANT 1 violation)
+- Blocking or erroring on a missing prerequisite (INVARIANT 2 violation)
+- Scanning the project for arbitrary/external plugins (INVARIANT 3 violation)
+- A missing item shown without its fix command (INVARIANT 4 violation)
+- AI attribution found in output
 
 ---
 
 ## EXAMPLES
 
-### Example 1: Fresh install on Next.js + Supabase project
+### Example 1: Fresh machine, nothing set up
 
-**Situation:** User runs `/blox:setup` on a project with `package.json` containing `react`, `next`, and `@supabase/supabase-js`. Git remote points to GitHub.
-
-**Step 1-2:** Registry loaded, project scanned. Matches:
-- superpowers (always: true) — critical
-- security-guidance (always_on_code: true) — high
-- frontend-design (files: `**/*.tsx`) — high
-- typescript-lsp (files: `**/*.ts`) — medium
-- vercel (deps: `next`) — medium
-- github (conditions: github remote) — medium
-- supabase (deps: `@supabase/supabase-js`) — medium
-
-**Step 3:** Only superpowers installed. 6 missing.
-
-**Step 4 output:**
-```
-🔧 Orchestration (1/1)
-  ✅ superpowers — up to date
-
-🛡️ Code Quality (1/2)
-  ❌ security-guidance — not installed
-     → Install: /plugin add anthropics/security-guidance
-  ⏭️ pyright-lsp — skipped (no Python files detected)
-
-🎨 Design (0/1)
-  ❌ frontend-design — not installed
-     → Install: /plugin add anthropics/frontend-design
-
-🧪 Testing (0/0)
-  ⏭️ playwright — skipped (no Playwright config or dependency)
-
-🚀 Deploy (0/1)
-  ❌ vercel — not installed
-     → Install: /plugin add anthropics/vercel
-     ⚠️ Requires: VERCEL_TOKEN
-
-🔗 Integration (0/2)
-  ❌ github — not installed
-     → Install: /plugin add anthropics/github
-     ⚠️ Requires: GITHUB_TOKEN
-  ❌ supabase — not installed
-     → Install: /plugin add anthropics/supabase
-     ⚠️ Requires: SUPABASE_URL, SUPABASE_ANON_KEY
-
-🔑 API Keys
-  ⚠️ VERCEL_TOKEN — missing
-     💡 Setup: vercel.com/account/tokens → Create Token
-               export VERCEL_TOKEN="tvl_..." in shell profile
-  ⚠️ GITHUB_TOKEN — missing
-     💡 Setup: github.com/settings/tokens → Create Token
-               export GITHUB_TOKEN="ghp_..." in shell profile
-  ⚠️ SUPABASE_URL — missing
-     💡 Setup: supabase.com/dashboard → Project Settings → API
-               export SUPABASE_URL="https://xxx.supabase.co" in shell profile
-  ⚠️ SUPABASE_ANON_KEY — missing
-     💡 Setup: supabase.com/dashboard → Project Settings → API
-               export SUPABASE_ANON_KEY="eyJ..." in shell profile
-
-📊 Summary: 1/7 relevant plugins installed
-```
-
-**Step 5 (interactive, 5+ missing):**
-```
-Install all 6 missing plugins? (y/n/select)
-```
-
-User answers `select`, picks `1,2,3,4`. Setup instructs user to run the 4 `/plugin add` commands.
-
-### Example 2: Check only mode
-
-**Situation:** User runs `/blox:setup --check-only` on a mature Python project.
-
-**Output:** Full grouped status dashboard (Steps 1-4) with summary line.
-No install prompts. No questions asked. Read-only display.
+**User runs `/blox:setup`.** Doctor reports:
 
 ```
-📊 Summary: 4/5 relevant plugins installed
+🧩 blox companions
+  ✗ superpowers (STRONGLY recommended) → /plugin install superpowers
+  ✗ frontend-design → /plugin install frontend-design
+  ✗ plannotator (optional) → /plugin install plannotator
 
-(--check-only mode: run /blox:setup to install missing plugins)
+🔑 API keys
+  ✗ FAL_KEY → export FAL_KEY=... in ~/.zshrc
+  ✗ ELEVENLABS_API_KEY → export ELEVENLABS_API_KEY=...
+
+🛠 System tools
+  ✓ git    ✗ ffmpeg → brew install ffmpeg    ✗ node (need 22+) → brew install node
+  ...
+
+Nothing blocks. Install superpowers first for the full methodology; the rest as you
+need media/build features. blox runs in a lighter standalone mode without them.
+```
+
+### Example 2: Everything ready
+
+**User runs `/blox:setup` on a fully configured machine.**
+
+```
+🧩 blox companions: ✓ superpowers  ✓ frontend-design  ✓ plannotator
+🔑 API keys: ✓ FAL_KEY  ✓ ELEVENLABS_API_KEY
+🛠 System tools: ✓ ffmpeg  ✓ node  ✓ python3  ✓ espeak-ng  ✓ git
+📦 Python packages: ✓ fal-client  ✓ kokoro  ✓ parakeet-mlx
+🧱 Components: ✓ video-use  ℹ hyperframes (on demand)
+
+All set. blox companions and media/build prerequisites are present.
 ```
 
 ### Example 3: Called by /blox:idea autopilot
 
-**Situation:** `/blox:idea` just generated a master plan for a React + Tailwind project. It chains to setup.
-
-**Setup detects** that the plan's phases need: typescript-lsp, frontend-design, security-guidance.
-
-**Compact output (chained mode):**
-```
-Your plan needs 3 plugins:
-  [1] security-guidance — Security best practices
-  [2] frontend-design — Frontend component design
-  [3] typescript-lsp — TypeScript type checking
-
-Install all? (y/n/select)
-```
-
-User answers `y`. Setup instructs user to run all 3 `/plugin add` commands, then updates state.
-
-### Example 4: Everything installed
-
-**Situation:** User runs `/blox:setup` on a project where all relevant plugins are already installed.
-
-**Output:**
-```
-🔧 Orchestration (1/1)
-  ✅ superpowers — up to date
-
-🛡️ Code Quality (2/2)
-  ✅ security-guidance — installed
-  ✅ typescript-lsp — installed
-
-🎨 Design (1/1)
-  ✅ frontend-design — installed
-
-🚀 Deploy (1/1)
-  ✅ vercel — installed
-
-🔗 Integration (1/1)
-  ✅ github — installed
-
-🔑 API Keys
-  ✅ VERCEL_TOKEN — configured
-  ✅ GITHUB_TOKEN — configured
-
-📊 Summary: 6/6 relevant plugins installed
-
-All relevant plugins are installed! ✅
-```
-
-### Example 5: Project with known-tier plugin match
-
-**Situation:** User runs `/blox:setup` on a Java Maven project.
-
-**Output includes:**
-```
-🛡️ Code Quality (1/2)
-  ✅ security-guidance — installed
-  ❌ jdtls-lsp (community) — not installed
-     → Install: /plugin add anthropics/jdtls-lsp
-     ℹ️ Community plugin — not fully tested with blox
-```
+**`/blox:idea` just generated a master plan; it chains to setup.** The doctor runs,
+reports companions + prerequisites readiness, hands the user any fix commands, and
+returns control to the autopilot flow without blocking.
 
 ---
 
 ## REFERENCES
 
-- `registry/curated-plugins.yaml` — Source of truth for all plugin definitions and triggers
-- `skills/_internal/detect/SKILL.md` — Runtime detection engine (shares plugin state)
-- `references/patterns/knowledge-patterns.md` — Architecture invariant: never auto-install without consent
+- `registry/requirements.yaml` — Source of truth for media/build prerequisites + blox companions
+- `skills/setup/scripts/doctor.sh` — The doctor script (companions + prerequisites check)
