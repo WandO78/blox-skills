@@ -196,7 +196,8 @@ Run through each item. Mark PASS, FAIL, or N/A:
 2. For EACH golden principle, check:
    - Does the current change TOUCH files related to this principle?
    - If yes: does it COMPLY or VIOLATE?
-3. Also check `references/ARCHITECTURE_INVARIANTS.md` (if exists — plugin-level invariants)
+3. Also check the project's `GOLDEN_PRINCIPLES.md` (project root, runtime file) for any
+   architectural invariants not already covered by step 2 above
 4. **Pattern compliance check** (from `references/patterns/knowledge-patterns.md`):
    - Decision Waterfall: Do user-facing features have fallback/error handling? → CONCERN if missing
    - Layered Architecture: Do dependencies flow downward only? → FAIL if violated
@@ -733,20 +734,24 @@ When running in NORMAL mode (at checkpoints or after code changes), execute ONLY
 
 ## CODE-LEVEL REVIEW INTEGRATION
 
-> This skill includes deep code-level review as part of the pipeline.
-> Critical/Important/Minor findings feed into the FAIL/CONCERN counts.
+> The code-review METHODOLOGY (severity taxonomy, what to look for) is OWNED by superpowers.
+> This skill does NOT re-derive it — it dispatches the review and ingests the findings into
+> the Quality Score.
 
-**How the code-level review works:**
+**DISPATCH to superpowers.** During the THOROUGH pipeline, dispatch
+`superpowers:requesting-code-review` against the changed code. Ingest its findings into the
+Quality Score counts:
+- Each **Critical** finding → +1 FAIL_count
+- Each **Important** finding → +1 CONCERN_count
+- **Minor** findings → noted in the report but NOT counted in the score
 
-During Steps 2-4, the agent performs line-by-line analysis of changed code:
-- Code smell detection and naming convention checks
-- Critical/Important/Minor severity categorization per finding
-- Pattern compliance against the project's established conventions
-
-**Finding classification:**
-- Critical findings → FAIL count
-- Important findings → CONCERN count
-- Minor findings → noted but not counted in score
+> **SLIM FALLBACK (graceful degradation).** If superpowers isn't installed, do an inline
+> line-by-line pass over the changed code and classify each finding by severity:
+> - **Critical** (bug, security hole, broken contract, data loss) → FAIL count
+> - **Important** (code smell, missing error handling, convention break) → CONCERN count
+> - **Minor** (naming, style nits) → note only, don't count
+>
+> (Install superpowers for the full code-review methodology.)
 
 ---
 
@@ -793,207 +798,19 @@ During Steps 2-4, the agent performs line-by-line analysis of changed code:
 
 ## EXAMPLES
 
-### Example 1: THOROUGH Review — Healthy, All PASS
-
-```
-Agent runs /blox:check (THOROUGH mode, called by /blox:done)
-
-Step 1: Collect Changes
-  - 12 files changed: code 5, test 3, ui 3, docs 1
-  - +340 lines, -45 lines
-  - Baseline: commit a1b2c3d
-
-Step 2: Pre-Submission Checklist
-  - 9/9 PASS
-
-Step 3: Architectural Invariant Check
-  - 5 principles checked, 5/5 PASS
-
-Step 4: Run Tests
-  - Verification Commands: 6/6 PASS
-  - npm test: 142/142 PASS
-
-Step 5: Lint & Type Check
-  - eslint: 0 errors, 0 warnings
-  - tsc: PASS
-
-Step 5a: Brand Voice Consistency
-  - PASS — 8 UI strings checked, all match brand guidelines
-
-Step 5b: Accessibility Review
-  - PASS — 3 UI files scanned, 0 WCAG issues
-
-Step 5c: Design Consistency Review
-  - PASS — Components follow existing patterns, spacing tokens used
-
-Step 5d: Performance Metrics Review
-  - Bundle size: 245KB (no change from baseline)
-  - No anti-patterns found
-
-Step 5e: Security Scan
-  - No security-sensitive patterns detected
-
-Step 6: Golden Answers Validation
-  - GA-01: PASS
-  - GA-02: PASS
-  - GA-03: PASS
-
-Step 7: Quality Score
-  - FAIL: 0, CONCERN: 0
-  - Score: max(0, 100 - 0 - 0) = 100 (Healthy)
-  - Trend: stable (was 100)
-
-Step 8: Severity Assessment
-  → PASS — no blocking issues
-
-Step 9: Review Report
-  Summary: Quality Score 100/100 (Healthy), PASS. Phase ready for close.
-```
-
-### Example 2: THOROUGH Review — S2 MODERATE (GP violation + design concerns)
-
-```
-Agent runs /blox:check (THOROUGH mode, called by /blox:done)
-
-Step 1: Collect Changes
-  - 45 files changed: code 25, test 10, ui 7, config 2, docs 1
-  - +3200 lines, -180 lines
-
-Step 2: Pre-Submission Checklist
-  - 7/9 PASS
-  - FAIL: #7 Architecture guard — GP-3 violated
-
-Step 3: Architectural Invariant Check
-  - GP-3 "Route handler max 50 lines" → FAIL (8/10 routes > 100 lines)
-  - GP-7 "Business logic in service layer" → FAIL (routes call Prisma directly)
-  - GP-1 "All PII encrypted at rest" → PASS
-  - GP-4 "Zod schema FIRST" → PASS
-  - GP-9 "Error boundary on every page" → PASS
-
-Step 4: Run Tests
-  - Verification Commands: 5/5 PASS
-  - npm test: 242/242 PASS
-
-Step 5: Lint & Type Check
-  - eslint: 0 errors, 2 warnings → 1 CONCERN
-
-Step 5a: Brand Voice Consistency
-  - N/A — No brand guidelines found
-
-Step 5b: Accessibility Review
-  - CONCERN — 2 missing aria-labels on custom buttons
-
-Step 5c: Design Consistency Review
-  - CONCERN — 3 hardcoded px values bypassing spacing tokens
-
-Step 5d: Performance Metrics Review
-  - N/A — No measurable metrics
-
-Step 5e: Security Scan
-  - No security-sensitive patterns detected
-
-Step 6: Golden Answers Validation
-  - GA-01: PASS
-  - GA-02: PASS
-
-Step 7: Quality Score
-  - FAIL: 3 (PSC #7 + GP-3 + GP-7)
-  - CONCERN: 3 (lint warnings + a11y + design)
-  - Score: max(0, 100 - (20 * 3) - (10 * 3)) = 10 (Blocked)
-  - Trend: declined (was 85)
-
-Step 8: Severity Assessment
-  → SEVERITY 2: MODERATE
-  → Reason: GP-3 and GP-7 violated — route handlers oversized, no service layer
-  → Affected: backend/routes/admin/*.ts (8 files)
-  → Estimated fix: 4-6 hours
-
-Step 9: Review Report
-  "The phase EXIT CRITERIA all PASS, but the quality review found
-   two GOLDEN PRINCIPLE violations and domain quality concerns.
-   Route handlers are oversized (8/10 > 100 lines) and there is no service layer.
-   Accessibility and design consistency also need attention.
-
-   Three options:
-   1. Fix now — Remediation sub-phase: service layer extraction (~4-6h)
-   2. Accept with debt — Log to TECH_DEBT.md, Quality Score drops to 10
-   3. Reject phase — New approach needed (drastic, not recommended)"
-```
-
-### Example 3: NORMAL Review — At Checkpoint
-
-```
-Agent runs /blox:check (NORMAL mode, at checkpoint)
-
-## Quick Review — 2026-03-17
-- Changes: 5 files, +120/-30 lines
-- Pre-Submission: 9/9 PASS
-- Invariants: 3/3 PASS (only checked principles relevant to changed files)
-- Tests: 4/4 PASS
-- Quality Score: 100/100 (Healthy)
-- Issues: None
-```
-
-### Example 4: THOROUGH Review — S4 CATASTROPHIC (Regression)
-
-```
-Agent runs /blox:check (THOROUGH mode)
-
-Step 1-7: Current phase looks OK (score 85, Healthy)
-
-Step 8: Severity Assessment — Cross-phase impact check
-  → Current phase modified shared/schemas/user.ts (renamed field)
-  → Running Build phase tests...
-  → FAIL: 12 component tests broken (field name changed)
-  → Running Foundation phase tests...
-  → FAIL: 5 endpoint tests broken
-
-  → SEVERITY 4: CATASTROPHIC — Regression detected!
-  → Affected phases: Foundation, Build
-  → Root cause: shared schema field rename without backward compatibility
-  → Decision needed: ROLLBACK or FIX-FORWARD?
-
-Step 9: Review Report
-  "CATASTROPHIC: Schema change in shared/schemas/user.ts broke
-   17 tests across 2 other phases.
-
-   Options:
-   A. ROLLBACK: git revert phase commits, redesign with backward compatibility
-   B. FIX-FORWARD: make schema change backward-compatible, fix all 17 tests
-
-   Post-mortem required: add to GOLDEN_PRINCIPLES.md:
-   'Before modifying shared schemas, run ALL phase test suites.'"
-```
-
-### Example 5: THOROUGH Review — S1 with Accessibility Issues
-
-```
-Agent runs /blox:check (THOROUGH mode)
-
-Steps 1-4: All PASS
-Step 5: Lint — PASS
-
-Step 5b: Accessibility Review
-  - FAIL: 1 missing alt text on hero image (meaningful content)
-  - CONCERN: 2 buttons with icon-only, no aria-label
-
-Step 7: Quality Score
-  - FAIL: 1 (missing alt text)
-  - CONCERN: 2 (icon buttons)
-  - Score: max(0, 100 - 20 - 20) = 60 (Needs Work)
-
-Step 8: Severity Assessment
-  → SEVERITY 1: MINOR
-  → Auto-remediation items added to phase checklist:
-    - [ ] FIX-1: Add alt text to hero image in components/Hero.tsx
-    - [ ] FIX-2: Add aria-label to icon buttons in components/Toolbar.tsx
-```
+Worked review walkthroughs (THOROUGH all-PASS, S2 MODERATE, NORMAL checkpoint, S4 regression,
+S1 with a11y issues) have moved to `references/examples.md` for progressive disclosure.
+They illustrate how the blox pipeline (Quality Score, S1-S4 severity, domain checks) wraps the
+`superpowers:verification-before-completion` and `superpowers:requesting-code-review` rigor.
 
 ---
 
 ## REFERENCES (optional)
 
+- `references/examples.md` — Worked review examples (progressive disclosure)
 - `references/patterns/knowledge-patterns.md` — Engineering pattern compliance rules
+- @superpowers:verification-before-completion — evidence gate (primary)
+- @superpowers:requesting-code-review — code-review methodology (primary)
 - `GOLDEN_PRINCIPLES.md` (project root) — Project-specific architectural rules
 - `QUALITY_SCORE.md` (project root) — Score tracking across phases
 - `/blox:brand` — Deeper brand voice analysis (if available)

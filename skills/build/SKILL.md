@@ -134,7 +134,7 @@ Read project context and find the current work item.
 
 ### Step 2: TDD Cycle (per checklist item)
 
-For EACH checklist item, follow this cycle:
+For EACH checklist item, follow the TDD methodology — then apply the blox overlay (commit + checklist).
 
 **2a. UNDERSTAND the task**
 - Read the checklist item description carefully
@@ -142,28 +142,22 @@ For EACH checklist item, follow this cycle:
 - Check if this item has a Golden Answer → use as test target
 - Check Architectural Invariants → know the rules before writing code
 
-**2b. RED — Write the failing test**
-- Write a test that describes the expected behavior
-- Run it → MUST FAIL
-  - If it passes: the test is wrong OR the feature already exists
-  - If it passes and the feature exists: mark item as `[x]`, move to next
-- If no test framework is configured: set one up first (see TDD WHEN NO TEST FRAMEWORK)
+**2b-2d. RED-GREEN-REFACTOR — DEFER to superpowers**
 
-**2c. GREEN — Write minimal implementation**
-- Write the SIMPLEST code that makes the test pass
-- No extra features, no premature optimization, no gold-plating
-- Run test → MUST PASS
-  - If it fails: fix the implementation (not the test), re-run
-  - Max 3 fix iterations → if still failing, investigate root cause
+**Follow `superpowers:test-driven-development` for the RED-GREEN-REFACTOR cycle.** This is an
+Iron Law — no production code without a failing test first. If no test framework is configured,
+set one up first (see TDD WHEN NO TEST FRAMEWORK), then start the cycle.
 
-**2d. REFACTOR (if needed)**
-- Clean up code while tests stay green
-- Extract functions, improve naming, remove duplication
-- Apply Golden Principles from the project's GOLDEN_PRINCIPLES.md
-- Run tests again → still PASS
-  - If tests fail after refactor: revert the refactor, it broke something
+> **SLIM FALLBACK (graceful degradation).** If superpowers isn't installed, the short version:
+> - **RED** — write a test for the expected behavior; run it → it MUST FAIL (if it passes, the test is wrong or the feature already exists → mark `[x]`, move on).
+> - **GREEN** — write the SIMPLEST code that passes; no extra features, no gold-plating; run → MUST PASS (fix implementation, not the test; max 3 iterations then investigate root cause).
+> - **REFACTOR** — clean up only while tests stay green (extract, rename, dedupe); apply project GOLDEN_PRINCIPLES; re-run → still PASS (else revert the refactor).
+>
+> (Install superpowers for the full methodology.)
 
-**2e. COMMIT (if git active)**
+Once the cycle is green, apply the blox overlay below (commit + checklist tracking).
+
+**2e. COMMIT (if git active)** — blox overlay
 - **Skip this step if the project has no `.git` directory**
 - **User override:** If user explicitly asks to commit → init git first (see checkpoint skill)
 - Stage specific files (NEVER `git add -A` or `git add .`)
@@ -175,7 +169,7 @@ For EACH checklist item, follow this cycle:
   - `chore: [what was set up]` — tooling, config, dependencies
 - **NEVER** add `Co-Authored-By`, `Claude`, `Opus`, `Anthropic`, or any AI tool attribution
 
-**2f. UPDATE CHECKLIST**
+**2f. UPDATE CHECKLIST** — blox overlay
 - Mark item as `[x]` in the phase file
 - If the item had subtasks: mark each completed subtask as `[x]` too
 - Increment the internal item counter (for checkpoint trigger)
@@ -417,184 +411,18 @@ it GETS a test. When in doubt: write the test.
 
 ## EXAMPLES
 
-### Example 1: Web API endpoint (full TDD cycle)
-
-**Phase item:** `[ ] **1.3** Create GET /api/products endpoint`
-
-```
-UNDERSTAND:
-  Item: Create GET /api/products endpoint
-  Affected files: src/routes/products.ts (new), tests/products.test.ts (new)
-  Golden Answer: GA-02 says "GET /api/products returns JSON array with id, name, price"
-
-RED — Write failing test:
-  // tests/products.test.ts
-  test("GET /api/products returns product list", async () => {
-    const res = await request(app).get("/api/products");
-    expect(res.status).toBe(200);
-    expect(res.body).toBeInstanceOf(Array);
-    expect(res.body[0]).toHaveProperty("id");
-    expect(res.body[0]).toHaveProperty("name");
-    expect(res.body[0]).toHaveProperty("price");
-  });
-  → Run: npm test → FAIL ✓ (route doesn't exist yet)
-
-GREEN — Minimal implementation:
-  // src/routes/products.ts
-  router.get("/products", async (req, res) => {
-    const products = await db.product.findMany();
-    res.json(products);
-  });
-  → Run: npm test → PASS ✓
-
-REFACTOR: (none needed — already minimal)
-
-COMMIT (if git active):
-  git add src/routes/products.ts tests/products.test.ts
-  git commit -m "feat: GET /api/products endpoint with test"
-  (Skip if no .git — go straight to UPDATE)
-
-UPDATE:
-  [x] **1.3** Create GET /api/products endpoint
-  Item counter: 3 (not yet 5, no checkpoint trigger)
-```
-
-### Example 2: Frontend component with design plugin
-
-**Phase item:** `[ ] **2.1** Create ProductCard component`
-
-```
-UNDERSTAND:
-  Item: Create ProductCard component
-  Skills & Tools table shows: frontend-design companion installed
-  frontend-design available → enhanced mode
-
-RED — Write test:
-  test("ProductCard renders product name and price", () => {
-    render(<ProductCard name="Widget" price={9.99} />);
-    expect(screen.getByText("Widget")).toBeInTheDocument();
-    expect(screen.getByText("$9.99")).toBeInTheDocument();
-  });
-  → Run: npm test → FAIL ✓
-
-GREEN — Implement:
-  Use frontend-design plugin knowledge for accessible, responsive design
-  Implement ProductCard with semantic HTML, ARIA labels, responsive layout
-  → Run: npm test → PASS ✓
-
-REFACTOR:
-  Ensure accessibility: alt tags, focus management, keyboard navigation
-  → Run: npm test → still PASS ✓
-
-COMMIT (if git active):
-  git add src/components/ProductCard.tsx tests/ProductCard.test.tsx
-  git commit -m "feat: ProductCard component with accessibility"
-  (Skip if no .git)
-
-UPDATE:
-  [x] **2.1** Create ProductCard component
-```
-
-### Example 3: No test framework — setup first
-
-**Phase item:** `[ ] **1.1** Set up project structure`
-
-```
-DETECT: package.json exists, no test framework configured
-SUGGEST: "No test framework detected. I suggest Vitest for this project. Install? (y/n)"
-User: "y"
-
-INSTALL:
-  npm install -D vitest @testing-library/react @testing-library/jest-dom
-  Create vitest.config.ts with standard config
-  Add "test": "vitest run" to package.json scripts
-  Write sample test → run → PASS ✓
-
-COMMIT (if git active):
-  git add vitest.config.ts package.json package-lock.json
-  git commit -m "chore: add Vitest test framework"
-  (Skip if no .git)
-
-NOW proceed with TDD for item 1.1
-```
-
-### Example 4: Checkpoint triggers during build
-
-**Situation:** Agent completes items 1.1 through 1.5
-
-```
-Item 1.5 completed → counter = 5 → TRIGGER Level 1 AUTO checkpoint
-
-Level 1 actions:
-  - Mark items 1.1-1.5 as [x] in phase file
-  - Move >>> CURRENT <<< above item 1.6
-  - Add Progress Log row: | 1 | 2026-03-17 | 1.1-1.5 | completed | User model, migration, CRUD routes |
-  - Update Current Step: 1.6
-  - Reset counter to 0
-
-Agent continues with item 1.6...
-
---- CHECKPOINT A (Section 1 complete) --- reached → TRIGGER Level 2 SMART checkpoint
-
-Level 2 actions (Level 1 +):
-  - Interim Phase Memory: "[CP-A] Zod schemas caught 3 type mismatches early"
-  - CONTEXT_CHAIN entry: "Phase 03 — CP-A: User model complete"
-  - Git commit: "Phase 03 — CP-A: Section 1 complete — user model and CRUD"
-  - Context Refresh: re-read phase file and SKILL.md
-```
-
-### Example 5: TDD exception — config file
-
-**Phase item:** `[ ] **3.2** Configure Docker Compose for dev environment`
-
-```
-UNDERSTAND:
-  Item: Docker Compose configuration
-  This is a config file (YAML) → TDD EXCEPTION
-
-WRITE docker-compose.yaml:
-  Define services (app, db, redis)
-  Set environment variables, ports, volumes
-
-VALIDATE by running:
-  docker compose config → validates YAML syntax
-  docker compose up -d → verify services start
-  docker compose down → clean up
-
-COMMIT:
-  git add docker-compose.yaml
-  git commit -m "chore: Docker Compose dev environment"
-
-UPDATE:
-  [x] **3.2** Configure Docker Compose for dev environment
-```
-
-### Example 6: Quality gate failure at section boundary
-
-**Situation:** All items in Section 2 are done. Running quality gates.
-
-```
-GATE 1: npm test → 47 passed, 1 failed
-  FAIL: test/auth.test.ts — "should reject expired token"
-  → Fix: update token validation logic
-  → Re-run: npm test → 48 passed ✓
-
-GATE 2: npm run lint → 0 errors ✓
-
-GATE 3: Golden Answers
-  GA-01: "Login with valid credentials returns 200 + JWT" → PASS ✓
-  GA-02: "Login with invalid password returns 401" → PASS ✓
-  GA-03: "Expired token returns 403" → PASS ✓ (fixed above)
-
-GATE 4: npm run build → SUCCESS ✓
-
-All gates passed. Continue to Section 3.
-```
+Worked TDD walkthroughs (API endpoint, component with design plugin, no-framework setup,
+checkpoint triggers, TDD-exception config, quality-gate failure) have moved to
+`references/examples.md` for progressive disclosure. They illustrate how the blox overlay
+(checklist marks, `>>> CURRENT <<<`, checkpoints, quality gates) wraps the
+`superpowers:test-driven-development` cycle.
 
 ---
 
 ## REFERENCES
 
+- `references/examples.md` — Worked TDD examples (progressive disclosure)
 - `references/templates/phase-template.md` — Phase file format (checklist structure, checkpoint format)
 - `references/patterns/knowledge-patterns.md` — Engineering patterns (TDD, quality gates, architecture invariants)
 - `skills/_internal/checkpoint/SKILL.md` — Checkpoint protocol (Level 1/2/3)
+- @superpowers:test-driven-development — TDD methodology (primary)
