@@ -106,7 +106,7 @@ Read the active phase file and verify each item:
 
 ```
 PSC-0: AC verified — Is there EVIDENCE (test output, screenshot, log) for EVERY exit criterion?
-PSC-1: Approach alignment — Does the implementation follow the architectural invariants?
+PSC-1: Approach alignment — Does the implementation follow the architectural invariants (phase file's Architectural Invariants section + GOLDEN_PRINCIPLES.md)?
 PSC-2: Clean code — No TODO, FIXME, HACK, or commented-out code in the commit?
 PSC-3: Config hygiene — No hardcoded secrets, no .env files committed?
 PSC-4: Docs updated — ARCHITECTURE.md, API docs, README updated (if affected)?
@@ -117,7 +117,7 @@ PSC-7: Architecture guard — Does the change violate any Golden Principle?
 
 **How to check:**
 - PSC-0: Look for Exit Criteria section → run each verification command → confirm output
-- PSC-1: Read `references/ARCHITECTURE_INVARIANTS.md` → check each invariant
+- PSC-1: Read the active phase file's `## Architectural Invariants` section AND `GOLDEN_PRINCIPLES.md` (project runtime) → check each invariant
 - PSC-2: `grep -rn "TODO\|FIXME\|HACK" [changed files]` — must return empty
 - PSC-3: `grep -rn "password\|secret\|api_key\|token" [changed files]` — review matches
 - PSC-4: Check if docs exist in project → verify they reflect current state
@@ -412,7 +412,7 @@ Invoke `_internal/chain` to add a session entry:
 - [Severity: S1/S2/S3/S4 if applicable]
 
 ### Next session task
-- [What comes next based on the dependency graph]
+- [What comes next based on the START_HERE.md Phase Tracker + phase prerequisites — see 9e]
 ```
 
 #### 9d: Phase file move
@@ -429,9 +429,40 @@ mv plans/PHASE_XX_[name].md failed/PHASE_XX_[name]_[YYYY-MM-DD].md
 
 #### 9e: Next phase activation (COMPLETED only)
 
-1. Check `plans/MASTER_PLAN.md` dependency graph
-2. Identify which phases are now unblocked
-3. Update START_HERE.md: `**Active phase file:** plans/PHASE_XX_[next].md`
+> **This is the autopilot handoff — without it, the loop silently halts every phase.**
+
+The project does NOT keep a `plans/MASTER_PLAN.md` — the phase list + dependencies
+live in the **START_HERE.md Phase Tracker** (set by `/blox:idea`/`/blox:plan`), and each
+phase's own dependencies are declared in its phase file's `## Prerequisites` /
+`(REQUIRES: ...)` annotations. Resolve the next phase from THOSE real files:
+
+1. **Read the START_HERE.md Phase Tracker** → list all phases and their statuses.
+2. **Identify candidate next phases:** phases still PENDING whose prerequisites are now
+   satisfied. Check each candidate's phase file `## Prerequisites` (and any
+   `(REQUIRES: Phase N complete)` annotations) against the tracker — a phase is
+   **unblocked** when every prerequisite phase is COMPLETED.
+3. **Pick the next phase:** the lowest-numbered unblocked PENDING phase.
+4. **Update START_HERE.md:** set `**Active phase file:** plans/PHASE_XX_[next].md`.
+5. **HAND OFF based on USER CONTROL LEVEL** (from `/blox:idea` — Autopilot / Guided / Manual):
+
+   - **Autopilot (full-auto):** ACTUALLY CHAIN into the next phase's driver — invoke the
+     `/blox:*` skill mapped to that phase (read the phase file's Skills & Tools table /
+     skill-to-phase mapping for the driver; e.g. `/blox:build`, `/blox:design`, `/blox:test`).
+     Do NOT stop and wait — the loop continues. Briefly tell the user:
+     "Phase XX complete. Continuing to Phase YY ([name]) via /blox:[driver]."
+     (Honor `/blox:idea` Step 7's "ask before phase transitions" by giving the user a
+     visible chance to interrupt, but proceed automatically in autopilot.)
+
+   - **Guided / Manual (checkpoint required):** Do NOT auto-run. Hand back with the explicit
+     next command so the user stays in control:
+     "Phase XX complete. Next up: Phase YY ([name]). Run `/blox:[driver]` when ready."
+
+   - **No unblocked phase (all remaining phases blocked):** report which phases are
+     waiting and on what. **All phases COMPLETED:** congratulate — the project plan is done.
+
+> **Rule:** In autopilot mode `/blox:done` MUST invoke the next driver, not merely update
+> the pointer. In Guided/Manual mode it MUST hand back the explicit command. Never leave
+> the loop silently halted with only the pointer moved.
 
 #### 9f: Git branch close (if applicable)
 
@@ -453,6 +484,8 @@ After all status transitions and file moves are complete:
 |---------------------|------|------|
 | Quality review needed (Step 4) | `/blox:check` THOROUGH mode | After Exit Criteria ALL PASS |
 | Git branch exists for phase | `/finishing-a-development-branch` (superpowers) | Step 9f — at phase end |
+| Phase COMPLETED, autopilot mode | Next phase's `/blox:*` driver | Step 9e — chain into next phase automatically |
+| Phase COMPLETED, guided/manual mode | Hand back explicit `/blox:*` command | Step 9e — user runs next phase |
 | Phase FAILED, new plan needed | `/blox:plan` | After S3/S4, user approves |
 | Checkpoint needed mid-remediation | `_internal/checkpoint` Level 2 | During S1/S2 remediation |
 | Session entry needed | `_internal/chain` | Step 9c — phase completion entry |
@@ -480,129 +513,13 @@ FORBIDDEN transitions:
 
 ## EXAMPLES
 
-### Example 1: Happy path — COMPLETED
+Three worked walk-throughs of the full pipeline live in
+`references/examples.md`:
+- **Example 1** — Happy path COMPLETED (incl. 9e autopilot handoff into the next driver)
+- **Example 2** — S2 MODERATE (user decides: fix / accept-debt / reject)
+- **Example 3** — S3 MAJOR (phase FAILED, extensive Phase Memory)
 
-```
-Agent: All 35 checklist items are [x]. Running /blox:done.
-
-Step 1 — Pre-Submission Checklist:
-  PSC-0: AC verified ✓ (test output for all 5 exit criteria)
-  PSC-1: Approach alignment ✓ (3 invariants checked)
-  PSC-2: Clean code ✓ (grep returns empty)
-  PSC-3: Config hygiene ✓ (no secrets)
-  PSC-4: Docs updated ✓ (README updated)
-  PSC-5: Tests pass ✓ (14/14 green)
-  PSC-6: Pattern reuse ✓ (reused existing validator)
-  PSC-7: Architecture guard ✓ (no GP violations)
-  → All 8 PASS
-
-Step 2 — Exit Criteria:
-  EC-1: SKILL.md exists and non-empty → PASS
-  EC-2: YAML frontmatter valid → PASS
-  EC-3: AUTO-DISCOVERY block present → PASS
-  EC-4: No TODO/FIXME → PASS
-  → 4/4 PASS
-
-Step 4 — /blox:check THOROUGH:
-  Quality Score: 95/100 (Healthy)
-  1 CONCERN: long method at line 234
-  Severity: S1 MINOR
-  → PASS (score >= 80, no critical findings)
-
-Step 5 — Phase Memory: Written (3 Golden Principles, 1 Antipattern, 0 Tech Debt)
-Step 6 — GOLDEN_PRINCIPLES.md: Added GP-12 "TDD RED phase catches 80% of gaps"
-Step 7 — QUALITY_SCORE.md: Score 95, trend STABLE
-Step 8 — TECH_DEBT.md: No new debt
-Step 9 — Status: COMPLETED
-         File → completed/PHASE_05_quality_review_2026-03-02.md
-         _internal/chain: session entry written
-         _internal/cleanup: GC run, no stale docs found
-```
-
-### Example 2: S2 MODERATE — User decides
-
-```
-Agent: Running /blox:done.
-
-Step 1 — Pre-Submission Checklist:
-  PSC-7: Architecture guard → CONCERN (uses direct file writes instead of skill abstraction)
-  → 7/8 PASS, 1 CONCERN
-
-Step 2 — Exit Criteria:
-  EC-1: PASS, EC-2: PASS, EC-3: FAIL (missing error handling for edge case), EC-4: PASS
-  → 3/4 PASS, 1 FAIL
-
-Step 3 — Severity Assessment:
-  score = max(0, 100 - (20 × 1 FAIL) - (10 × 1 CONCERN)) = 70 (Needs Work)
-  Severity: S2 MODERATE
-
-  → Presenting to user:
-  "Quality Score: 70/100 (S2 MODERATE)
-   - FAIL: EC-3 missing error handling for empty input
-   - CONCERN: PSC-7 direct file writes vs skill abstraction
-
-   Options:
-   A) Fix now — add error handling, refactor file writes (est. 15 min)
-   B) Accept with Tech Debt — proceed to COMPLETED, log debt
-   C) Reject — mark FAILED, requires new plan"
-
-User: "B — accept with tech debt, the error handling is an edge case"
-
-Step 5 — Phase Memory: Written (includes accepted compromise note)
-Step 7 — QUALITY_SCORE.md: Score 70, trend DECLINING
-Step 8 — TECH_DEBT.md: Added TD-04 "Missing error handling for empty input"
-Step 9 — Status: COMPLETED (with debt), file → completed/
-         _internal/chain: session entry written
-         _internal/cleanup: GC run
-```
-
-### Example 3: S3 MAJOR — Phase FAILED
-
-```
-Agent: Running /blox:done.
-
-Step 2 — Exit Criteria:
-  EC-1: FAIL (core algorithm produces wrong output for 3/5 test cases)
-  EC-2: FAIL (performance 10x slower than requirement)
-  EC-3: PASS
-  → 1/3 PASS, 2 FAIL
-
-Step 3 — Severity Assessment:
-  score = max(0, 100 - (20 × 2)) = 60 (Needs Work)
-  Severity: S3 MAJOR
-
-  → "Quality Score: 60/100 (S3 MAJOR)
-     The algorithm approach is fundamentally wrong — both correctness and
-     performance fail. A new approach is needed."
-
-Step 5 — Phase Memory (CRITICAL — write extensively):
-  Status: FAILED — REQUIRES REDESIGN
-  Quality Score: 60/100
-
-  Golden Principles:
-  - The test harness design was solid — reuse in next attempt
-  - Input validation layer is correct and complete
-
-  Antipatterns:
-  - Chose recursive approach for O(n²) problem — should have used DP
-  - Did not benchmark before writing full implementation
-  - ROOT CAUSE: skipped complexity analysis in planning phase
-
-  Tech Debt:
-  - None (phase is FAILED, clean slate for next attempt)
-
-  What the next attempt should do differently:
-  - Start with complexity analysis and benchmarks
-  - Use dynamic programming, not recursion
-  - Run performance tests after every 10 checklist items, not just at end
-
-Step 7 — QUALITY_SCORE.md: Score 60, trend DECLINING
-Step 8 — TECH_DEBT.md: Added entry for failed approach analysis
-Step 9 — Status: FAILED — REQUIRES REDESIGN
-         File → failed/PHASE_07_algorithm_2026-03-04.md
-         Inform user: "Phase failed. Use /blox:plan to create a new approach."
-         _internal/chain: session entry written
-```
+Read that file when you need a concrete reference for the step sequence.
 
 ---
 
@@ -632,7 +549,8 @@ Step 9 — Status: FAILED — REQUIRES REDESIGN
 
 ## REFERENCES (optional)
 
-- `references/ARCHITECTURE_INVARIANTS.md` — Invariant checks for PSC-1
-- `GOLDEN_PRINCIPLES.md` — Golden Principle checks for PSC-7
+- Active phase file `## Architectural Invariants` section — Invariant checks for PSC-1
+- `GOLDEN_PRINCIPLES.md` — Golden Principle checks for PSC-1 and PSC-7
+- `references/examples.md` — Worked examples (happy path, S2, S3)
 - `QUALITY_SCORE.md` — Historical quality scores for trend analysis
 - `TECH_DEBT.md` — Existing tech debt for context

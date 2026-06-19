@@ -478,6 +478,13 @@ Correct:  Phase 1: Brand → Phase 2: Design → Phase 3: Build
 Also OK:  Phase 1: Section 1 Brand (FIRST) → Section 2 Build (REQUIRES: Section 1)
 Wrong:    Phase 1: Build + Brand mixed together
 
+**Creative-phase routing:** Creative work (video, marketing assets, decks, images,
+audio, animation) routes through `/blox:design` — the design router classifies the task
+and dispatches to `/blox:media` (images/video/audio/animation) or `/blox:slides`
+(presentations). Do NOT add separate phase rows for media/slides; they have no
+first-class phase template and are reached only via the `/blox:design` driver. A
+creative phase's driver is always `/blox:design`.
+
 ---
 
 ### Step 6: SETUP CHECK
@@ -522,10 +529,16 @@ blox skill. For example, if Phase 1 is "Brand Identity", chain to `/blox:brand`.
 command. Your project structure and plan are saved."
 
 **At EVERY phase transition:**
-"Phase [N] ([name]) complete. Continue to Phase [N+1] ([name])? (y/n)"
+Phase transitions are executed by `/blox:done` Step 9e (next-phase activation), which
+respects the USER CONTROL LEVEL detected here:
+- **Autopilot:** `/blox:done` chains directly into the next phase's `/blox:*` driver and
+  continues the loop, announcing "Phase [N] complete. Continuing to Phase [N+1] via
+  /blox:[driver]" (the user can interrupt, but the flow does not stall).
+- **Guided / Manual:** `/blox:done` hands back with the explicit next command —
+  "Phase [N] complete. Next: Phase [N+1]. Run /blox:[driver] when ready."
 
-This ensures the user always has control over when to proceed, while maintaining
-the autopilot flow.
+This ensures the autopilot loop actually advances each phase (never silently halts),
+while Guided/Manual users keep an explicit checkpoint.
 
 ---
 

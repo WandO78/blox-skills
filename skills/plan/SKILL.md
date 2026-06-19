@@ -472,6 +472,12 @@ Phase 7: Documentation      -> /blox:docs
 Not every phase maps 1:1 to a skill — some phases use multiple skills or none specifically.
 The mapping is a HINT for the agent, not a rigid requirement.
 
+**Creative phases route through /blox:design:** Video, marketing, deck, image, audio
+and animation work map to `/blox:design`, which dispatches to `/blox:media` and
+`/blox:slides`. Do NOT create separate phase rows for media/slides — they have no
+first-class phase template and are reachable only via the design router. A creative
+phase's primary driver is always `/blox:design`.
+
 **If no skills match:** The table still has the 3 mandatory skills above. An empty scan result is NOT a failure — it just means no additional skills are relevant.
 
 ### Step 5: Checklist Generation
